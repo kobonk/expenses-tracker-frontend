@@ -1,11 +1,16 @@
-const path = require("path");
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const CleanWebpackPlugin = require("clean-webpack-plugin");
 const devMode = process.env.NODE_ENV !== "production";
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const path = require("path");
 
 module.exports = {
-    entry: "./src/index.js",
+    entry: {
+        app: "./src/index.js",
+        print: "./src/print.js"
+    },
     output: {
-        filename: "main.js",
+        filename: "[name].bundle.js",
         path: path.resolve(__dirname, "dist")
     },
     module: {
@@ -21,6 +26,10 @@ module.exports = {
         ]
     },
     plugins: [
+        new CleanWebpackPlugin(["dist"]),
+        new HtmlWebpackPlugin({
+            title: "Output Management"
+        }),
         new MiniCssExtractPlugin({
             filename: devMode ? "[name].css" : "[name].[hash].css",
             chunkFilename: devMode ? "[id].css" : "[id].[hash].css"
