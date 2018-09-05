@@ -6,6 +6,8 @@ function component() {
     let element = document.createElement("div");
     let button = document.createElement("button");
 
+    console.log("Started at:", new Date());
+
     element.innerHTML = _.join(["Hello", "Webpack"], " ");
     element.classList.add("hello");
 
