@@ -1,23 +1,24 @@
-import "./style.sass";
+import _ from "lodash";
 
-function getComponent() {
-    return import(/* webpackChunkName: "lodash" */ "lodash")
-    .then(({ default: _ }) => {
-        let element = document.createElement("pre");
+function component() {
+    let element = document.createElement("div");
+    let button = document.createElement("button");
+    let br = document.createElement("br");
 
-        console.log("Started at:", new Date());
-    
-        element.innerHTML = "Hello webpack!";
-        element.classList.add("hello");
-    
-        return element;
-    })
-    .catch(error => {
-        console.log("An error occured:", error);
-    })
+    button.innerHTML = "CLICK ME!";
+    element.appendChild(br);
+    element.appendChild(button);
+
+    button.onclick = () => {
+        import(/* webpackChunkName: "print" */ "./print")
+        .then(module => {
+            let print = module.default;
+
+            print()
+        })
+    };
+
+    return element;
 }
 
-getComponent()
-.then(component => {
-    document.body.appendChild(component)
-});
+document.body.appendChild(component());
