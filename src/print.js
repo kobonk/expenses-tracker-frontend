@@ -1,5 +1,3 @@
-console.log("print.js loaded...");
-
-export default () => {
-    console.log("I get called from print.js!?");
+export default function print (text) {
+    console.log(text);
 }
