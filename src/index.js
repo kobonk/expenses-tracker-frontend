@@ -1,22 +1,23 @@
-import _ from "lodash";
-import printMe from "./print.js";
 import "./style.sass";
 
-function component() {
-    let element = document.createElement("div");
-    let button = document.createElement("button");
+function getComponent() {
+    return import(/* webpackChunkName: "lodash" */ "lodash")
+    .then(({ default: _ }) => {
+        let element = document.createElement("pre");
 
-    console.log("Started at:", new Date());
-
-    element.innerHTML = _.join(["Hello", "Webpack"], " ");
-    element.classList.add("hello");
-
-    button.innerHTML = "Click me!";
-    button.onclick = printMe;
-
-    element.appendChild(button);
-
-    return element;
+        console.log("Started at:", new Date());
+    
+        element.innerHTML = "Hello webpack!";
+        element.classList.add("hello");
+    
+        return element;
+    })
+    .catch(error => {
+        console.log("An error occured:", error);
+    })
 }
 
-document.body.appendChild(component());
+getComponent()
+.then(component => {
+    document.body.appendChild(component)
+});

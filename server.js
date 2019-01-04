@@ -12,5 +12,5 @@ app.use(webpackDevMiddleware(compiler, {
 
 app.listen(3600, function(){
     "use strict";
-    console.log("Server listening on port 3000");
+    console.log("Server listening on port 3600");
 })
