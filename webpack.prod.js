@@ -11,7 +11,7 @@ module.exports = merge(
         devtool: "source-map",
         mode: "production",
         module: {
-            rules: [
+            rules: common.module.rules.concat([
                 {
                     test: /\.sass$/,
                     use: [
@@ -20,7 +20,7 @@ module.exports = merge(
                         "sass-loader"
                     ]
                 }
-            ]
+            ])
         },
         optimization: {
             runtimeChunk: "single",
