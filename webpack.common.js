@@ -28,14 +28,18 @@ module.exports = {
     plugins: [
         new CleanWebpackPlugin(["dist"]),
         new HtmlWebpackPlugin({
-            title: "Production"
+            template: "./src/index.html",
+            title: "Expenses Tracker"
         }),
         new webpack.ProvidePlugin({
             join: ["lodash", "join"]
         })
     ],
     resolve: {
-        extensions: [".tsx", ".ts", ".js"]
+        extensions: [".tsx", ".ts", ".js"],
+        alias: {
+            vue: "vue/dist/vue.esm.js"
+        }
     },
     output: {
         filename: "[name].bundle.js",
