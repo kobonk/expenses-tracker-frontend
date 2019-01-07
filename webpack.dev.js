@@ -1,4 +1,3 @@
-const _ = require("lodash");
 const common = require("./webpack.common.js");
 const merge = require("webpack-merge");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
@@ -12,7 +11,7 @@ module.exports = merge(
         },
         mode: "development",
         module: {
-            rules: [
+            rules: common.module.rules.concat([
                 {
                     test: /\.sass$/,
                     use: [
@@ -21,14 +20,7 @@ module.exports = merge(
                         "sass-loader"
                     ]
                 }
-            ]
-        },
-        plugins: _.concat(
-            common.plugins,
-            new MiniCssExtractPlugin({
-                filename: "[name].css",
-                chunkFilename: "[id].css"
-            })
-        )
+            ])
+        }
     }
 )
