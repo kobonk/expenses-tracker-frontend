@@ -5,23 +5,21 @@
         <title>Expenses Tracker</title>
     </head>
     <body>
-        <div id="todo-list-example">
-            <form v-on:submit.prevent="addNewTodo">
-                <label for="new-todo">Add a ToDo</label>
-                <input
-                    v-model="newTodoText"
-                    id="new-todo"
-                    placeholder="E.g. Feed the cat" />
-                <button>Add</button>
+        <div id="add-expense-form">
+            <form name="add-expense">
+                <h3>{{ i18n.title }}</h3>
+                <input type="text" :placeholder="i18n.name" name="name" required>
+                <br>
+                {{ i18n.category }}: <select name="category_id" required>
+                    <option v-for="category in categories" :key="category.id" :value="category.id">{{ category.name }}</option>
+                </select>
+                <br>
+                <input type="date" :placeholder="i18n.date" name="purchase_date" required>
+                <br>
+                <input type="number" :placeholder="i18n.cost" name="cost" step="0.01" min="0.01" required>
+                <br>
+                <button type="submit" name="submit">{{ i18n.submit }}</button>
             </form>
-            <ul>
-                <li
-                    is="todo-item"
-                    v-for="(todo, index) in todos"
-                    v-bind:key="todo.id"
-                    v-bind:title="todo.title"
-                    v-on:remove="todos.splice(index, 1)"></li>
-            </ul>
         </div>
     </body>
 </html>

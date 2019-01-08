@@ -38,7 +38,8 @@ module.exports = {
     resolve: {
         extensions: [".tsx", ".ts", ".js"],
         alias: {
-            vue: "vue/dist/vue.esm.js"
+            vue: "vue/dist/vue.esm.js",
+            config: "../config.json"
         }
     },
     output: {

@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/kobonk/expenses-tracker-frontend#readme",
   "devDependencies": {
+    "@types/axios": "^0.14.0",
     "@types/lodash": "^4.14.119",
     "@types/vue": "^2.0.0",
     "clean-webpack-plugin": "^0.1.19",
@@ -44,6 +45,7 @@
     "workbox-webpack-plugin": "^3.6.3"
   },
   "dependencies": {
+    "axios": "^0.18.0",
     "lodash": "^4.17.10"
   }
 }

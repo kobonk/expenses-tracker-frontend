@@ -1,36 +1,39 @@
 import Vue from "vue";
+import { backendUrl, language } from "config";
+const axios = require("axios");
+const translation = require(`./resources/i18n/${ language }.json`);
 
-Vue.component(
-    "todo-item",
-    {
-        props: ["title"],
-        template: "\
-            <li>\
-                {{ title }}\
-                <button v-on:click=\"$emit('remove')\">Remove</button>\
-            </li>\
-        "
-    }
-);
+type ExpenseCategory = {
+    id:string;
+    name:string;
+};
 
-new Vue({
-    el: "#todo-list-example",
-    data: {
-        newTodoText: "",
-        todos: [
-            { id: 1, title: "Do the dishes" },
-            { id: 2, title: "Take out the trash" },
-            { id: 3, title: "Walk the dog" }
-        ],
-        nextTodoId: 4
-    },
-    methods: {
-        addNewTodo: function() {
-            this.todos.push({
-                id: this.nextTodoId++,
-                title: this.newTodoText
-            });
-            this.newTodoText = "";
-        }
-    }
-})
+type ExpenseFormTranslation = {
+    title:string;
+    name:string;
+    category:string;
+    date:string;
+    cost:string;
+    submit:string;
+}
+
+type ExpenseFormData = {
+    i18n:ExpenseFormTranslation
+    categories:Array<ExpenseCategory>
+}
+
+const data:ExpenseFormData = {
+    i18n: translation.addExpenseForm,
+    categories: []
+};
+
+const vm = new Vue({
+    el: "#add-expense-form",
+    data: data,
+    methods: {}
+});
+
+axios.get(`${ backendUrl }/categories`)
+.then(function(response:AxiosResponse<Object>) {
+    data.categories = response.data;
+});
