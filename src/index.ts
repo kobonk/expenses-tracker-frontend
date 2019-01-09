@@ -1,13 +1,27 @@
 import Vue from "vue";
+import { autoCompleteField, ListItem } from "./components/auto-complete-field/component"
 import { backendUrl, language } from "config";
 
 const axios = require("axios");
 const i18n = require(`./resources/i18n/${ language }.json`);
 const _ = require("lodash");
 
-type ExpenseCategory = {
-    id:string;
-    name:string;
+class ExpenseCategory implements ListItem {
+    private id:string;
+    private label:string;
+
+    constructor(id:string, label:string) {
+        this.id = id;
+        this.label = label;
+    }
+
+    public getLabel() {
+        return this.label;
+    }
+
+    public getId() {
+        return this.id;
+    }
 };
 
 type ExpenseFormTranslation = {
@@ -26,26 +40,26 @@ type ExpenseFormData = {
     matchingCategories:Array<ExpenseCategory>;
 }
 
-const blankCategory:ExpenseCategory = { id: "blank", name: "blank" };
+const blankCategory:ExpenseCategory = new ExpenseCategory("blank", "blank");
 
 const data:ExpenseFormData = {
     category: blankCategory,
-    categoryName: blankCategory.name,
+    categoryName: blankCategory.getLabel(),
     i18n: i18n.addExpenseForm,
     matchingCategories: []
 };
 
-const autoCompleteField = Vue.component("auto-complete-field", {
-    props: ["value"],
-    template: '<input type="text" :value="value" @input="$emit(\'value-changed\', $event.target.value)">'
-});
-
 const findCategories = function(name:string):Promise<Array<ExpenseCategory>> {
+    if (_.isEmpty(_.trim(name))) {
+        return new Promise<Array<ExpenseCategory>>((resolve:Function) => resolve([]));
+    }
+
     return axios.get(`${ backendUrl }/categories`)
     .then(function(response:AxiosResponse<Object>):Array<ExpenseCategory> {
-        return _.filter(response.data, (category:ExpenseCategory) => {
+        return _.filter(response.data, (category:any) => {
             return _.includes(_.toLower(category.name), _.toLower(_.trim(name)));
-        });
+        })
+        .map((category:any) => new ExpenseCategory(category.id, category.name));
     })
     .catch(function(error:Error):Array<any> {
         console.log(error);
@@ -63,9 +77,9 @@ const vm = new Vue({
     },
     data: data,
     el: "#add-expense-form",
-    watch: {
-        categoryName: function(newName:string, oldName:string) {
-            findCategories(newName)
+    methods: {
+        filterCategories: function(name:string) {
+            findCategories(name)
             .then(function(categories:Array<ExpenseCategory>) {
                 vm.matchingCategories = categories;
             })

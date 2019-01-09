@@ -10,11 +10,12 @@
                 <h3>{{ i18n.title }}</h3>
                 <input type="text" :placeholder="i18n.name" name="name" required>
                 <br>
-                <auto-complete-field @value-changed="categoryName = $event"></auto-complete-field>
-                <br>{{ category.name }}<br>
-                <ul>
-                    <li v-for="category in matchingCategories">{{ category.name }}</li>
-                </ul>
+                <auto-complete-field
+                    @input="category = $event"
+                    :on-value-change="filterCategories"
+                    :items="matchingCategories">
+                </auto-complete-field>
+                <br>{{ category.label }}<br>
                 <br>
                 <input type="date" :placeholder="i18n.date" name="purchase_date" required>
                 <br>
