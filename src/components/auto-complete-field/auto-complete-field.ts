@@ -31,6 +31,11 @@ const getPreviousItem = function(items:Array<ListItem>, item:ListItem):ListItem 
     return item === _.first(items) ? _.last(items) : items[_.indexOf(items, item) - 1];
 };
 
+const keyboardInputDelay = 100;
+const fieldBlurDelay = keyboardInputDelay + 50;
+const fieldFocusDelay = fieldBlurDelay + 50;
+const fieldTextSelectDelay = fieldFocusDelay + 50;
+
 const autoCompleteField = Vue.component("auto-complete-field", {
     computed: {
         currentValue: {
@@ -43,7 +48,7 @@ const autoCompleteField = Vue.component("auto-complete-field", {
         }
     },
     created() {
-        this.debouncedSetCurrentValue = _.debounce(this.setCurrentValue, 250);
+        this.debouncedSetCurrentValue = _.debounce(this.setCurrentValue, keyboardInputDelay);
     },
     data() {
         return {
@@ -63,12 +68,14 @@ const autoCompleteField = Vue.component("auto-complete-field", {
         onBlur() {
             window.setTimeout(
                 () => this.listVisible = false,
-                100
+                fieldBlurDelay
             )
         },
         onClick(item:ListItem) {
             this.currentValue = item.getLabel();
             this.listVisible = false;
+            this.setFieldFocus()
+            .then(this.selectFieldText);
         },
         onFocus() {
             this.onValueChange(this.currentValue);
@@ -84,22 +91,42 @@ const autoCompleteField = Vue.component("auto-complete-field", {
             let nextItem = getNextItem(this.items, this.currentItem);
             this.currentItem = _.isNil(nextItem) ? _.first(this.items) : nextItem;
             this.currentValue = this.currentItem.getLabel();
-            this.selectText();
+            this.selectFieldText();
         },
         onMoveUp() {
             let previousItem = getPreviousItem(this.items, this.currentItem);
             this.currentItem = _.isNil(previousItem) ? _.first(this.items) : previousItem;
             this.currentValue = this.currentItem.getLabel();
-            this.selectText();
+            this.selectFieldText();
         },
-        selectText() {
+        selectFieldText():Promise<any> {
             let inputField:HTMLInputElement = this.$el.querySelector("input[type=text]");
 
-            // This is weird but selection works only if invoked asynchronously
-            window.setTimeout(
-                () => inputField.select(),
-                0
-            )
+            // This is weird but select() works only if invoked asynchronously
+            return new Promise((resolve:any) => {
+                window.setTimeout(
+                    () => {
+                        inputField.select();
+                        resolve();
+                    },
+                    fieldTextSelectDelay
+                )
+            });
+        },
+        setFieldFocus():Promise<any> {
+            let inputField:HTMLInputElement = this.$el.querySelector("input[type=text]");
+
+            // This is weird but focus() works only if invoked asynchronously
+            return new Promise((resolve:any) => {
+                window.setTimeout(
+                    () => {
+                        inputField.focus();
+                        resolve();
+                    },
+                    fieldFocusDelay
+                )
+            });
+
         },
         setCurrentValue(value:string) {
             if (this.currentItem.getLabel() !== value) {
