@@ -1,6 +1,7 @@
 import Vue from "vue";
 import { autoCompleteField, ListItem } from "./components/auto-complete-field/auto-complete-field"
 import { backendUrl, language } from "config";
+import "./style.sass"
 
 const axios = require("axios");
 const i18n = require(`./resources/i18n/${ language }.json`);

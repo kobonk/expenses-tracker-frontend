@@ -140,6 +140,7 @@ const autoCompleteField = Vue.component("auto-complete-field", {
     template: `
         <div>
             <input
+                autocomplete="off"
                 type="text"
                 v-on="{ blur: onBlur, focus: onFocus }"
                 :placeholder="placeholder"
