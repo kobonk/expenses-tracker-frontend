@@ -35,18 +35,32 @@ type ExpenseFormTranslation = {
 
 type ExpenseFormData = {
     category:ExpenseCategory;
-    categoryName:string;
+    cost:Number;
+    date:string;
     i18n:ExpenseFormTranslation;
     matchingCategories:Array<ExpenseCategory>;
+    name:string;
+}
+
+const formatDateString:Function = function(date:Date):string {
+    let dateParts:Array<string> = [
+        date.getFullYear() + "",
+        date.getMonth() + 1 + "",
+        date.getDate() + ""
+    ];
+
+    return dateParts.map((part) => part.length < 2 ? "0" + part : part).join("-");
 }
 
 const blankCategory:ExpenseCategory = new ExpenseCategory("blank", "blank");
 
 const data:ExpenseFormData = {
     category: blankCategory,
-    categoryName: blankCategory.getLabel(),
+    cost: 0,
+    date: formatDateString(new Date()),
     i18n: i18n.addExpenseForm,
-    matchingCategories: []
+    matchingCategories: [],
+    name: ""
 };
 
 const findCategories = function(name:string):Promise<Array<ExpenseCategory>> {
@@ -72,17 +86,17 @@ const vm = new Vue({
     components: {
         autoCompleteField: autoCompleteField
     },
-    created: function() {
-        this.debouncedFindCategories = _.debounce(findCategories, 500);
-    },
     data: data,
     el: "#add-expense-form",
     methods: {
-        filterCategories: function(name:string) {
+        filterCategories(name:string) {
             findCategories(name)
             .then(function(categories:Array<ExpenseCategory>) {
                 vm.matchingCategories = categories;
             })
+        },
+        onSubmit() {
+
         }
     }
 });

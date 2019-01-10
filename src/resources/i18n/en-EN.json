@@ -2,11 +2,12 @@
     "title": "Expenses Tracker",
     "description": "An Application for monitoring and categorising home expenses",
     "addExpenseForm": {
-        "title": "Add New Expense",
+        "categoryNotFound": "Category not found. A new one will be created.",
         "expenseName": "Expense Name",
         "expenseCategory": "Category",
         "expenseDate": "Purchase Date",
         "expenseCost": "Cost",
-        "submitButton": "Submit"
+        "submitButton": "Submit",
+        "title": "Add New Expense"
     }
 }

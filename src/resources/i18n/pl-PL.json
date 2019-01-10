@@ -2,11 +2,12 @@
     "title": "Expenses Tracker",
     "description": "Aplikacja monitorująca i kategoryzująca wydatki domowe",
     "addExpenseForm": {
-        "title": "Dodaj nowy wydatek",
+        "categoryNotFound": "Zostanie utworzona nowa kategoria o tej nazwie.",
         "expenseName": "Nazwa",
         "expenseCategory": "Kategoria",
         "expenseDate": "Data",
         "expenseCost": "Kwota wydatku",
-        "submitButton": "Zapisz"
+        "submitButton": "Zapisz",
+        "title": "Dodaj nowy wydatek"
     }
 }
