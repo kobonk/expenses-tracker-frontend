@@ -15,7 +15,8 @@
                     @input="category = $event"
                     :on-value-change="filterCategories"
                     :items="matchingCategories"
-                    :placeholder="i18n.expenseCategory">
+                    :placeholder="i18n.expenseCategory"
+                    :required="true">
                 </auto-complete-field>
                 <div v-if="category.getId() === null">{{ i18n.categoryNotFound }}</div>
                 <input type="date" :placeholder="i18n.expenseDate" name="purchase_date" required v-model="date">
