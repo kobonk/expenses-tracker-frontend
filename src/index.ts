@@ -96,7 +96,18 @@ const vm = new Vue({
             })
         },
         onSubmit() {
+            this.ensureCategoryRegistration(this.category)
+            .then(() => this.registerExpense());
+        },
+        ensureCategoryRegistration(category:ExpenseCategory):Promise<any> {
+            if (_.isNil(category.getId())) {
+                return axios.post(`${ backendUrl }/categories`, { name: this.category.getLabel() });
+            }
 
+            return new Promise<any>((resolve:Function) => resolve());
+        },
+        registerExpense() {
+            console.log("Registering...");
         }
     }
 });

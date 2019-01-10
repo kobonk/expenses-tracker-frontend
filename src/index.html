@@ -6,7 +6,7 @@
     </head>
     <body>
         <div id="add-expense-form">
-            <form name="add-expense">
+            <form name="add-expense" @submit.stop.prevent="onSubmit">
                 <h3>{{ i18n.title }}</h3>
                 <input type="text" :placeholder="i18n.name" name="name" required :value="name">
                 <br>
@@ -20,7 +20,7 @@
                 <br>
                 <input type="number" :placeholder="i18n.cost" name="cost" step="0.01" min="0.01" required :value="cost">
                 <br>
-                <button type="submit" name="submit" @submit="onSubmit">{{ i18n.submit }}</button>
+                <button type="submit" name="submit">{{ i18n.submitButton }}</button>
             </form>
         </div>
     </body>
