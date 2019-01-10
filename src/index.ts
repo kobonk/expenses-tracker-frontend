@@ -1,5 +1,5 @@
 import Vue from "vue";
-import { autoCompleteField, ListItem } from "./components/auto-complete-field/component"
+import { autoCompleteField, ListItem } from "./components/auto-complete-field/auto-complete-field"
 import { backendUrl, language } from "config";
 
 const axios = require("axios");

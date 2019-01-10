@@ -21,37 +21,15 @@ class Item implements ListItem {
     getId():string {
         return null;
     }
-}
-
-type AutoCompleteData = {
-    currentItem:ListItem
-    listHovered:boolean
-    listVisible:boolean
-}
+};
 
 const getNextItem = function(items:Array<ListItem>, item:ListItem):ListItem {
-    if (_.isEmpty(item)) {
-        return _.first(items);
-    }
-
-    if (item === _.last(items)) {
-        return _.first(items)
-    }
-
-    return items[_.indexOf(items, item) + 1];
-}
+    return item === _.last(items) ? _.first(items) : items[_.indexOf(items, item) + 1];
+};
 
 const getPreviousItem = function(items:Array<ListItem>, item:ListItem):ListItem {
-    if (_.isEmpty(item)) {
-        return _.first(items);
-    }
-
-    if (item === _.first(items)) {
-        return _.last(items)
-    }
-
-    return items[_.indexOf(items, item) - 1];
-}
+    return item === _.first(items) ? _.last(items) : items[_.indexOf(items, item) - 1];
+};
 
 const autoCompleteField = Vue.component("auto-complete-field", {
     computed: {
@@ -60,18 +38,16 @@ const autoCompleteField = Vue.component("auto-complete-field", {
                 return this.currentItem.getLabel();
             },
             set(value:string) {
-                if (this.currentItem.getLabel() !== value) {
-                    this.currentItem = this.getItemByLabel(value);
-                }
-
-                this.$emit("input", this.currentItem);
+                this.debouncedSetCurrentValue(value);
             }
         }
     },
-    data: function() {
-        return <AutoCompleteData>{
+    created() {
+        this.debouncedSetCurrentValue = _.debounce(this.setCurrentValue, 250);
+    },
+    data() {
+        return {
             currentItem: <ListItem>new Item(""),
-            listHovered: false,
             listVisible: false
         };
     },
@@ -79,43 +55,44 @@ const autoCompleteField = Vue.component("auto-complete-field", {
         getItemByLabel(label:string):ListItem {
             let item:ListItem = _.find(this.items, (item:ListItem) => item.getLabel() === label);
 
-            if (_.isNil(item)) {
-                return new Item(label);
-            }
-
-            return item;
+            return _.isNil(item) ? new Item(label) : item;
         },
-        isCurrentItem: function(item:ListItem) {
+        isCurrentItem(item:ListItem):boolean {
             return item === this.currentItem;
         },
-        onBlur: function() {
-            if (!this.listHovered) {
-                this.listVisible = false;
-            }
+        onBlur() {
+            window.setTimeout(
+                () => this.listVisible = false,
+                100
+            )
         },
         onClick(item:ListItem) {
-            this.updateValue(item.getLabel());
-            this.listHovered = false;
+            this.currentValue = item.getLabel();
             this.listVisible = false;
         },
-        onFocus: function() {
-            if (!_.isEmpty(this.items)) this.listVisible = true;
+        onFocus() {
+            this.onValueChange(this.currentValue);
+
+            if (!_.isEmpty(this.items)) {
+                this.listVisible = true;
+            }
         },
-        onInput: function(input:string) {
-            this.updateValue(input);
-            this.onValueChange(input);
+        onInput(input:string) {
+            this.currentValue = input;
         },
-        onMoveDown: function() {
-            this.currentItem = getNextItem(this.items, this.currentItem);
-            this.updateValue(this.currentItem.getLabel());
+        onMoveDown() {
+            let nextItem = getNextItem(this.items, this.currentItem);
+            this.currentItem = _.isNil(nextItem) ? _.first(this.items) : nextItem;
+            this.currentValue = this.currentItem.getLabel();
             this.selectText();
         },
-        onMoveUp: function() {
-            this.currentItem = getPreviousItem(this.items, this.currentItem);
-            this.updateValue(this.currentItem.getLabel());
+        onMoveUp() {
+            let previousItem = getPreviousItem(this.items, this.currentItem);
+            this.currentItem = _.isNil(previousItem) ? _.first(this.items) : previousItem;
+            this.currentValue = this.currentItem.getLabel();
             this.selectText();
         },
-        selectText: function() {
+        selectText() {
             let inputField:HTMLInputElement = this.$el.querySelector("input[type=text]");
 
             // This is weird but selection works only if invoked asynchronously
@@ -124,9 +101,13 @@ const autoCompleteField = Vue.component("auto-complete-field", {
                 0
             )
         },
-        updateValue: function(newValue:string) {
-            console.log(newValue);
-            this.currentValue = newValue;
+        setCurrentValue(value:string) {
+            if (this.currentItem.getLabel() !== value) {
+                this.currentItem = this.getItemByLabel(value);
+                this.onValueChange(value);
+            }
+
+            this.$emit("input", this.currentItem);
         }
     },
     props: ["items", "onValueChange"],
@@ -136,16 +117,20 @@ const autoCompleteField = Vue.component("auto-complete-field", {
                 type="text"
                 v-on="{ blur: onBlur, focus: onFocus }"
                 :value="currentValue"
-                @input="onInput($event.target.value)"
+                @input="currentValue = $event.target.value"
                 @keyup.down="onMoveDown"
                 @keyup.up="onMoveUp">
             <ul class="auto-complete-list" v-if="listVisible">
-                <li @click="onClick(item)" @mouseover="listHovered = true" @mouseout="listHovered = false" :class="{ selected: isCurrentItem(item) }" v-for="item in items">{{ item.getLabel() }}</li>
+                <li
+                    @click="onClick(item)"
+                    :class="{ selected: isCurrentItem(item) }"
+                    v-for="item in items"
+                >{{ item.getLabel() }}</li>
             </ul>
         </div>
     `,
     watch: {
-        items: function(newList:Array<ListItem>) {
+        items(newList:Array<ListItem>) {
             if (_.isEmpty(newList)) {
                 this.currentItem = new Item(this.currentValue);
                 this.listVisible = false;
@@ -153,9 +138,6 @@ const autoCompleteField = Vue.component("auto-complete-field", {
             }
 
             this.listVisible = true;
-        },
-        currentItem: function(item:ListItem) {
-
         }
     }
 });
