@@ -24,13 +24,23 @@ class ExpenseCategory implements ListItem {
     }
 };
 
+type Expense = {
+    category: {
+        id:string,
+        name:string
+    },
+    cost:Number,
+    name:string,
+    purchase_date:string
+};
+
 type ExpenseFormTranslation = {
     title:string;
-    name:string;
-    category:string;
-    date:string;
-    cost:string;
-    submit:string;
+    expenseName:string;
+    expenseCategory:string;
+    expenseDate:string;
+    expenseCost:string;
+    submitButton:string;
 }
 
 type ExpenseFormData = {
@@ -54,60 +64,84 @@ const formatDateString:Function = function(date:Date):string {
 
 const blankCategory:ExpenseCategory = new ExpenseCategory("blank", "blank");
 
-const data:ExpenseFormData = {
-    category: blankCategory,
-    cost: 0,
-    date: formatDateString(new Date()),
-    i18n: i18n.addExpenseForm,
-    matchingCategories: [],
-    name: ""
-};
-
-const findCategories = function(name:string):Promise<Array<ExpenseCategory>> {
-    if (_.isEmpty(_.trim(name))) {
-        return new Promise<Array<ExpenseCategory>>((resolve:Function) => resolve([]));
-    }
-
-    return axios.get(`${ backendUrl }/categories`)
-    .then(function(response:AxiosResponse<Object>):Array<ExpenseCategory> {
-        return _.filter(response.data, (category:any) => {
-            return _.includes(_.toLower(category.name), _.toLower(_.trim(name)));
-        })
-        .map((category:any) => new ExpenseCategory(category.id, category.name));
-    })
-    .catch(function(error:Error):Array<any> {
-        console.log(error);
-
-        return [];
-    });
-};
-
 const vm = new Vue({
     components: {
         autoCompleteField: autoCompleteField
     },
-    data: data,
+    data: {
+        category: blankCategory,
+        cost: null,
+        date: formatDateString(new Date()),
+        i18n: i18n.addExpenseForm,
+        matchingCategories: [],
+        name: ""
+    },
     el: "#add-expense-form",
     methods: {
         filterCategories(name:string) {
-            findCategories(name)
+            this.findCategories(name)
             .then(function(categories:Array<ExpenseCategory>) {
                 vm.matchingCategories = categories;
             })
         },
-        onSubmit() {
-            this.ensureCategoryRegistration(this.category)
-            .then(() => this.registerExpense());
-        },
-        ensureCategoryRegistration(category:ExpenseCategory):Promise<any> {
-            if (_.isNil(category.getId())) {
-                return axios.post(`${ backendUrl }/categories`, { name: this.category.getLabel() });
+        findCategories(name:string):Promise<Array<ExpenseCategory>> {
+            if (_.isEmpty(_.trim(name))) {
+                return new Promise<Array<ExpenseCategory>>((resolve:Function) => resolve([]));
             }
 
-            return new Promise<any>((resolve:Function) => resolve());
+            return axios.get(`${ backendUrl }/categories`)
+            .then(function(response:AxiosResponse<Object>):Array<ExpenseCategory> {
+                return _.filter(
+                    response.data,
+                    (category:any) => {
+                        return _.includes(_.toLower(category.name), _.toLower(_.trim(name)));
+                    }
+                )
+                .map((category:any) => new ExpenseCategory(category.id, category.name));
+            })
+            .catch(function(error:Error):Array<any> {
+                this.showToast(error);
+
+                return [];
+            });
         },
-        registerExpense() {
-            console.log("Registering...");
+        onSubmit():Promise<any> {
+            return this.ensureCategoryRegistration(this.category)
+            .then((categoryId:string) => {
+                let expense:Expense = {
+                    category: {
+                        id: categoryId,
+                        name: this.category.getLabel()
+                    },
+                    cost: parseFloat(this.cost),
+                    name: this.name,
+                    purchase_date: this.date
+                };
+
+                return this.registerExpense(expense);
+            });
+        },
+        ensureCategoryRegistration(category:ExpenseCategory):Promise<string> {
+            if (!_.isNil(category.getId())) {
+                return new Promise<string>((resolve:Function) => resolve(category.getId()));
+            }
+
+            return axios.post(`${ backendUrl }/categories`, { name: this.category.getLabel() })
+            .then(function(response:AxiosResponse<Object>):string {
+                this.showToast(`Category "${ response.data.name }" successfully registered!`);
+
+                return response.data.id;
+            });
+
+        },
+        registerExpense(expense:Expense) {
+            axios.post(`${ backendUrl }/expense`, expense)
+            .then(function(response:AxiosResponse<Object>) {
+                this.showToast(`Expense "${ expense.name }" successfully registered!`);
+            });
+        },
+        showToast(message:string) {
+            console.log(message);
         }
     }
 });

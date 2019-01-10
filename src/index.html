@@ -8,17 +8,19 @@
         <div id="add-expense-form">
             <form name="add-expense" @submit.stop.prevent="onSubmit">
                 <h3>{{ i18n.title }}</h3>
-                <input type="text" :placeholder="i18n.name" name="name" required :value="name">
+                <input type="text" :placeholder="i18n.expenseName" name="name" required v-model="name">
                 <br>
                 <auto-complete-field
+                    name="category"
                     @input="category = $event"
                     :on-value-change="filterCategories"
-                    :items="matchingCategories">
+                    :items="matchingCategories"
+                    :placeholder="i18n.expenseCategory">
                 </auto-complete-field>
                 <div v-if="category.getId() === null">{{ i18n.categoryNotFound }}</div>
-                <input type="date" :placeholder="i18n.date" name="purchase_date" required :value="date">
+                <input type="date" :placeholder="i18n.expenseDate" name="purchase_date" required v-model="date">
                 <br>
-                <input type="number" :placeholder="i18n.cost" name="cost" step="0.01" min="0.01" required :value="cost">
+                <input type="number" :placeholder="i18n.expenseCost" name="cost" step="0.01" min="0.01" required v-model="cost">
                 <br>
                 <button type="submit" name="submit">{{ i18n.submitButton }}</button>
             </form>
