@@ -34,7 +34,6 @@ const getPreviousItem = function(items:Array<ListItem>, item:ListItem):ListItem 
 const keyboardInputDelay = 100;
 const fieldBlurDelay = keyboardInputDelay + 50;
 const fieldFocusDelay = fieldBlurDelay + 50;
-const fieldTextSelectDelay = fieldFocusDelay + 50;
 
 const autoCompleteField = Vue.component("auto-complete-field", {
     computed: {
@@ -109,7 +108,7 @@ const autoCompleteField = Vue.component("auto-complete-field", {
                         inputField.select();
                         resolve();
                     },
-                    fieldTextSelectDelay
+                    0
                 )
             });
         },
