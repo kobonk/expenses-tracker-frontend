@@ -30,17 +30,16 @@ module.exports = {
         new HtmlWebpackPlugin({
             template: "./src/index.html",
             title: "Expenses Tracker"
-        }),
-        new webpack.ProvidePlugin({
-            join: ["lodash", "join"]
         })
     ],
     resolve: {
-        extensions: [".tsx", ".ts", ".js"],
         alias: {
-            vue: "vue/dist/vue.esm.js",
-            config: "../config.json"
-        }
+            config: path.resolve(__dirname, "config.json"),
+            types: path.resolve(__dirname, "src/types"),
+            utils: path.resolve(__dirname, "src/utils"),
+            vue: "vue/dist/vue.esm.js"
+        },
+        extensions: [".tsx", ".ts", ".js", ".json"]
     },
     output: {
         filename: "[name].bundle.js",

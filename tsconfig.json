@@ -1,10 +1,16 @@
 {
     "compilerOptions": {
         "allowJs": true,
+        "baseUrl": "./src",
         "jsx": "react",
+        "lib": ["es2015"],
         "module": "es6",
         "noImplicitAny": true,
         "outDir": "./dist/",
+        "paths": {
+            "types/*": ["./types/*"],
+            "utils/*": ["./utils/*"]
+        },
         "sourceMap": true,
         "target": "es5"
     }

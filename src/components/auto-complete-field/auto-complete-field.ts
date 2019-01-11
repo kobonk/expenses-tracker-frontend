@@ -35,7 +35,7 @@ const keyboardInputDelay = 100;
 const fieldBlurDelay = keyboardInputDelay + 50;
 const fieldFocusDelay = fieldBlurDelay + 50;
 
-const autoCompleteField = Vue.component("auto-complete-field", {
+const autoCompleteField = {
     computed: {
         currentValue: {
             get():string {
@@ -136,7 +136,13 @@ const autoCompleteField = Vue.component("auto-complete-field", {
             this.$emit("input", this.currentItem);
         }
     },
-    props: ["items", "onValueChange", "placeholder", "required", "tabindex"],
+    props: {
+        items: Array,
+        onValueChange: Function,
+        placeholder: String,
+        required: Boolean,
+        tabindex: Number
+    },
     template: `
         <div>
             <input
@@ -170,6 +176,6 @@ const autoCompleteField = Vue.component("auto-complete-field", {
             this.listVisible = true;
         }
     }
-});
+};
 
 export { autoCompleteField, ListItem };
