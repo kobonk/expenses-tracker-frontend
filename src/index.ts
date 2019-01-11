@@ -1,7 +1,7 @@
 import Vue from "vue";
 import { autoCompleteField, ListItem } from "./components/auto-complete-field/auto-complete-field"
 import { backendUrl, language } from "config";
-import "./style.sass"
+import "./styles.sass"
 import { threadId } from "worker_threads";
 
 const axios = require("axios");
