@@ -1,10 +1,11 @@
-import { backendUrl } from 'config';
-import axios from "axios";
-import ExpenseCategory from 'types/ExpenseCategory';
-import Expense from 'types/Expense';
+import * as data from "config.json";
+import ExpenseCategory from "types/ExpenseCategory";
+import Expense from "types/Expense";
 
 const _ = require("lodash");
+const axios = require("axios");
 
+const backendUrl = (data as any).backendUrl;
 const categoriesUrl:string = `${ backendUrl }/categories`;
 
 const retrieveCategories:Function = async ():Promise<Array<ExpenseCategory>> => {

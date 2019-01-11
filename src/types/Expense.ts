@@ -1,6 +1,6 @@
-import Deserializable from './Deserializable';
-import ExpenseCategory from './ExpenseCategory';
-import Serializable from './Serializable';
+import Deserializable from "./Deserializable";
+import ExpenseCategory from "./ExpenseCategory";
+import Serializable from "./Serializable";
 
 class Expense implements Deserializable, Serializable {
     private category:ExpenseCategory;

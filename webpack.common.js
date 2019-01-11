@@ -1,8 +1,6 @@
 const CleanWebpackPlugin = require("clean-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-const lodash = require("lodash");
 const path = require("path");
-const webpack = require("webpack");
 
 module.exports = {
     entry: {
@@ -34,7 +32,7 @@ module.exports = {
     ],
     resolve: {
         alias: {
-            config: path.resolve(__dirname, "config.json"),
+            "config.json": path.resolve(__dirname, "config.json"),
             types: path.resolve(__dirname, "src/types"),
             utils: path.resolve(__dirname, "src/utils"),
             vue: "vue/dist/vue.esm.js"

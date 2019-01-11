@@ -1,5 +1,5 @@
-import Deserializable from './Deserializable';
-import Serializable from './Serializable';
+import Deserializable from "./Deserializable";
+import Serializable from "./Serializable";
 
 class ExpenseCategory implements Deserializable, Serializable {
     private id:string;

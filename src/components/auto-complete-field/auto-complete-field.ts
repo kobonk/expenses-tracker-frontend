@@ -1,6 +1,6 @@
-import Vue from "vue";
-import _ from "lodash";
 import "./styles.sass"
+
+const _ = require("lodash");
 
 interface ListItem {
     getLabel():string;

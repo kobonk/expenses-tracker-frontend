@@ -1,9 +1,7 @@
-import Vue from "vue";
 import { autoCompleteField, ListItem } from "./../auto-complete-field/auto-complete-field";
 import { convertDateToString } from "utils/date";
-import { backendUrl } from "config";
 import ExpenseCategory from "types/ExpenseCategory";
-import Expense from '../../types/Expense';
+import Expense from "../../types/Expense";
 import i18n from "utils/i18n";
 import { persistCategory, persistExpense, retrieveCategories } from "utils/restClient";
 import "./styles.sass"
