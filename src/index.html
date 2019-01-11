@@ -8,7 +8,7 @@
         <div id="add-expense-form">
             <form name="add-expense" @submit.stop.prevent="onSubmit">
                 <h3>{{ i18n.title }}</h3>
-                <input autocomplete="off" type="text" :placeholder="i18n.expenseName" name="name" required v-model="name">
+                <input tabindex="1" autocomplete="off" type="text" :placeholder="i18n.expenseName" name="name" required v-model="name">
                 <br>
                 <auto-complete-field
                     name="category"
@@ -16,14 +16,15 @@
                     :on-value-change="filterCategories"
                     :items="matchingCategories"
                     :placeholder="i18n.expenseCategory"
-                    :required="true">
+                    :required="true"
+                    :tabindex="2">
                 </auto-complete-field>
                 <div v-if="category.getId() === null">{{ i18n.categoryNotFound }}</div>
-                <input type="date" :placeholder="i18n.expenseDate" name="purchase_date" required v-model="date">
+                <input tabindex="3" type="date" :placeholder="i18n.expenseDate" name="purchase_date" required v-model="date">
                 <br>
-                <input autocomplete="off" type="number" :placeholder="i18n.expenseCost" name="cost" step="0.01" min="0.01" required v-model="cost">
+                <input tabindex="4" autocomplete="off" type="number" :placeholder="i18n.expenseCost" name="cost" step="0.01" min="0.01" required v-model="cost">
                 <br>
-                <button type="submit" name="submit">{{ i18n.submitButton }}</button>
+                <button tabindex="5" type="submit" name="submit">{{ i18n.submitButton }}</button>
             </form>
         </div>
     </body>

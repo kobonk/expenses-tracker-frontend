@@ -136,7 +136,7 @@ const autoCompleteField = Vue.component("auto-complete-field", {
             this.$emit("input", this.currentItem);
         }
     },
-    props: ["items", "onValueChange", "placeholder", "required"],
+    props: ["items", "onValueChange", "placeholder", "required", "tabindex"],
     template: `
         <div>
             <input
@@ -145,6 +145,7 @@ const autoCompleteField = Vue.component("auto-complete-field", {
                 v-on="{ blur: onBlur, focus: onFocus }"
                 :placeholder="placeholder"
                 :required="required"
+                :tabindex="tabindex"
                 :value="currentValue"
                 @input="currentValue = $event.target.value"
                 @keyup.down="onMoveDown"

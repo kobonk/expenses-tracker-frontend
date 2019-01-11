@@ -2,6 +2,7 @@ import Vue from "vue";
 import { autoCompleteField, ListItem } from "./components/auto-complete-field/auto-complete-field"
 import { backendUrl, language } from "config";
 import "./style.sass"
+import { threadId } from "worker_threads";
 
 const axios = require("axios");
 const i18n = require(`./resources/i18n/${ language }.json`);
@@ -70,6 +71,7 @@ const vm = new Vue({
         autoCompleteField: autoCompleteField
     },
     data: {
+        categories: [],
         category: blankCategory,
         cost: null,
         date: formatDateString(new Date()),
@@ -80,31 +82,45 @@ const vm = new Vue({
     el: "#add-expense-form",
     methods: {
         filterCategories(name:string) {
-            this.findCategories(name)
-            .then(function(categories:Array<ExpenseCategory>) {
-                vm.matchingCategories = categories;
-            })
-        },
-        findCategories(name:string):Promise<Array<ExpenseCategory>> {
             if (_.isEmpty(_.trim(name))) {
-                return new Promise<Array<ExpenseCategory>>((resolve:Function) => resolve([]));
+                vm.matchingCategories = [];
+                return;
             }
 
-            return axios.get(`${ backendUrl }/categories`)
-            .then(function(response:AxiosResponse<Object>):Array<ExpenseCategory> {
-                return _.filter(
-                    response.data,
-                    (category:any) => {
-                        return _.includes(_.toLower(category.name), _.toLower(_.trim(name)));
+            this.getCategories()
+            .then((categories:Array<ExpenseCategory>) => {
+                vm.matchingCategories = _.filter(
+                    categories,
+                    (category:ExpenseCategory) => {
+                        return _.includes(_.toLower(category.getLabel()), _.toLower(_.trim(name)));
                     }
                 )
-                .map((category:any) => new ExpenseCategory(category.id, category.name));
             })
-            .catch(function(error:Error):Array<any> {
-                this.showToast(error);
+            .catch(vm.showToast);
+        },
+        getCategories():Promise<Array<ExpenseCategory>> {
+            if (!_.isEmpty(this.categories)) {
+                return new Promise<Array<ExpenseCategory>>((resolve:Function) => resolve(this.categories));
+            }
+
+            return this.retrieveCategories();
+        },
+        retrieveCategories():Promise<Array<ExpenseCategory>> {
+            return axios.get(`${ backendUrl }/categories`)
+            .then((response:AxiosResponse<Object>):Array<ExpenseCategory> => {
+                return _.map(response.data, vm.deserializeCategory);
+            })
+            .then((categories:Array<ExpenseCategory>) => {
+                return vm.categories = categories;
+            })
+            .catch((error:Error):Array<any> => {
+                vm.showToast(error);
 
                 return [];
             });
+        },
+        deserializeCategory(categoryAsset:any):ExpenseCategory {
+            return new ExpenseCategory(categoryAsset.id, categoryAsset.name);
         },
         onSubmit():Promise<any> {
             return this.ensureCategoryRegistration(this.category)
@@ -127,18 +143,44 @@ const vm = new Vue({
                 return new Promise<string>((resolve:Function) => resolve(category.getId()));
             }
 
-            return axios.post(`${ backendUrl }/categories`, { name: this.category.getLabel() })
-            .then(function(response:AxiosResponse<Object>):string {
-                this.showToast(`Category "${ response.data.name }" successfully registered!`);
+            return this.retrieveCategories()
+            .then((categories:Array<ExpenseCategory>) => {
+                vm.categories = categories;
 
-                return response.data.id;
+                let matchingCategory = _.find(categories, (registeredCategory:ExpenseCategory) => {
+                    return _.trim(registeredCategory.getLabel()) === _.trim(category.getLabel())
+                });
+
+                if (!_.isNil(matchingCategory)) {
+                    return matchingCategory.getId();
+                }
+
+                return vm.registerCategory(category)
+                .then((category:ExpenseCategory) => {
+                    return category.getId();
+                })
+            });
+        },
+        registerCategory(category:ExpenseCategory):Promise<ExpenseCategory> {
+            return axios.post(`${ backendUrl }/categories`, { name: this.category.getLabel() })
+            .then((response:AxiosResponse<Object>):ExpenseCategory => {
+                vm.categories = _.map(response.data, vm.deserializeCategory);
+
+                let registeredCategory:ExpenseCategory = _.find(
+                    vm.categories,
+                    (oneOfCategories:ExpenseCategory) => oneOfCategories.getLabel() === category.getLabel()
+                );
+
+                vm.showToast(`Category "${ registeredCategory.getLabel() }" successfully registered!`);
+
+                return registeredCategory;
             });
 
         },
         registerExpense(expense:Expense) {
             axios.post(`${ backendUrl }/expense`, expense)
-            .then(function(response:AxiosResponse<Object>) {
-                this.showToast(`Expense "${ expense.name }" successfully registered!`);
+            .then((response:AxiosResponse<Object>) => {
+                vm.showToast(`Expense "${ expense.name }" successfully registered!`);
             });
         },
         showToast(message:string) {
