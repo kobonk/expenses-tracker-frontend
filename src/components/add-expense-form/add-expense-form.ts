@@ -34,6 +34,7 @@ const component = {
     methods: {
         convertToCategory(item:ListItem) {
             this.category = new ExpenseCategory(item.getId(), item.getLabel());
+            this.filterCategories(item.getLabel());
         },
         filterCategories(name:string) {
             if (_.isEmpty(_.trim(name))) {
@@ -124,7 +125,6 @@ const component = {
             <auto-complete-field
                 name="category"
                 @input="convertToCategory($event)"
-                :on-value-change="filterCategories"
                 :items="matchingCategories"
                 :placeholder="i18n.expenseCategory"
                 :required="true"

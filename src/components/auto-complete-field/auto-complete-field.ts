@@ -77,8 +77,6 @@ const autoCompleteField = {
             .then(this.selectFieldText);
         },
         onFocus() {
-            this.onValueChange(this.currentValue);
-
             if (!_.isEmpty(this.items)) {
                 this.listVisible = true;
             }
@@ -130,7 +128,6 @@ const autoCompleteField = {
         setCurrentValue(value:string) {
             if (this.currentItem.getLabel() !== value) {
                 this.currentItem = this.getItemByLabel(value);
-                this.onValueChange(value);
             }
 
             this.$emit("input", this.currentItem);
@@ -138,7 +135,6 @@ const autoCompleteField = {
     },
     props: {
         items: Array,
-        onValueChange: Function,
         placeholder: String,
         required: Boolean,
         tabindex: Number
