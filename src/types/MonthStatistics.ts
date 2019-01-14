@@ -13,7 +13,7 @@ class MonthStatistics implements Deserializable {
         this.months = months;
     }
 
-    fromAsset(asset:any) {
+    fromAsset(asset:any):MonthStatistics {
         console.log(asset);
         return new MonthStatistics(
             ExpenseCategory.prototype.fromAsset(asset.category),

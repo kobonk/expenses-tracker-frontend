@@ -1,5 +1,6 @@
 import i18n from "utils/i18n";
 import Deserializable from './Deserializable';
+import { SIGHUP } from "constants";
 
 class MonthTotal implements Deserializable {
     private month:string;
@@ -17,6 +18,10 @@ class MonthTotal implements Deserializable {
         let [year, month] = this.month.split("-");
 
         return `${ i18n.monthNames[parseInt(month) - 1] } ${ year }`;
+    }
+
+    public getFormattedTotal():string {
+        return this.total.toFixed(2);
     }
 
     public fromAsset(asset:any) {
