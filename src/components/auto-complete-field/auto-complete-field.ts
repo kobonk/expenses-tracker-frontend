@@ -55,6 +55,7 @@ const autoCompleteField = {
             listVisible: false
         };
     },
+    inheritAttrs: false,
     methods: {
         getItemByLabel(label:string):ListItem {
             let item:ListItem = _.find(this.items, (item:ListItem) => item.getLabel() === label);
@@ -134,20 +135,15 @@ const autoCompleteField = {
         }
     },
     props: {
-        items: Array,
-        placeholder: String,
-        required: Boolean,
-        tabindex: Number
+        items: Array
     },
     template: `
         <div>
             <input
                 autocomplete="off"
                 type="text"
+                v-bind="$attrs"
                 v-on="{ blur: onBlur, focus: onFocus }"
-                :placeholder="placeholder"
-                :required="required"
-                :tabindex="tabindex"
                 :value="currentValue"
                 @input="currentValue = $event.target.value"
                 @keyup.down="onMoveDown"

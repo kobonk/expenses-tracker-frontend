@@ -123,12 +123,12 @@ const component = {
             <input tabindex="1" autocomplete="off" type="text" :placeholder="i18n.expenseName" name="name" required v-model="name">
             <br>
             <auto-complete-field
-                name="category"
                 @input="convertToCategory($event)"
                 :items="matchingCategories"
                 :placeholder="i18n.expenseCategory"
-                :required="true"
-                :tabindex="2">
+                name="category"
+                required
+                tabindex="2">
             </auto-complete-field>
             <div v-if="category.getId() === null">{{ i18n.categoryNotFound }}</div>
             <input tabindex="3" type="date" :placeholder="i18n.expenseDate" name="purchase_date" required v-model="date">
