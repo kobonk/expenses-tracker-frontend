@@ -7,5 +7,5 @@ const vm = new Vue({
     components: {
         "add-expense-form": addExpenseForm
     },
-    el: "#add-expense-form"
+    el: "#expenses-tracker"
 });
