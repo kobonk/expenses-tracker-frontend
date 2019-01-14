@@ -9,5 +9,19 @@
         "expenseCost": "Cost",
         "submitButton": "Submit",
         "title": "Add New Expense"
-    }
+    },
+    "monthNames": [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December"
+    ]
 }

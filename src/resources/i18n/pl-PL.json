@@ -9,5 +9,19 @@
         "expenseCost": "Kwota wydatku",
         "submitButton": "Zapisz",
         "title": "Dodaj nowy wydatek"
-    }
+    },
+    "monthNames": [
+        "Styczeń",
+        "Luty",
+        "Marzec",
+        "Kwiecień",
+        "Maj",
+        "Czerwiec",
+        "Lipiec",
+        "Sierpień",
+        "Wrzesień",
+        "Październik",
+        "Listopad",
+        "Grudzień"
+    ]
 }

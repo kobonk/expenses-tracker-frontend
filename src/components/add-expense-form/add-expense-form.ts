@@ -3,7 +3,7 @@ import { convertDateToString } from "utils/date";
 import ExpenseCategory from "types/ExpenseCategory";
 import Expense from "../../types/Expense";
 import i18n from "utils/i18n";
-import { persistCategory, persistExpense, retrieveCategories } from "utils/restClient";
+import { persistCategory, persistExpense, retrieveCategories, retrieveMonthStatistics } from "utils/restClient";
 import "./styles.sass"
 
 const _ = require("lodash");
