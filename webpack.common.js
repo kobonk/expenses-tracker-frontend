@@ -9,6 +9,16 @@ module.exports = {
     module: {
         rules: [
             {
+                test: /\.vue$/,
+                loader: "vue-loader",
+                options: {
+                    loaders: {
+                        "scss": "vue-style-loader!css-loader!sass-loader",
+                        "sass": "vue-style-loader!css-loader!sass-loader?indentedSyntax"
+                    }
+                }
+            },
+            {
                 test: /\.tsx?$/,
                 use: [
                     {
@@ -37,7 +47,7 @@ module.exports = {
             utils: path.resolve(__dirname, "src/utils"),
             vue: "vue/dist/vue.esm.js"
         },
-        extensions: [".tsx", ".ts", ".js", ".json"]
+        extensions: [".tsx", ".ts", ".js", ".json", ".vue"]
     },
     output: {
         filename: "[name].bundle.js",

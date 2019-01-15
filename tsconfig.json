@@ -5,6 +5,7 @@
         "jsx": "react",
         "lib": ["dom", "es2015"],
         "module": "es6",
+        "moduleResolution": "node",
         "noImplicitAny": true,
         "outDir": "./dist/",
         "paths": {
