@@ -12,7 +12,7 @@
 
         th
             text-transform: uppercase
-            font-weight: 300
+            font-weight: 700
 
         td:first-child
             text-align: left
@@ -27,6 +27,22 @@
     thead
         tr
             border-bottom: 1px solid rgba(0, 0, 0, 0.1)
+
+            th
+                cursor: pointer
+                color: #666
+                transition: color 0.5s
+
+                &:hover
+                    color: #000
+
+                &.sorted-asc
+                    &:after
+                        content: " \2191"
+
+                &.sorted-desc
+                    &:after
+                        content: " \2193"
 
     tfoot
         tr
