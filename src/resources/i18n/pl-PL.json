@@ -10,6 +10,10 @@
         "submitButton": "Zapisz",
         "title": "Dodaj nowy wydatek"
     },
+    "statisticsTable": {
+        "categoryLabel": "Nazwa Kategorii",
+        "totalLabel": "Suma"
+    },
     "monthNames": [
         "Styczeń",
         "Luty",

@@ -1,6 +1,7 @@
 import i18n from "utils/i18n";
-import Deserializable from './Deserializable';
-import { SIGHUP } from "constants";
+import Deserializable from "./Deserializable";
+
+const _ = require("lodash");
 
 class MonthTotal implements Deserializable {
     private month:string;
@@ -21,7 +22,11 @@ class MonthTotal implements Deserializable {
     }
 
     public getFormattedTotal():string {
-        return this.total.toFixed(2);
+        return this.getTotal().toFixed(2);
+    }
+
+    public getTotal():Number {
+        return _.get(this, "total", 0);
     }
 
     public fromAsset(asset:any) {

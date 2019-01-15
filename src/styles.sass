@@ -1,17 +1,35 @@
 @import url('https://fonts.googleapis.com/css?family=Lato:300,400,700&subset=latin-ext')
 
-body
-    padding: 0
+html, body
+    height: 100%
     margin: 0
+    padding: 0
 
 #expenses-tracker
+    align-items: flex-start
+    display: flex
+    flex-direction: row
     font-family: Lato
+    height: 100%
+    min-height: 100%
     padding: 0
 
     .sidebar
-        width: 20%
-        height: 100%
-        display: block
-        border-right: 1px solid #aaa
         box-sizing: border-box
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.25)
+        display: block
+        flex: 1
+        min-height: 100%
+        min-width: 300px
         padding: 1em
+        z-index: 3
+
+    .content
+        background-color: #eee
+        box-sizing: border-box
+        flex: 4
+        height: 100%
+        overflow: auto
+        padding: 1em
+        width: 100%
+        z-index: 2

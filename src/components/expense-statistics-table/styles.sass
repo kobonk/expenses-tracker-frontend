@@ -1,0 +1,33 @@
+.expense-statistics-table
+    box-sizing: border-box
+    border-collapse: collapse
+    margin-bottom: 2em
+    width: 100%
+
+    tr
+        td, th
+            color: #333
+            padding: 1em 0.5em
+            text-align: right
+
+        th
+            text-transform: uppercase
+            font-weight: 300
+
+        td:first-child
+            text-align: left
+
+        th:first-child
+            text-align: left
+
+        &:nth-child(even)
+            td
+                background-color: rgba(0, 0, 0, 0.05)
+
+    thead
+        tr
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1)
+
+    tfoot
+        tr
+            border-top: 1px solid rgba(0, 0, 0, 0.1)

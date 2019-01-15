@@ -10,6 +10,10 @@
         "submitButton": "Submit",
         "title": "Add New Expense"
     },
+    "statisticsTable": {
+        "categoryLabel": "Category Name",
+        "totalLabel": "Total"
+    },
     "monthNames": [
         "January",
         "February",

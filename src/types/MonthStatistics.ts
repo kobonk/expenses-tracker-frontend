@@ -13,8 +13,15 @@ class MonthStatistics implements Deserializable {
         this.months = months;
     }
 
-    fromAsset(asset:any):MonthStatistics {
-        console.log(asset);
+    public getCategoryName():string {
+        return this.category.getName();
+    }
+
+    public getMonths():Array<MonthTotal> {
+        return this.months;
+    }
+
+    public fromAsset(asset:any):MonthStatistics {
         return new MonthStatistics(
             ExpenseCategory.prototype.fromAsset(asset.category),
             _.map(asset.months, MonthTotal.prototype.fromAsset)
