@@ -1,13 +1,11 @@
 import Vue from "vue";
 import "./utils/i18n"
-import addExpenseForm from "./components/add-expense-form/add-expense-form";
-import statisticsTable from "./components/expense-statistics-table/expense-statistics-table";
 import "./styles.sass"
 
 const vm = new Vue({
     components: {
-        "add-expense-form": addExpenseForm,
-        "statistics-table": statisticsTable
+        "add-expense-form": () => import("./components/add-expense-form/add-expense-form"),
+        "statistics-table": () => import("./components/expense-statistics-table/expense-statistics-table")
     },
     el: "#expenses-tracker"
 });
