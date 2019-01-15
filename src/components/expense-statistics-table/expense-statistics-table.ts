@@ -12,29 +12,19 @@ const createFakeMonthTotal:Function = (total:number):MonthTotal => {
 }
 
 const component = Vue.extend({
-    created():any {
-        retrieveMonthStatistics(this.numberOfMonths)
-        .then((statistics:Array<MonthStatistics>) => {
-            this.rows = statistics;
-            this.totals = _.map(this.calculateTotals(statistics), _.method("toFixed", 2));
-        })
-    },
     computed: {
         categoryLabel():string {
             return i18n.statisticsTable.categoryLabel;
         },
-        numberOfMonths():number {
-            return 3;
+        rows():Array<MonthStatistics> {
+            return this.statistics;
         },
         totalLabel():string {
             return i18n.statisticsTable.totalLabel;
+        },
+        totals():Array<string> {
+            return _.map(this.calculateTotals(this.rows), _.method("toFixed", 2));
         }
-    },
-    data():any {
-        return {
-            rows: [],
-            totals: []
-        };
     },
     methods: {
         calculateTotals(rows:Array<MonthStatistics>):Array<number> {
@@ -58,14 +48,22 @@ const component = Vue.extend({
             let month:MonthTotal = _.get(row.getMonths(), index, createFakeMonthTotal(0));
 
             return month.getFormattedTotal();
+        },
+        getMonthNames():Array<string> {
+            let rowWithGreatestMonthNumber = _.last(_.sortBy(this.rows, (row:MonthStatistics) => row.getMonths().length))
+            let availableMonthNames = _.map(rowWithGreatestMonthNumber.getMonths(), _.method("getMonthName"));
+            let lackingMonths = _.fill(new Array(this.numberOfMonths - availableMonthNames.length), "n/a");
+
+            return _.concat(availableMonthNames, lackingMonths)
         }
     },
+    props: ["statistics", "numberOfMonths"],
     template: `
         <table v-if="rows.length > 0" class="expense-statistics-table">
             <thead>
                 <tr>
                     <th>{{ categoryLabel }}</th>
-                    <th v-for="col in rows[0].getMonths()">{{ col.getMonthName() }}</th>
+                    <th v-for="monthName in getMonthNames()">{{ monthName }}</th>
                 </tr>
             </thead>
             <tbody>

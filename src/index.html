@@ -7,10 +7,13 @@
     <body>
         <div id="expenses-tracker">
             <aside class="sidebar">
-                <add-expense-form></add-expense-form>
+                <add-expense-form @submit="updateStatistics"></add-expense-form>
             </aside>
             <main class="content">
-                <statistics-table></statistics-table>
+                <statistics-table
+                    :number-of-months="numberOfStatisticsMonths"
+                    :statistics="statisticsTableRows">
+                </statistics-table>
             </main>
         </div>
     </body>

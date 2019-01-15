@@ -65,12 +65,16 @@ const component = {
                 return [];
             });
         },
-        onSubmit():Promise<any> {
+        onSubmit(event:any):Promise<any> {
             return this.ensureCategoryRegistration(this.category)
             .then((category:ExpenseCategory) => {
                 let expense:Expense = new Expense(undefined, this.name, category, this.date, parseFloat(this.cost));
 
                 return this.registerExpense(expense);
+            })
+            .then(() => {
+                // Explicitly passing the event up the DOM tree. I don't know why it doesn't work out-of-box.
+                this.$emit("submit", event);
             });
         },
         ensureCategoryRegistration(category:ExpenseCategory):Promise<ExpenseCategory> {
@@ -118,7 +122,7 @@ const component = {
         }
     },
     template: `
-        <form name="add-expense" class="add-expense-form" @submit.stop.prevent="onSubmit">
+        <form name="add-expense" class="add-expense-form" @submit.prevent="onSubmit">
             <h3>{{ i18n.title }}</h3>
             <input tabindex="1" autocomplete="off" type="text" :placeholder="i18n.expenseName" name="name" required v-model="name">
             <br>
