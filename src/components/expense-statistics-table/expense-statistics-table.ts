@@ -16,14 +16,11 @@ const component = Vue.extend({
         categoryLabel():string {
             return i18n.statisticsTable.categoryLabel;
         },
-        rows():Array<MonthStatistics> {
-            return this.statistics;
-        },
         totalLabel():string {
             return i18n.statisticsTable.totalLabel;
         },
         totals():Array<string> {
-            return _.map(this.calculateTotals(this.rows), _.method("toFixed", 2));
+            return _.map(this.calculateTotals(this.statistics), _.method("toFixed", 2));
         }
     },
     methods: {
@@ -50,7 +47,7 @@ const component = Vue.extend({
             return month.getFormattedTotal();
         },
         getMonthNames():Array<string> {
-            let rowWithGreatestMonthNumber = _.last(_.sortBy(this.rows, (row:MonthStatistics) => row.getMonths().length))
+            let rowWithGreatestMonthNumber = _.last(_.sortBy(this.statistics, (row:MonthStatistics) => row.getMonths().length))
             let availableMonthNames = _.map(rowWithGreatestMonthNumber.getMonths(), _.method("getMonthName"));
             let lackingMonths = _.fill(new Array(this.numberOfMonths - availableMonthNames.length), "n/a");
 
@@ -59,7 +56,7 @@ const component = Vue.extend({
     },
     props: ["statistics", "numberOfMonths"],
     template: `
-        <table v-if="rows.length > 0" class="expense-statistics-table">
+        <table v-if="statistics.length > 0" class="expense-statistics-table">
             <thead>
                 <tr>
                     <th>{{ categoryLabel }}</th>
@@ -67,7 +64,7 @@ const component = Vue.extend({
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="row in rows">
+                <tr v-for="row in statistics">
                     <td>{{ row.getCategoryName() }}</td>
                     <td v-for="(n, i) in numberOfMonths">{{ getFormattedTotalForMonth(row, i) }}</td>
                 </tr>
