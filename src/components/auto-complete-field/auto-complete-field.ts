@@ -98,7 +98,7 @@ const autoCompleteField = {
             this.selectFieldText();
         },
         selectFieldText():Promise<any> {
-            let inputField:HTMLInputElement = this.$el.querySelector("input[type=text]");
+            let inputField:HTMLInputElement = this.$refs.input;
 
             // This is weird but select() works only if invoked asynchronously
             return new Promise((resolve:any) => {
@@ -112,7 +112,7 @@ const autoCompleteField = {
             });
         },
         setFieldFocus():Promise<any> {
-            let inputField:HTMLInputElement = this.$el.querySelector("input[type=text]");
+            let inputField:HTMLInputElement = this.$refs.input;
 
             // This is weird but focus() works only if invoked asynchronously
             return new Promise((resolve:any) => {
@@ -141,6 +141,7 @@ const autoCompleteField = {
         <div>
             <input
                 autocomplete="off"
+                ref="input"
                 type="text"
                 v-bind="$attrs"
                 v-on="{ blur: onBlur, focus: onFocus }"
