@@ -115,8 +115,6 @@ const component = {
                     return persistedCategory.getName() === category.getName()
                 });
 
-                this.showMessage(`Category "${ registeredCategory.getName() }" successfully registered!`);
-
                 return registeredCategory;
             });
 
@@ -124,7 +122,7 @@ const component = {
         registerExpense(expense:Expense) {
             return persistExpense(expense)
             .then((expense:Expense) => {
-                this.showMessage(`Expense "${ expense.getName() }" successfully registered!`);
+                this.showMessage(_.replace(i18n.addExpenseForm.submitSuccessMessage, "{EXPENSE_NAME}", expense.getName()));
             });
         },
         showError(error:Error) {

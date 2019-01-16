@@ -8,6 +8,7 @@
         "expenseDate": "Purchase Date",
         "expenseCost": "Cost",
         "submitButton": "Submit",
+        "submitSuccessMessage": "Expense \"{EXPENSE_NAME}\" was successfully saved.",
         "title": "Add New Expense"
     },
     "statisticsTable": {
