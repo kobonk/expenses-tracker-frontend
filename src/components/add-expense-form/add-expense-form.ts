@@ -136,7 +136,6 @@ const component = {
         <form name="add-expense" class="add-expense-form" ref="form" @submit.prevent="onSubmit">
             <h3>{{ i18n.title }}</h3>
             <input autofocus tabindex="1" autocomplete="off" type="text" :placeholder="i18n.expenseName" name="name" required v-model="name">
-            <br>
             <auto-complete-field
                 v-model.lazy.trim="categoryItem"
                 :items="matchingCategories"
@@ -147,9 +146,7 @@ const component = {
             </auto-complete-field>
             <div v-if="category.getId() === null">{{ i18n.categoryNotFound }}</div>
             <input tabindex="3" type="date" :placeholder="i18n.expenseDate" name="purchase_date" required v-model="date">
-            <br>
             <input tabindex="4" autocomplete="off" type="number" :placeholder="i18n.expenseCost" name="cost" step="0.01" min="0.01" required v-model="cost">
-            <br>
             <button tabindex="5" type="submit" name="submit">{{ i18n.submitButton }}</button>
         </form>
     `,
