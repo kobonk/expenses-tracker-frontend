@@ -1,4 +1,5 @@
 import { autoCompleteField, ListItem } from "./../auto-complete-field/auto-complete-field";
+import autoCompleteField2 from "./../auto-complete-field/auto-complete-field-2";
 import { convertDateToString } from "utils/date";
 import ExpenseCategory from "types/ExpenseCategory";
 import Expense from "../../types/Expense";
@@ -18,7 +19,8 @@ const blankCategory:ExpenseCategory = new ExpenseCategory("blank", "blank");
 
 const component = {
     components: {
-        "auto-complete-field": autoCompleteField
+        "auto-complete-field": autoCompleteField,
+        "auto-complete-field-2": autoCompleteField2
     },
     data() {
         return {
@@ -31,6 +33,8 @@ const component = {
             i18n: i18n.addExpenseForm,
             matchingCategories: <Array<ExpenseCategoryListItem>>[],
             name: "",
+            testNames: ["Jeden", "Dwa", "Trzy", "Cztery", "Pięć"],
+            testName: "",
             toastMessage: <string>null
         }
     },
@@ -137,6 +141,10 @@ const component = {
     template: `
         <form name="add-expense" class="add-expense-form" ref="form" @submit.prevent="onSubmit">
             <h3>{{ i18n.title }}</h3>
+            <auto-complete-field-2
+                v-model.lazy.trim="testName"
+                :items="testNames">
+            </auto-complete-field-2>
             <input autofocus tabindex="1" autocomplete="off" type="text" :placeholder="i18n.expenseName" name="name" required v-model="name">
             <auto-complete-field
                 v-model.lazy.trim="categoryItem"
@@ -159,6 +167,9 @@ const component = {
     watch: {
         categoryItem(item:ListItem) {
             this.convertToCategory(item);
+        },
+        testName(name:String) {
+            console.log("testName:", name);
         }
     }
 };
