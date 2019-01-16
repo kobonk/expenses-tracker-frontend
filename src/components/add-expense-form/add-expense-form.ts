@@ -65,6 +65,13 @@ const component = {
                 return [];
             });
         },
+        onExpenseRegistered() {
+            this.category = blankCategory;
+            this.cost = null;
+            this.date = convertDateToString(new Date());
+            this.matchingCategories = [];
+            this.name = "";
+        },
         onSubmit(event:any):Promise<any> {
             return this.ensureCategoryRegistration(this.category)
             .then((category:ExpenseCategory) => {
@@ -73,6 +80,7 @@ const component = {
                 return this.registerExpense(expense);
             })
             .then(() => {
+                this.onExpenseRegistered();
                 // Explicitly passing the event up the DOM tree. I don't know why it doesn't work out-of-box.
                 this.$emit("submit", event);
             });
