@@ -1,3 +1,9 @@
+@keyframes show-notification
+    0%
+        opacity: 0
+    100%
+        opacity: 1
+
 .add-expense-form
     h3
         font-size: 1.2em
@@ -20,3 +26,25 @@
 
         &:hover
             background-color: #5B4FFF
+
+    .notification
+        background: #eef
+        border-radius: 0.2em
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.5)
+        box-sizing: border-box
+        color: #333
+        font-weight: 700
+        margin-top: 1em
+        padding: 1.5em
+        position: relative
+
+        &.notification-error
+            background: #a00
+            color: #fff
+
+    .notification-enter-active
+        animation: show-notification 0.5s
+            color: #fff
+
+    .notification-leave-active
+        animation: show-notification 1s reverse

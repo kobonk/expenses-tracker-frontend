@@ -27,9 +27,11 @@ const component = {
             categoryItem: new ExpenseCategoryListItem("", ""),
             cost: <Number>null,
             date: convertDateToString(new Date()),
+            errorMessage: <string>null,
             i18n: i18n.addExpenseForm,
             matchingCategories: <Array<ExpenseCategoryListItem>>[],
-            name: ""
+            name: "",
+            toastMessage: <string>null
         }
     },
     methods: {
@@ -113,7 +115,7 @@ const component = {
                     return persistedCategory.getName() === category.getName()
                 });
 
-                this.showToast(`Category "${ registeredCategory.getName() }" successfully registered!`);
+                this.showMessage(`Category "${ registeredCategory.getName() }" successfully registered!`);
 
                 return registeredCategory;
             });
@@ -122,14 +124,16 @@ const component = {
         registerExpense(expense:Expense) {
             return persistExpense(expense)
             .then((expense:Expense) => {
-                this.showToast(`Expense "${ expense.getName() }" successfully registered!`);
+                this.showMessage(`Expense "${ expense.getName() }" successfully registered!`);
             });
         },
         showError(error:Error) {
-            console.error(error);
+            this.errorMessage = error.message;
+            setTimeout(() => this.errorMessage = null, 4000);
         },
-        showToast(message:string) {
-            console.log(message);
+        showMessage(message:string) {
+            this.toastMessage = message;
+            setTimeout(() => this.toastMessage = null, 4000);
         }
     },
     template: `
@@ -148,6 +152,10 @@ const component = {
             <input tabindex="3" type="date" :placeholder="i18n.expenseDate" name="purchase_date" required v-model="date">
             <input tabindex="4" autocomplete="off" type="number" :placeholder="i18n.expenseCost" name="cost" step="0.01" min="0.01" required v-model="cost">
             <button tabindex="5" type="submit" name="submit">{{ i18n.submitButton }}</button>
+            <transition name="notification">
+                <div class="notification" v-if="toastMessage">{{ toastMessage }}</div>
+                <div class="notification notification-error" v-if="errorMessage">{{ errorMessage }}</div>
+            </transition>
         </form>
     `,
     watch: {
