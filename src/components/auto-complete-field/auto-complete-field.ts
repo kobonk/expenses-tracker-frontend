@@ -39,12 +39,24 @@ const autoCompleteField = {
     computed: {
         currentValue() {
             return this.getItemByLabel(this.value.getLabel());
+        },
+        listVisible() {
+            let value:string = _.trim(this.value.getLabel());
+
+            if (_.isEmpty(value)) {
+                return false;
+            }
+
+            if (this.items.length === 1 && _.first(this.items).getLabel() === value) {
+                return false;
+            }
+
+            return true;
         }
     },
     data() {
         return {
-            currentItem: <ListItem>new Item(""),
-            listVisible: false
+            currentItem: <ListItem>new Item("")
         };
     },
     inheritAttrs: false,
@@ -57,39 +69,25 @@ const autoCompleteField = {
         isCurrentItem(item:ListItem):boolean {
             return item === this.currentItem;
         },
-        onBlur() {
-            window.setTimeout(
-                () => this.listVisible = false,
-                fieldBlurDelay
-            )
-        },
         onClick(item:ListItem) {
             this.setCurrentValue(item.getLabel());
-            this.listVisible = false;
             this.setFieldFocus()
             .then(this.selectFieldText);
         },
-        onFocus() {
-            if (!_.isEmpty(this.items)) {
-                this.listVisible = true;
-            }
+        onListItemSelected() {
+            this.setCurrentValue(this.currentItem.getLabel());
         },
-        onMoveDown() {
+        onListMoveDown() {
             let nextItem = getNextItem(this.items, this.currentItem);
             this.currentItem = _.isNil(nextItem) ? _.first(this.items) : nextItem;
-            this.setCurrentValue(this.currentItem.getLabel());
-            this.selectFieldText();
         },
-        onMoveUp() {
+        onListMoveUp() {
             let previousItem = getPreviousItem(this.items, this.currentItem);
             this.currentItem = _.isNil(previousItem) ? _.first(this.items) : previousItem;
-            this.setCurrentValue(this.currentItem.getLabel());
-            this.selectFieldText();
         },
         selectFieldText():Promise<any> {
             let inputField:HTMLInputElement = this.$refs.input;
 
-            // This is weird but select() works only if invoked asynchronously
             return new Promise((resolve:any) => {
                 window.setTimeout(
                     () => {
@@ -100,10 +98,16 @@ const autoCompleteField = {
                 )
             });
         },
+        setCurrentValue(value:string) {
+            if (_.isNil(this.currentItem) || this.currentItem.getLabel() !== value) {
+                this.currentItem = this.getItemByLabel(value);
+            }
+
+            this.$emit("input", this.currentItem);
+        },
         setFieldFocus():Promise<any> {
             let inputField:HTMLInputElement = this.$refs.input;
 
-            // This is weird but focus() works only if invoked asynchronously
             return new Promise((resolve:any) => {
                 window.setTimeout(
                     () => {
@@ -114,13 +118,6 @@ const autoCompleteField = {
                 )
             });
 
-        },
-        setCurrentValue(value:string) {
-            if (this.currentItem.getLabel() !== value) {
-                this.currentItem = this.getItemByLabel(value);
-            }
-
-            this.$emit("input", this.currentItem);
         }
     },
     props: ["items", "value"],
@@ -131,11 +128,11 @@ const autoCompleteField = {
                 ref="input"
                 type="text"
                 v-bind="$attrs"
-                v-on="{ blur: onBlur, focus: onFocus }"
                 :value="currentValue.getLabel()"
-                @input="setCurrentValue($event.target.value)"
-                @keyup.down="onMoveDown"
-                @keyup.up="onMoveUp">
+                @input.prevent="setCurrentValue($event.target.value)"
+                @keydown.enter="onListItemSelected"
+                @keyup.down="onListMoveDown"
+                @keyup.up="onListMoveUp">
             <ul class="auto-complete-list" v-if="listVisible">
                 <li
                     @click="onClick(item)"
@@ -144,18 +141,7 @@ const autoCompleteField = {
                 >{{ item.getLabel() }}</li>
             </ul>
         </div>
-    `,
-    watch: {
-        items(newList:Array<ListItem>) {
-            if (_.isEmpty(newList)) {
-                this.currentItem = new Item(this.currentValue);
-                this.listVisible = false;
-                return;
-            }
-
-            this.listVisible = true;
-        }
-    }
+    `
 };
 
 export { autoCompleteField, ListItem };

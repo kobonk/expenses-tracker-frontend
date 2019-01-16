@@ -73,6 +73,7 @@ const component = {
             this.date = convertDateToString(new Date());
             this.matchingCategories = [];
             this.name = "";
+            this.$refs.form.reset();
         },
         onSubmit(event:any):Promise<any> {
             return this.ensureCategoryRegistration(this.category)
@@ -132,9 +133,9 @@ const component = {
         }
     },
     template: `
-        <form name="add-expense" class="add-expense-form" @submit.prevent="onSubmit">
+        <form name="add-expense" class="add-expense-form" ref="form" @submit.prevent="onSubmit">
             <h3>{{ i18n.title }}</h3>
-            <input tabindex="1" autocomplete="off" type="text" :placeholder="i18n.expenseName" name="name" required v-model="name">
+            <input autofocus tabindex="1" autocomplete="off" type="text" :placeholder="i18n.expenseName" name="name" required v-model="name">
             <br>
             <auto-complete-field
                 v-model.lazy.trim="categoryItem"
