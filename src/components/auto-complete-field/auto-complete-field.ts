@@ -118,6 +118,9 @@ const autoCompleteField = {
                 )
             });
 
+        },
+        getHtmlLabelForItem(item:ListItem):string {
+            return _.replace(item.getLabel(), new RegExp(`(${ this.value.getLabel() })`, "i"), "<mark>$1</mark>")
         }
     },
     props: ["items", "value"],
@@ -138,7 +141,8 @@ const autoCompleteField = {
                     @click="onClick(item)"
                     :class="{ selected: isCurrentItem(item) }"
                     v-for="item in items"
-                >{{ item.getLabel() }}</li>
+                    v-html="getHtmlLabelForItem(item)">
+                </li>
             </ul>
         </div>
     `
