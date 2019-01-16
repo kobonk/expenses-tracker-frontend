@@ -37,17 +37,9 @@ const fieldFocusDelay = fieldBlurDelay + 50;
 
 const autoCompleteField = {
     computed: {
-        currentValue: {
-            get():string {
-                return this.currentItem.getLabel();
-            },
-            set(value:string) {
-                this.debouncedSetCurrentValue(value);
-            }
+        currentValue() {
+            return this.getItemByLabel(this.value.getLabel());
         }
-    },
-    created() {
-        this.debouncedSetCurrentValue = _.debounce(this.setCurrentValue, keyboardInputDelay);
     },
     data() {
         return {
@@ -72,7 +64,7 @@ const autoCompleteField = {
             )
         },
         onClick(item:ListItem) {
-            this.currentValue = item.getLabel();
+            this.setCurrentValue(item.getLabel());
             this.listVisible = false;
             this.setFieldFocus()
             .then(this.selectFieldText);
@@ -82,19 +74,16 @@ const autoCompleteField = {
                 this.listVisible = true;
             }
         },
-        onInput(input:string) {
-            this.currentValue = input;
-        },
         onMoveDown() {
             let nextItem = getNextItem(this.items, this.currentItem);
             this.currentItem = _.isNil(nextItem) ? _.first(this.items) : nextItem;
-            this.currentValue = this.currentItem.getLabel();
+            this.setCurrentValue(this.currentItem.getLabel());
             this.selectFieldText();
         },
         onMoveUp() {
             let previousItem = getPreviousItem(this.items, this.currentItem);
             this.currentItem = _.isNil(previousItem) ? _.first(this.items) : previousItem;
-            this.currentValue = this.currentItem.getLabel();
+            this.setCurrentValue(this.currentItem.getLabel());
             this.selectFieldText();
         },
         selectFieldText():Promise<any> {
@@ -134,9 +123,7 @@ const autoCompleteField = {
             this.$emit("input", this.currentItem);
         }
     },
-    props: {
-        items: Array
-    },
+    props: ["items", "value"],
     template: `
         <div>
             <input
@@ -145,8 +132,8 @@ const autoCompleteField = {
                 type="text"
                 v-bind="$attrs"
                 v-on="{ blur: onBlur, focus: onFocus }"
-                :value="currentValue"
-                @input="currentValue = $event.target.value"
+                :value="currentValue.getLabel()"
+                @input="setCurrentValue($event.target.value)"
                 @keyup.down="onMoveDown"
                 @keyup.up="onMoveUp">
             <ul class="auto-complete-list" v-if="listVisible">

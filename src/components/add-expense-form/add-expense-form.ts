@@ -3,7 +3,7 @@ import { convertDateToString } from "utils/date";
 import ExpenseCategory from "types/ExpenseCategory";
 import Expense from "../../types/Expense";
 import i18n from "utils/i18n";
-import { persistCategory, persistExpense, retrieveCategories, retrieveMonthStatistics } from "utils/restClient";
+import { persistCategory, persistExpense, retrieveCategories } from "utils/restClient";
 import "./styles.sass"
 
 const _ = require("lodash");
@@ -24,6 +24,7 @@ const component = {
         return {
             categories: <Array<ExpenseCategory>>[],
             category: blankCategory,
+            categoryItem: new ExpenseCategoryListItem("", ""),
             cost: <Number>null,
             date: convertDateToString(new Date()),
             i18n: i18n.addExpenseForm,
@@ -67,6 +68,7 @@ const component = {
         },
         onExpenseRegistered() {
             this.category = blankCategory;
+            this.categoryItem = new ExpenseCategoryListItem("", "");
             this.cost = null;
             this.date = convertDateToString(new Date());
             this.matchingCategories = [];
@@ -135,7 +137,7 @@ const component = {
             <input tabindex="1" autocomplete="off" type="text" :placeholder="i18n.expenseName" name="name" required v-model="name">
             <br>
             <auto-complete-field
-                @input="convertToCategory($event)"
+                v-model.lazy.trim="categoryItem"
                 :items="matchingCategories"
                 :placeholder="i18n.expenseCategory"
                 name="category"
@@ -149,7 +151,12 @@ const component = {
             <br>
             <button tabindex="5" type="submit" name="submit">{{ i18n.submitButton }}</button>
         </form>
-    `
+    `,
+    watch: {
+        categoryItem(item:ListItem) {
+            this.convertToCategory(item);
+        }
+    }
 };
 
 export default component;
