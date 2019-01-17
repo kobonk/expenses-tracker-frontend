@@ -38,8 +38,8 @@ const retrieveMonthStatistics:Function = async (numberOfMonths:Number):Promise<A
     .value()
 }
 
-const persistCategory:Function = async (category:ExpenseCategory):Promise<ExpenseCategory> => {
-    let response:any = await axios.post(categoriesUrl, category.toAsset());
+const persistCategory: Function = async (categoryName: string):Promise<ExpenseCategory> => {
+    let response:any = await axios.post(categoriesUrl, { name: categoryName });
 
     return _.map(response.data, ExpenseCategory.prototype.fromAsset);
 };

@@ -2,137 +2,93 @@ import "./styles.sass"
 
 const _ = require("lodash");
 
-interface ListItem {
-    getLabel():string;
-    getId():string;
-};
-
-class Item implements ListItem {
-    private label:string;
-
-    constructor(label:string) {
-        this.label = label;
-    }
-
-    getLabel():string {
-        return this.label;
-    }
-
-    getId():string {
-        return null;
-    }
-};
-
-const getNextItem = function(items:Array<ListItem>, item:ListItem):ListItem {
+const getNextItem = function(items:Array<any>, item:any):any {
     return item === _.last(items) ? _.first(items) : items[_.indexOf(items, item) + 1];
 };
 
-const getPreviousItem = function(items:Array<ListItem>, item:ListItem):ListItem {
+const getPreviousItem = function(items:Array<any>, item:any):any {
     return item === _.first(items) ? _.last(items) : items[_.indexOf(items, item) - 1];
 };
 
-const keyboardInputDelay = 100;
-const fieldBlurDelay = keyboardInputDelay + 50;
-const fieldFocusDelay = fieldBlurDelay + 50;
-
-const autoCompleteField = {
+export default {
     computed: {
-        currentValue() {
-            return this.getItemByLabel(this.value.getLabel());
+        currentItem: {
+            get():String {
+                return this.value;
+            },
+            set(item:String) {
+                this.temporaryItem = item;
+                this.$emit("input", item);
+            }
         },
-        listVisible() {
-            let value:string = _.trim(this.value.getLabel());
-
-            if (_.isEmpty(value)) {
+        listVisible():Boolean {
+            if (!this.fieldActive || _.isEmpty(this.currentItem)) {
                 return false;
             }
 
-            if (this.items.length === 1 && _.first(this.items).getLabel() === value) {
+            if (this.matchingItems.length === 1 && _.first(this.matchingItems) === this.currentItem) {
                 return false;
             }
 
             return true;
+        },
+        matchingItems():Array<String> {
+            return _.filter(this.items, (item:String) => {
+                return (new RegExp(_.trim(this.currentItem), "i")).test(_.trim(item))
+            });
         }
     },
     data() {
         return {
-            currentItem: <ListItem>new Item("")
+            fieldActive: false,
+            temporaryItem: ""
         };
     },
     inheritAttrs: false,
     methods: {
-        getItemByLabel(label:string):ListItem {
-            let item:ListItem = _.find(this.items, (item:ListItem) => item.getLabel() === label);
-
-            return _.isNil(item) ? new Item(label) : item;
+        getHtmlLabelForItem(item:String):String {
+            return _.replace(item, new RegExp(`(${ this.currentItem })`, "i"), "<mark>$1</mark>");
         },
-        isCurrentItem(item:ListItem):boolean {
-            return item === this.currentItem;
+        isCurrentItem(item:String):Boolean {
+            return _.isEqual(item, this.temporaryItem);
         },
-        onClick(item:ListItem) {
-            this.setCurrentValue(item.getLabel());
-            this.setFieldFocus()
-            .then(this.selectFieldText);
+        onBlur() {
+            this.fieldActive = false;
+        },
+        onClick(item:String) {
+            this.updateCurrentValue(item);
+        },
+        onFocus() {
+            this.fieldActive = true;
         },
         onListItemSelected() {
-            this.setCurrentValue(this.currentItem.getLabel());
+            if (!_.isEmpty(this.temporaryItem)) {
+                this.updateCurrentValue(this.temporaryItem);
+            }
         },
         onListMoveDown() {
-            let nextItem = getNextItem(this.items, this.currentItem);
-            this.currentItem = _.isNil(nextItem) ? _.first(this.items) : nextItem;
+            let nextItem:String = getNextItem(this.matchingItems, this.temporaryItem);
+            this.temporaryItem = _.isNil(nextItem) ? _.first(this.matchingItems) : nextItem;
         },
         onListMoveUp() {
-            let previousItem = getPreviousItem(this.items, this.currentItem);
-            this.currentItem = _.isNil(previousItem) ? _.first(this.items) : previousItem;
+            let prevItem = getPreviousItem(this.matchingItems, this.temporaryItem);
+            this.temporaryItem = _.isNil(prevItem) ? _.last(this.matchingItems) : prevItem;
         },
-        selectFieldText():Promise<any> {
-            let inputField:HTMLInputElement = this.$refs.input;
-
-            return new Promise((resolve:any) => {
-                window.setTimeout(
-                    () => {
-                        inputField.select();
-                        resolve();
-                    },
-                    0
-                )
-            });
-        },
-        setCurrentValue(value:string) {
-            if (_.isNil(this.currentItem) || this.currentItem.getLabel() !== value) {
-                this.currentItem = this.getItemByLabel(value);
-            }
-
-            this.$emit("input", this.currentItem);
-        },
-        setFieldFocus():Promise<any> {
-            let inputField:HTMLInputElement = this.$refs.input;
-
-            return new Promise((resolve:any) => {
-                window.setTimeout(
-                    () => {
-                        inputField.focus();
-                        resolve();
-                    },
-                    fieldFocusDelay
-                )
-            });
-
-        },
-        getHtmlLabelForItem(item:ListItem):string {
-            return _.replace(item.getLabel(), new RegExp(`(${ this.value.getLabel() })`, "i"), "<mark>$1</mark>")
+        updateCurrentValue(item:String) {
+            this.currentItem = item;
         }
     },
-    props: ["items", "value"],
+    props: ["value", "items"],
     template: `
         <div>
             <input
                 autocomplete="off"
-                ref="input"
+                ref="value-input"
                 type="text"
                 v-bind="$attrs"
-                :value="currentValue.getLabel()"
-                @input.prevent="setCurrentValue($event.target.value)"
+                v-on="{ blur: onBlur, focus: onFocus }"
+                :value="currentItem"
+                @input="updateCurrentValue($event.target.value)"
                 @keydown.enter="onListItemSelected"
                 @keyup.down="onListMoveDown"
                 @keyup.up="onListMoveUp">
@@ -140,12 +96,10 @@ const autoCompleteField = {
                 <li
                     @click="onClick(item)"
                     :class="{ selected: isCurrentItem(item) }"
-                    v-for="item in items"
+                    v-for="item in matchingItems"
                     v-html="getHtmlLabelForItem(item)">
                 </li>
             </ul>
         </div>
     `
-};
-
-export { autoCompleteField, ListItem };
+}

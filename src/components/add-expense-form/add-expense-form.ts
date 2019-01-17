@@ -1,90 +1,62 @@
-import { autoCompleteField, ListItem } from "./../auto-complete-field/auto-complete-field";
-import autoCompleteField2 from "./../auto-complete-field/auto-complete-field-2";
+import autoCompleteField from "../auto-complete-field/auto-complete-field";
 import { convertDateToString } from "utils/date";
 import ExpenseCategory from "types/ExpenseCategory";
-import Expense from "../../types/Expense";
+import Expense from "types/Expense";
 import i18n from "utils/i18n";
 import { persistCategory, persistExpense, retrieveCategories } from "utils/restClient";
-import "./styles.sass"
+import "./styles.sass";
 
 const _ = require("lodash");
 
-class ExpenseCategoryListItem extends ExpenseCategory implements ListItem {
-    public getLabel():string {
-        return this.getName();
-    }
+const blankCategory: ExpenseCategory = new ExpenseCategory("", "");
+
+const trimAndLower = (text: string): string => {
+    return _.toLower(_.trim(text));
 };
 
-const blankCategory:ExpenseCategory = new ExpenseCategory("blank", "blank");
-
-const component = {
+const component: Vue.Component = {
     components: {
-        "auto-complete-field": autoCompleteField,
-        "auto-complete-field-2": autoCompleteField2
+    "auto-complete-field": autoCompleteField
+    },
+    computed: {
+        categoryName: {
+            get(): string {
+                return this.category.getName();
+            },
+            set(name: string) {
+                let category = this.findCategoryByName(name);
+
+                this.category = _.isNil(category) ? new ExpenseCategory("", _.trim(name)) : category;
+            }
+        },
+        categoryNames(): Array<ExpenseCategory> {
+            return _.map(this.categories, _.method("getName")) as Array<ExpenseCategory>;
+        }
     },
     data() {
         return {
-            categories: <Array<ExpenseCategory>>[],
+            categories: [] as Array<ExpenseCategory>,
             category: blankCategory,
-            categoryItem: new ExpenseCategoryListItem("", ""),
-            cost: <Number>null,
+            cost: null as unknown,
             date: convertDateToString(new Date()),
-            errorMessage: <string>null,
+            errorMessage: null as unknown,
             i18n: i18n.addExpenseForm,
-            matchingCategories: <Array<ExpenseCategoryListItem>>[],
             name: "",
-            testNames: ["Jeden", "Dwa", "Trzy", "Cztery", "Pięć"],
-            testName: "",
-            toastMessage: <string>null
-        }
+            toastMessage: null as unknown
+        };
     },
     methods: {
-        convertToCategory(item:ListItem) {
-            this.category = new ExpenseCategory(item.getId(), item.getLabel());
-            this.filterCategories(item.getLabel());
-        },
-        filterCategories(name:string) {
-            if (_.isEmpty(_.trim(name))) {
-                this.matchingCategories = [];
-                return;
-            }
-
-            this.getCategories()
-            .then((categories:Array<ExpenseCategory>) => {
-                this.matchingCategories = _.filter(categories, (category:ExpenseCategory): Array<ExpenseCategoryListItem> => {
-                    return _.includes(_.toLower(category.getName()), _.toLower(_.trim(name)));
-                })
-                .map((category:ExpenseCategory) => new ExpenseCategoryListItem(category.getId(), category.getName()));
-            });
-        },
-        getCategories():Promise<Array<ExpenseCategory>> {
-            if (!_.isEmpty(this.categories)) {
-                return new Promise<Array<ExpenseCategory>>((resolve:Function) => resolve(this.categories));
-            }
-
-            return this.retrieveCategories();
-        },
-        retrieveCategories():Promise<Array<ExpenseCategory>> {
-            return retrieveCategories()
-            .catch((error:Error):Array<any> => {
-                this.showError(error);
-
-                return [];
-            });
-        },
         onExpenseRegistered() {
             this.category = blankCategory;
-            this.categoryItem = new ExpenseCategoryListItem("", "");
             this.cost = null;
             this.date = convertDateToString(new Date());
-            this.matchingCategories = [];
             this.name = "";
             this.$refs.form.reset();
         },
-        onSubmit(event:any):Promise<any> {
-            return this.ensureCategoryRegistration(this.category)
-            .then((category:ExpenseCategory) => {
-                let expense:Expense = new Expense(undefined, this.name, category, this.date, parseFloat(this.cost));
+        onSubmit(event: any): Promise<any> {
+            return this.ensureCategoryRegistration(this.categoryName)
+            .then((category: ExpenseCategory) => {
+                let expense: Expense = new Expense(undefined, this.name, category, this.date, parseFloat(this.cost));
 
                 return this.registerExpense(expense);
             })
@@ -94,67 +66,76 @@ const component = {
                 this.$emit("submit", event);
             });
         },
-        ensureCategoryRegistration(category:ExpenseCategory):Promise<ExpenseCategory> {
-            return this.retrieveCategories()
-            .then((categories:Array<ExpenseCategory>) => {
-                this.categories = categories;
+        ensureCategoryRegistration(categoryName: string): Promise<ExpenseCategory> {
+            let existingCategory: ExpenseCategory = this.findCategoryByName(categoryName);
 
-                let matchingCategory:ExpenseCategory = _.find(categories, (registeredCategory:ExpenseCategory) => {
-                    return _.trim(registeredCategory.getName()) === _.trim(category.getName())
-                });
+            if (!_.isNil(existingCategory)) {
+                return new Promise((reject: Function) => reject(existingCategory)) as Promise<ExpenseCategory>;
+            }
+
+            return this.updateCategories()
+            .then(() => {
+                let matchingCategory: ExpenseCategory = this.findCategoryByName(categoryName);
 
                 if (!_.isNil(matchingCategory)) {
                     return matchingCategory;
                 }
 
-                return this.registerCategory(category);
+                return this.registerCategory(categoryName);
             });
         },
-        registerCategory(category:ExpenseCategory):Promise<ExpenseCategory> {
-            return persistCategory(category)
-            .then((persistedCategories:Array<ExpenseCategory>):ExpenseCategory => {
+        findCategoryByName(categoryName: string): ExpenseCategory {
+            return _.find(this.categories, (category: ExpenseCategory) => {
+                return trimAndLower(category.getName()) === trimAndLower(categoryName);
+            });
+        },
+        registerCategory(categoryName: string): Promise<ExpenseCategory> {
+            return persistCategory(categoryName)
+            .then((persistedCategories: Array<ExpenseCategory>): ExpenseCategory => {
                 this.categories = persistedCategories;
 
-                let registeredCategory:ExpenseCategory = _.find(persistedCategories, (persistedCategory:ExpenseCategory) => {
-                    return persistedCategory.getName() === category.getName()
-                });
-
-                return registeredCategory;
+                return this.findCategoryByName(categoryName);
             });
-
         },
-        registerExpense(expense:Expense) {
+        registerExpense(expense: Expense) {
             return persistExpense(expense)
-            .then((expense:Expense) => {
+            .then((expense: Expense) => {
                 this.showMessage(_.replace(i18n.addExpenseForm.submitSuccessMessage, "{EXPENSE_NAME}", expense.getName()));
             });
         },
-        showError(error:Error) {
+        showError(error: Error) {
             this.errorMessage = error.message;
-            setTimeout(() => this.errorMessage = null, 4000);
+            setTimeout(() => (this.errorMessage = null), 4000);
         },
-        showMessage(message:string) {
+        showMessage(message: string) {
             this.toastMessage = message;
-            setTimeout(() => this.toastMessage = null, 4000);
+            setTimeout(() => (this.toastMessage = null), 4000);
+        },
+        updateCategories(): Promise<any> {
+            return retrieveCategories()
+            .then((categories: Array<ExpenseCategory>) => {
+                this.categories = categories;
+            })
+            .catch((error: Error): Array<any> => {
+                this.showError(error);
+            });
         }
+    },
+    mounted() {
+        this.updateCategories();
     },
     template: `
         <form name="add-expense" class="add-expense-form" ref="form" @submit.prevent="onSubmit">
             <h3>{{ i18n.title }}</h3>
-            <auto-complete-field-2
-                v-model.lazy.trim="testName"
-                :items="testNames">
-            </auto-complete-field-2>
             <input autofocus tabindex="1" autocomplete="off" type="text" :placeholder="i18n.expenseName" name="name" required v-model="name">
             <auto-complete-field
-                v-model.lazy.trim="categoryItem"
-                :items="matchingCategories"
+                v-model.lazy.trim="categoryName"
+                :items="categoryNames"
                 :placeholder="i18n.expenseCategory"
                 name="category"
                 required
                 tabindex="2">
             </auto-complete-field>
-            <div v-if="category.getId() === null">{{ i18n.categoryNotFound }}</div>
             <input tabindex="3" type="date" :placeholder="i18n.expenseDate" name="purchase_date" required v-model="date">
             <input tabindex="4" autocomplete="off" type="number" :placeholder="i18n.expenseCost" name="cost" step="0.01" min="0.01" required v-model="cost">
             <button tabindex="5" type="submit" name="submit">{{ i18n.submitButton }}</button>
@@ -163,15 +144,7 @@ const component = {
                 <div class="notification notification-error" v-if="errorMessage">{{ errorMessage }}</div>
             </transition>
         </form>
-    `,
-    watch: {
-        categoryItem(item:ListItem) {
-            this.convertToCategory(item);
-        },
-        testName(name:String) {
-            console.log("testName:", name);
-        }
-    }
+    `
 };
 
 export default component;
