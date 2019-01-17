@@ -36,7 +36,13 @@ const retrieveMonthStatistics:Function = async (numberOfMonths:Number):Promise<A
     })
     .map(MonthStatistics.prototype.fromAsset)
     .value()
-}
+};
+
+const retrieveSimilarExpenseNames: Function = async (expenseName: string): Promise<Array<string>> => {
+    let response: any = await axios.get(`${ backendUrl }/expense-names/${ _.trim(expenseName) }`);
+
+    return response.data as Array<string>;
+};
 
 const persistCategory: Function = async (categoryName: string):Promise<ExpenseCategory> => {
     let response:any = await axios.post(categoriesUrl, { name: categoryName });
@@ -50,4 +56,4 @@ const persistExpense:Function = async (expense:Expense):Promise<Expense> => {
     return Expense.prototype.fromAsset(response.data);
 }
 
-export { persistCategory, persistExpense, retrieveCategories, retrieveMonthStatistics };
+export { persistCategory, persistExpense, retrieveCategories, retrieveMonthStatistics, retrieveSimilarExpenseNames };

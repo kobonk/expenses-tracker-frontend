@@ -3,7 +3,7 @@ import { convertDateToString } from "utils/date";
 import ExpenseCategory from "types/ExpenseCategory";
 import Expense from "types/Expense";
 import i18n from "utils/i18n";
-import { persistCategory, persistExpense, retrieveCategories } from "utils/restClient";
+import { persistCategory, persistExpense, retrieveCategories, retrieveSimilarExpenseNames } from "utils/restClient";
 import "./styles.sass";
 
 const _ = require("lodash");
@@ -14,7 +14,7 @@ const trimAndLower = (text: string): string => {
 
 const component: Vue.Component = {
     components: {
-    "auto-complete-field": autoCompleteField
+        "auto-complete-field": autoCompleteField
     },
     computed: {
         categoryNames(): Array<ExpenseCategory> {
@@ -30,6 +30,7 @@ const component: Vue.Component = {
             errorMessage: null as unknown,
             i18n: i18n.addExpenseForm,
             name: "",
+            similarNames: [] as Array<string>,
             toastMessage: null as unknown
         };
     },
@@ -104,7 +105,7 @@ const component: Vue.Component = {
             .then((categories: Array<ExpenseCategory>) => {
                 this.categories = categories;
             })
-            .catch((error: Error): Array<any> => {
+            .catch((error: Error) => {
                 this.showError(error);
             });
         }
@@ -115,7 +116,15 @@ const component: Vue.Component = {
     template: `
         <form name="add-expense" class="add-expense-form" ref="form" @submit.prevent="onSubmit">
             <h3>{{ i18n.title }}</h3>
-            <input autofocus tabindex="1" autocomplete="off" type="text" :placeholder="i18n.expenseName" name="name" required v-model="name">
+            <auto-complete-field
+                v-model.lazy.trim="name"
+                :items="similarNames"
+                :placeholder="i18n.expenseName"
+                autofocus
+                name="name"
+                required
+                tabindex="1">
+            </auto-complete-field>
             <auto-complete-field
                 v-model.lazy.trim="categoryName"
                 :items="categoryNames"
@@ -132,7 +141,21 @@ const component: Vue.Component = {
                 <div class="notification notification-error" v-if="errorMessage">{{ errorMessage }}</div>
             </transition>
         </form>
-    `
+    `,
+    watch: {
+        name(expenseName: string) {
+            console.log("expenseName:", expenseName);
+            if (_.isEmpty(expenseName)) {
+                return;
+            }
+
+            retrieveSimilarExpenseNames(expenseName)
+            .then((names: Array<string>) => this.similarNames = names)
+            .catch((error: Error) => {
+                this.showError(error);
+            });
+        }
+    }
 };
 
 export default component;
