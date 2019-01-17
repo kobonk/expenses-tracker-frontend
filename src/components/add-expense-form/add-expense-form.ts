@@ -12,7 +12,7 @@ const trimAndLower = (text: string): string => {
     return _.toLower(_.trim(text));
 };
 
-const component: Vue.Component = {
+const component = {
     components: {
         "auto-complete-field": autoCompleteField
     },
