@@ -38,6 +38,9 @@ export default {
             });
         }
     },
+    created() {
+        this.debouncedOnBlur = _.debounce(this.onBlur, 500)
+    },
     data() {
         return {
             fieldActive: false,
@@ -56,6 +59,7 @@ export default {
             this.fieldActive = false;
         },
         onClick(item:String) {
+            console.log("item:", item);
             this.updateCurrentValue(item);
         },
         onFocus() {
@@ -86,7 +90,7 @@ export default {
                 ref="value-input"
                 type="text"
                 v-bind="$attrs"
-                v-on="{ blur: onBlur, focus: onFocus }"
+                v-on="{ blur: debouncedOnBlur, focus: onFocus }"
                 :value="currentItem"
                 @input="updateCurrentValue($event.target.value)"
                 @keydown.enter="onListItemSelected"
