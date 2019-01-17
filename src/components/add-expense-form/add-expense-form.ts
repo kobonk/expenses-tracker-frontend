@@ -117,7 +117,7 @@ const component: Vue.Component = {
         <form name="add-expense" class="add-expense-form" ref="form" @submit.prevent="onSubmit">
             <h3>{{ i18n.title }}</h3>
             <auto-complete-field
-                v-model.lazy.trim="name"
+                v-model.lazy="name"
                 :items="similarNames"
                 :placeholder="i18n.expenseName"
                 autofocus
@@ -126,7 +126,7 @@ const component: Vue.Component = {
                 tabindex="1">
             </auto-complete-field>
             <auto-complete-field
-                v-model.lazy.trim="categoryName"
+                v-model.lazy="categoryName"
                 :items="categoryNames"
                 :placeholder="i18n.expenseCategory"
                 name="category"
