@@ -8,8 +8,6 @@ import "./styles.sass";
 
 const _ = require("lodash");
 
-const blankCategory: ExpenseCategory = new ExpenseCategory("", "");
-
 const trimAndLower = (text: string): string => {
     return _.toLower(_.trim(text));
 };
@@ -19,16 +17,6 @@ const component: Vue.Component = {
     "auto-complete-field": autoCompleteField
     },
     computed: {
-        categoryName: {
-            get(): string {
-                return this.category.getName();
-            },
-            set(name: string) {
-                let category = this.findCategoryByName(name);
-
-                this.category = _.isNil(category) ? new ExpenseCategory("", _.trim(name)) : category;
-            }
-        },
         categoryNames(): Array<ExpenseCategory> {
             return _.map(this.categories, _.method("getName")) as Array<ExpenseCategory>;
         }
@@ -36,7 +24,7 @@ const component: Vue.Component = {
     data() {
         return {
             categories: [] as Array<ExpenseCategory>,
-            category: blankCategory,
+            categoryName: "",
             cost: null as unknown,
             date: convertDateToString(new Date()),
             errorMessage: null as unknown,
@@ -47,7 +35,7 @@ const component: Vue.Component = {
     },
     methods: {
         onExpenseRegistered() {
-            this.category = blankCategory;
+            this.categoryName = "";
             this.cost = null;
             this.date = convertDateToString(new Date());
             this.name = "";
