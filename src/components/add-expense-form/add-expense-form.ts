@@ -144,7 +144,6 @@ const component: Vue.Component = {
     `,
     watch: {
         name(expenseName: string) {
-            console.log("expenseName:", expenseName);
             if (_.isEmpty(expenseName)) {
                 return;
             }

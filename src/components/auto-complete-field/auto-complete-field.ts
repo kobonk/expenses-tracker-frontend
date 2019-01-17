@@ -59,7 +59,6 @@ export default {
             this.fieldActive = false;
         },
         onClick(item:String) {
-            console.log("item:", item);
             this.updateCurrentValue(item);
         },
         onFocus() {
