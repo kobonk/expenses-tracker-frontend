@@ -29,6 +29,11 @@ class StatisticsTableCell implements DataTableCell {
     }
 
     public onClick() {
+        if (this.month === blankMonth) {
+            this.onClickCallback([]);
+            return;
+        }
+
         retrieveExpenses(this.categoryId, this.month)
         .then((expenses: Array<any>) => this.onClickCallback(expenses));
     }
