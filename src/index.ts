@@ -23,8 +23,15 @@ const vm = new Vue({
         updateStatistics() {
             retrieveMonthStatistics(this.numberOfStatisticsMonths)
             .then((statistics: Array<MonthStatistics>) => {
-                vm.statisticsTableData = prepareStatisticsTableData(statistics, this.numberOfStatisticsMonths);
+                vm.statisticsTableData = prepareStatisticsTableData(
+                    statistics,
+                    this.numberOfStatisticsMonths,
+                    this.onTableCellClicked
+                );
             })
+        },
+        onTableCellClicked(data: any) {
+            console.log(data);
         }
     },
     mounted() {

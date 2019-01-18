@@ -1,4 +1,5 @@
 import i18n from 'utils/i18n';
+import { retrieveExpenses } from "utils/restClient";
 import ExpenseCategory from "types/ExpenseCategory";
 import MonthStatistics from "types/MonthStatistics";
 import MonthTotal from "types/MonthTotal";
@@ -20,11 +21,13 @@ class StatisticsTableCell implements DataTableCell {
     private categoryId: string;
     private month: string;
     private content: string;
+    private onClickCallback: Function;
 
-    constructor(categoryId: string, month: string, content: string) {
+    constructor(categoryId: string, month: string, content: string, onClickCallback: Function = _.noop) {
         this.categoryId = categoryId;
         this.month = month;
         this.content = content;
+        this.onClickCallback = onClickCallback;
     }
 
     public getContent(): string {
@@ -32,7 +35,8 @@ class StatisticsTableCell implements DataTableCell {
     }
 
     public onClick() {
-        console.log(this.content, this.month, this.categoryId);
+        retrieveExpenses(this.categoryId, this.month)
+        .then((expenses: Array<any>) => this.onClickCallback(expenses));
     }
 }
 
@@ -48,13 +52,27 @@ const getMonthNames: Function = (statistics: Array<MonthStatistics>, numberOfMon
     return _.concat(availableMonthNames, lackingMonths)
 };
 
-const getRows: Function = (statistics: Array<MonthStatistics>, numberOfMonths: number): Array<Array<DataTableCell>> => {
+const getRows: Function = (
+    statistics: Array<MonthStatistics>,
+    numberOfMonths: number,
+    onTableCellClicked: Function
+): Array<Array<DataTableCell>> => {
     return _.map(statistics, (stat: MonthStatistics) => {
         let category: ExpenseCategory = stat.getCategory();
-        let categoryCell: DataTableCell = new StatisticsTableCell(category.getId(), blankMonth, category.getName());
+        let categoryCell: DataTableCell = new StatisticsTableCell(
+            category.getId(),
+            blankMonth,
+            category.getName(),
+            onTableCellClicked
+        );
 
         let row: Array<DataTableCell> = _.map(stat.getMonths(), (month: MonthTotal): DataTableCell => {
-            return new StatisticsTableCell(category.getId(), month.getMonth(), month.getFormattedTotal(decimalPoints))
+            return new StatisticsTableCell(
+                category.getId(),
+                month.getMonth(),
+                month.getFormattedTotal(decimalPoints),
+                onTableCellClicked
+            );
         });
 
         let fillValue: DataTableCell = createFakeCell(stat.getCategory(), 0);
@@ -94,10 +112,14 @@ const formatNumericCell: Function = (cellValue: string | Number | null | undefin
     return formatNumber(numericValue, decimalPoints);
 };
 
-const prepareData: Function = (statistics: Array<MonthStatistics>, numberOfMonths: Number): StatisticsTableData => {
+const prepareData: Function = (
+    statistics: Array<MonthStatistics>,
+    numberOfMonths: Number,
+    onTableCellClicked: Function
+): StatisticsTableData => {
     let footer = _.concat([i18n.statisticsTable.totalLabel], _.map(getTotals(statistics, numberOfMonths), formatNumericCell));
     let header = _.concat([i18n.statisticsTable.categoryLabel], getMonthNames(statistics, numberOfMonths as number));
-    let rows = getRows(statistics, numberOfMonths);
+    let rows = getRows(statistics, numberOfMonths, onTableCellClicked);
 
     return { footer, header, rows } as StatisticsTableData;
 }
