@@ -2,27 +2,75 @@ import "./styles.sass";
 
 const _ = require("lodash");
 
-export default {
-    computed: {
-        bodyRows(): Array<Array<String | Number>> {
-            let completeRows: Array<Array<String | Number>> = _.map(this.rows, this.addMissingCells);
+interface DataTableCell {
+    getContent(): string | Number;
+    onClick(): void
+}
 
-            let sortedRows: Array<Array<String | Number>> = _.sortBy(completeRows, (row: Array<String | Number>) => {
-                return row[this.sortColumnIndex];
-            });
+class TableCell implements DataTableCell {
+    private content: string;
+
+    constructor(content: string) {
+        this.content = content;
+    }
+
+    getContent(): string {
+        return this.content;
+    }
+
+    onClick() {
+        return
+    }
+}
+
+const isDataTableCellInstance: Function = (value: any): boolean => {
+    let methodNames = ["getContent", "onClick"];
+
+    return _.every(_.map(methodNames, (methodName: string) => _.isFunction(_.get(value, methodName))))
+};
+
+const getSortableContent: Function = (cell: DataTableCell): string | number => {
+    if (/^[\d\.,\s]*$/.test(cell.getContent() as string)) {
+        return parseFloat((cell.getContent() as string).replace(/\s/g, ""));
+    }
+
+    return cell.getContent() as number;
+}
+
+const component = {
+    computed: {
+        bodyRows(): Array<Array<string>> {
+            let sortedRows: Array<Array<DataTableCell>> = _.sortBy(
+                this.normalizedBodyRows,
+                (row: Array<DataTableCell>) => getSortableContent(row[this.sortColumnIndex])
+            );
 
             return this.sortDirection === "asc" ? sortedRows : _.reverse(sortedRows);
         },
-        footerCells(): Array<String | Number> {
+        footerCells(): Array<string | Number> {
             return _.isEmpty(this.footer) ? [] : this.addMissingCells(this.footer);
         },
-        headerCells(): Array<String | Number> {
+        headerCells(): Array<string | Number> {
             return _.isEmpty(this.header) ? [] : this.addMissingCells(this.header);
+        },
+        normalizedBodyRows(): Array<Array<DataTableCell>> {
+            return _.map(
+                _.map(this.rows, this.addMissingCells),
+                (row: Array<string | number | DataTableCell>) => {
+                    return _.map(row, (cell: string | number | DataTableCell) => {
+                        if (isDataTableCellInstance(cell)) {
+                            return cell;
+                        }
+
+                        return new TableCell(cell as string);
+                    })
+                }
+            )
         },
         numberOfColumns(): Number {
             return _.reduce(
                 this.rows,
-                (result: Number, row: Array<String | Number>) => {
+                (result: Number, row: Array<string | Number>) => {
                     return row.length > result ? row.length : result;
                 },
                 0
@@ -39,7 +87,7 @@ export default {
         }
     },
     methods: {
-        addMissingCells(row: Array<String | Number>): Array<String | Number> {
+        addMissingCells(row: Array<string | Number | DataTableCell>): Array<string | DataTableCell> {
             let missingCells = _.fill(new Array(Math.abs(this.numberOfColumns - row.length)), "");
 
             return _.concat(row, missingCells);
@@ -66,7 +114,7 @@ export default {
             </thead>
             <tbody>
                 <tr v-for="(row, i) in bodyRows" v-bind:key="i">
-                    <td v-for="(cell, i) in row" v-bind:key="i">{{ cell }}</td>
+                    <td v-for="(cell, i) in row" v-bind:key="i" @click="cell.onClick()">{{ cell.getContent() }}</td>
                 </tr>
             </tbody>
             <tfoot v-if="footerCells.length > 0">
@@ -76,4 +124,6 @@ export default {
             </tfoot>
         </table>
     `
-}
+};
+
+export { component, DataTableCell };

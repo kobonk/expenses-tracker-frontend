@@ -13,15 +13,15 @@ const getPreviousItem = function(items:Array<any>, item:any):any {
 export default {
     computed: {
         currentItem: {
-            get():String {
+            get(): string {
                 return this.value;
             },
-            set(item:String) {
+            set(item: string) {
                 this.temporaryItem = item;
                 this.$emit("input", item);
             }
         },
-        listVisible():Boolean {
+        listVisible(): boolean {
             if (!this.fieldActive || _.isEmpty(this.currentItem)) {
                 return false;
             }
@@ -32,8 +32,8 @@ export default {
 
             return true;
         },
-        matchingItems():Array<String> {
-            return _.filter(this.items, (item:String) => {
+        matchingItems(): Array<string> {
+            return _.filter(this.items, (item: string) => {
                 return (new RegExp(_.trim(this.currentItem), "i")).test(_.trim(item))
             });
         }
@@ -49,16 +49,16 @@ export default {
     },
     inheritAttrs: false,
     methods: {
-        getHtmlLabelForItem(item:String):String {
+        getHtmlLabelForItem(item: string): string {
             return _.replace(item, new RegExp(`(${ this.currentItem })`, "i"), "<mark>$1</mark>");
         },
-        isCurrentItem(item:String):Boolean {
+        isCurrentItem(item: string): boolean {
             return _.isEqual(item, this.temporaryItem);
         },
         onBlur() {
             this.fieldActive = false;
         },
-        onClick(item:String) {
+        onClick(item: string) {
             this.updateCurrentValue(item);
         },
         onFocus() {
@@ -70,14 +70,14 @@ export default {
             }
         },
         onListMoveDown() {
-            let nextItem:String = getNextItem(this.matchingItems, this.temporaryItem);
+            let nextItem: string = getNextItem(this.matchingItems, this.temporaryItem);
             this.temporaryItem = _.isNil(nextItem) ? _.first(this.matchingItems) : nextItem;
         },
         onListMoveUp() {
             let prevItem = getPreviousItem(this.matchingItems, this.temporaryItem);
             this.temporaryItem = _.isNil(prevItem) ? _.last(this.matchingItems) : prevItem;
         },
-        updateCurrentValue(item:String) {
+        updateCurrentValue(item: string) {
             this.currentItem = item;
         }
     },

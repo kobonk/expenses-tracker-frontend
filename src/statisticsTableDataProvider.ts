@@ -1,19 +1,46 @@
 import i18n from 'utils/i18n';
+import ExpenseCategory from "types/ExpenseCategory";
 import MonthStatistics from "types/MonthStatistics";
 import MonthTotal from "types/MonthTotal";
 import { formatNumber } from "utils/dataConversion";
+import { DataTableCell } from "./components/data-table/data-table";
 
 const _ = require("lodash");
 
+const decimalPoints = 2;
+const blankMonth = "9999-12"
+
 type StatisticsTableData = {
-    footer: Array<String | Number>,
-    header: Array<String | Number>,
-    rows: Array<Array<String | Number>>
+    footer: Array<string | Number>,
+    header: Array<string | Number>,
+    rows: Array<Array<string | Number | DataTableCell>>
 };
 
-const decimalPoints = 2;
+class StatisticsTableCell implements DataTableCell {
+    private categoryId: string;
+    private month: string;
+    private content: string;
 
-const getMonthNames: Function = (statistics: Array<MonthStatistics>, numberOfMonths: number): Array<String> => {
+    constructor(categoryId: string, month: string, content: string) {
+        this.categoryId = categoryId;
+        this.month = month;
+        this.content = content;
+    }
+
+    public getContent(): string {
+        return this.content;
+    }
+
+    public onClick() {
+        console.log(this.content, this.month, this.categoryId);
+    }
+}
+
+const createFakeCell: Function = (category: ExpenseCategory, total: number): DataTableCell => {
+    return new StatisticsTableCell(category.getId(), blankMonth, formatNumber(total, decimalPoints));
+}
+
+const getMonthNames: Function = (statistics: Array<MonthStatistics>, numberOfMonths: number): Array<string> => {
     let rowWithGreatestMonthNumber = _.last(_.sortBy(statistics, (row: MonthStatistics) => row.getMonths().length))
     let availableMonthNames = _.map(rowWithGreatestMonthNumber.getMonths(), _.method("getMonthName"));
     let lackingMonths = _.fill(new Array(numberOfMonths - availableMonthNames.length), "n/a");
@@ -21,12 +48,18 @@ const getMonthNames: Function = (statistics: Array<MonthStatistics>, numberOfMon
     return _.concat(availableMonthNames, lackingMonths)
 };
 
-const getRows: Function = (statistics: Array<MonthStatistics>, numberOfMonths: number): Array<Array<String>> => {
+const getRows: Function = (statistics: Array<MonthStatistics>, numberOfMonths: number): Array<Array<DataTableCell>> => {
     return _.map(statistics, (stat: MonthStatistics) => {
-        let row: Array<String> = _.map(stat.getMonths(), (month: MonthTotal): String => month.getFormattedTotal(decimalPoints));
-        let fillValue: String = formatNumericCell(0);
+        let category: ExpenseCategory = stat.getCategory();
+        let categoryCell: DataTableCell = new StatisticsTableCell(category.getId(), blankMonth, category.getName());
 
-        return _.concat([stat.getCategoryName()], row, _.fill(new Array(Math.abs(numberOfMonths - row.length)), fillValue));
+        let row: Array<DataTableCell> = _.map(stat.getMonths(), (month: MonthTotal): DataTableCell => {
+            return new StatisticsTableCell(category.getId(), month.getMonth(), month.getFormattedTotal(decimalPoints))
+        });
+
+        let fillValue: DataTableCell = createFakeCell(stat.getCategory(), 0);
+
+        return _.concat([categoryCell], row, _.fill(new Array(Math.abs(numberOfMonths - row.length)), fillValue));
     });
 };
 
@@ -48,7 +81,7 @@ const getTotals: Function = (statistics: Array<MonthStatistics>, numberOfMonths:
     );
 };
 
-const formatNumericCell: Function = (cellValue: String | Number | null | undefined): String => {
+const formatNumericCell: Function = (cellValue: string | Number | null | undefined): string => {
     if (_.isNil(cellValue)) {
         return (0).toFixed(decimalPoints);
     }
@@ -69,4 +102,4 @@ const prepareData: Function = (statistics: Array<MonthStatistics>, numberOfMonth
     return { footer, header, rows } as StatisticsTableData;
 }
 
-export default prepareData;
+export { prepareData, StatisticsTableData };

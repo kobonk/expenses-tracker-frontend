@@ -2,12 +2,13 @@ import Vue from "vue";
 import "./styles.sass";
 import { retrieveMonthStatistics } from "utils/restClient";
 import MonthStatistics from "types/MonthStatistics";
-import prepareStatisticsTableData from "./statisticsTableDataProvider";
+import { prepareData as prepareStatisticsTableData, StatisticsTableData } from "./statisticsTableDataProvider";
+import { component as dataTableComponent } from "./components/data-table/data-table";
 
 const vm = new Vue({
     components: {
         "add-expense-form": () => import("./components/add-expense-form/add-expense-form"),
-        "data-table": () => import("./components/data-table/data-table")
+        "data-table": dataTableComponent
     },
     data: {
         numberOfStatisticsMonths: 4,
@@ -15,7 +16,7 @@ const vm = new Vue({
             footer: [],
             header: [],
             rows: []
-        }
+        } as StatisticsTableData
     },
     el: "#expenses-tracker",
     methods: {

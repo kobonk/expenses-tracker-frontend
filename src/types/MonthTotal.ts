@@ -5,8 +5,8 @@ import { formatNumber } from "utils/dataConversion";
 const _ = require("lodash");
 
 class MonthTotal implements Deserializable {
-    private month:string;
-    private total:Number;
+    private month: string;
+    private total: Number;
 
     constructor(month:string, total:Number) {
         this.checkIfMonthIsValid(month);
@@ -16,31 +16,35 @@ class MonthTotal implements Deserializable {
         this.total = total;
     }
 
-    public getMonthName():string {
+    public getMonth(): string {
+        return this.month;
+    }
+
+    public getMonthName(): string {
         let [year, month] = this.month.split("-");
 
         return `${ i18n.monthNames[parseInt(month) - 1] } ${ year }`;
     }
 
-    public getFormattedTotal(decimalPoints: number = 2):string {
+    public getFormattedTotal(decimalPoints: number = 2): string {
         return formatNumber(this.getTotal(), decimalPoints);
     }
 
-    public getTotal():Number {
+    public getTotal(): Number {
         return _.get(this, "total", 0);
     }
 
-    public fromAsset(asset:any) {
+    public fromAsset(asset: any) {
         return new MonthTotal(asset.month, asset.total);
     }
 
-    private checkIfMonthIsValid(month:string) {
+    private checkIfMonthIsValid(month: string) {
         if (!/^\d{4}-(1[0-2]|0[1-9])$/.test(month)) {
             throw new Error("You must provide valid month string (YYYY-MM)");
         }
     }
 
-    private checkIfTotalIsValid(total:Number) {
+    private checkIfTotalIsValid(total: Number) {
         if (total < 0) {
             throw new Error("Total must be equal or greater than zero.");
         }
