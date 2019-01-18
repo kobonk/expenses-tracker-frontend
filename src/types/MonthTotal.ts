@@ -1,6 +1,6 @@
 import i18n from "utils/i18n";
 import Deserializable from "./Deserializable";
-import { formatNumber } from "utils/dataConversion";
+import { extractMonthName, formatNumber } from "utils/dataConversion";
 
 const _ = require("lodash");
 
@@ -21,9 +21,7 @@ class MonthTotal implements Deserializable {
     }
 
     public getMonthName(): string {
-        let [year, month] = this.month.split("-");
-
-        return `${ i18n.monthNames[parseInt(month) - 1] } ${ year }`;
+        return extractMonthName(this.month);
     }
 
     public getFormattedTotal(decimalPoints: number = 2): string {

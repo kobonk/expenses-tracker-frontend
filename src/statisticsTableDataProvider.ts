@@ -123,4 +123,4 @@ const prepareData: Function = (
     return { footer, header, rows } as TableData;
 }
 
-export { prepareData };
+export default prepareData;

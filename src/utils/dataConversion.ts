@@ -1,3 +1,5 @@
+import i18n from "utils/i18n";
+
 const _ = require("lodash");
 
 const convertDateToString: Function = (date: Date): string => {
@@ -10,6 +12,12 @@ const convertDateToString: Function = (date: Date): string => {
     return dateParts.map((part) => part.length < 2 ? "0" + part : part).join("-");
 };
 
+const extractMonthName: Function = (date: string): string => {
+    let [year, month] = date.split("-");
+
+    return `${ i18n.monthNames[parseInt(month) - 1] } ${ year }`;
+};
+
 const formatNumber: Function = (numericValue: number, decimalPlaces: number = 2): string => {
     let fixed = numericValue.toFixed(decimalPlaces);
     let integerPart = _.first(fixed.match(/^\d*/));
@@ -20,4 +28,4 @@ const formatNumber: Function = (numericValue: number, decimalPlaces: number = 2)
     return _.join(numericChunks, " ") + decimalPart;
 };
 
-export { convertDateToString, formatNumber };
+export { convertDateToString, extractMonthName, formatNumber };

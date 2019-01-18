@@ -11,6 +11,11 @@
         "submitSuccessMessage": "Wydatek \"{EXPENSE_NAME}\" zapisano w bazie danych.",
         "title": "Dodaj nowy wydatek"
     },
+    "expensesTable": {
+        "expenseLabel": "Wydatek",
+        "dateLabel": "Data",
+        "costLabel": "Kwota"
+    },
     "statisticsTable": {
         "categoryLabel": "Nazwa Kategorii",
         "totalLabel": "Suma"

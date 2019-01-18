@@ -11,6 +11,11 @@
         "submitSuccessMessage": "Expense \"{EXPENSE_NAME}\" was successfully saved.",
         "title": "Add New Expense"
     },
+    "expensesTable": {
+        "expenseLabel": "Expense",
+        "dateLabel": "Date",
+        "costLabel": "Cost"
+    },
     "statisticsTable": {
         "categoryLabel": "Category Name",
         "totalLabel": "Total"

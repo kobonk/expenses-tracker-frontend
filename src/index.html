@@ -10,11 +10,25 @@
                 <add-expense-form @submit="updateStatistics"></add-expense-form>
             </aside>
             <main class="content">
-                <data-table
-                    :footer="statisticsTableData.footer"
-                    :header="statisticsTableData.header"
-                    :rows="statisticsTableData.rows">
-                </data-table>
+                <transition name="slide-fade" mode="out-in">
+                    <data-table
+                        v-if="expensesTableData.rows.length <= 0"
+                        :footer="statisticsTableData.footer"
+                        :header="statisticsTableData.header"
+                        :rows="statisticsTableData.rows">
+                    </data-table>
+                    <div v-else>
+                        <h3>
+                            <button @click="clearExpensesTableData">«</button>
+                            {{ currentCategoryName }} / {{ currentMonthName }}
+                        </h3>
+                        <data-table
+                            :footer="expensesTableData.footer"
+                            :header="expensesTableData.header"
+                            :rows="expensesTableData.rows">
+                        </data-table>
+                    </div>
+                </transition>
             </main>
         </div>
     </body>
