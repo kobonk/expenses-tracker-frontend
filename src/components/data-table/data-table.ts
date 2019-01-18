@@ -88,8 +88,8 @@ const component = {
     },
     data() {
         return {
-            sortColumnIndex: 0,
-            sortDirection: "asc"
+            sortColumnIndex: _.isNil(this.sortBy) ? 0 : this.sortBy,
+            sortDirection: _.isNil(this.sortDir) ? "asc" : this.sortDir
         }
     },
     methods: {
@@ -106,7 +106,7 @@ const component = {
             this.sortColumnIndex = columnIndex;
         }
     },
-    props: ["rows", "footer", "header"],
+    props: ["rows", "footer", "header", "sortDir", "sortBy"],
     template: `
         <table v-if="tableVisible" class="data-table">
             <thead v-if="headerCells.length > 0">

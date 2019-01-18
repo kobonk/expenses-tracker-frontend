@@ -25,7 +25,9 @@
                         <data-table
                             :footer="expensesTableData.footer"
                             :header="expensesTableData.header"
-                            :rows="expensesTableData.rows">
+                            :rows="expensesTableData.rows"
+                            :sort-dir="'desc'"
+                            :sort-by="2">
                         </data-table>
                     </div>
                 </transition>
