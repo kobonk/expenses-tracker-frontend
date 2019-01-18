@@ -21,8 +21,8 @@ class MonthTotal implements Deserializable {
         return `${ i18n.monthNames[parseInt(month) - 1] } ${ year }`;
     }
 
-    public getFormattedTotal():string {
-        return this.getTotal().toFixed(2);
+    public getFormattedTotal(decimalPoints: number = 2):string {
+        return this.getTotal().toFixed(decimalPoints);
     }
 
     public getTotal():Number {
