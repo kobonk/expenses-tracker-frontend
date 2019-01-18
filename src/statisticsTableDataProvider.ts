@@ -1,7 +1,7 @@
 import i18n from 'utils/i18n';
 import MonthStatistics from "types/MonthStatistics";
 import MonthTotal from "types/MonthTotal";
-import { stat } from "fs";
+import { formatNumber } from "utils/dataConversion";
 
 const _ = require("lodash");
 
@@ -56,11 +56,13 @@ const formatNumericCell: Function = (cellValue: String | Number | null | undefin
         return parseFloat(cellValue as string).toFixed(decimalPoints);
     }
 
-    return cellValue.toFixed(decimalPoints);
+    let numericValue = _.isNil(cellValue) ? 0 : cellValue instanceof String ? parseFloat(String(cellValue)) : cellValue;
+
+    return formatNumber(numericValue, decimalPoints);
 };
 
 const prepareData: Function = (statistics: Array<MonthStatistics>, numberOfMonths: Number): StatisticsTableData => {
-    let footer = _.concat([""], _.map(getTotals(statistics, numberOfMonths), formatNumericCell));
+    let footer = _.concat([i18n.statisticsTable.totalLabel], _.map(getTotals(statistics, numberOfMonths), formatNumericCell));
     let header = _.concat([i18n.statisticsTable.categoryLabel], getMonthNames(statistics, numberOfMonths as number));
     let rows = getRows(statistics, numberOfMonths);
 
