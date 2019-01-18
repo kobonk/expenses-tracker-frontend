@@ -5,7 +5,7 @@ const _ = require("lodash");
 interface DataTableCell {
     getContent(): string | Number;
     onClick(): void
-}
+};
 
 class TableCell implements DataTableCell {
     private content: string;
@@ -21,7 +21,13 @@ class TableCell implements DataTableCell {
     onClick() {
         return
     }
-}
+};
+
+type TableData = {
+    footer: Array<string | Number>,
+    header: Array<string | Number>,
+    rows: Array<Array<string | Number | DataTableCell>>
+};
 
 const isDataTableCellInstance: Function = (value: any): boolean => {
     let methodNames = ["getContent", "onClick"];
@@ -126,4 +132,4 @@ const component = {
     `
 };
 
-export { component, DataTableCell };
+export { component, DataTableCell, TableData };

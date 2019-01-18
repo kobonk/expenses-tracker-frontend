@@ -4,18 +4,12 @@ import ExpenseCategory from "types/ExpenseCategory";
 import MonthStatistics from "types/MonthStatistics";
 import MonthTotal from "types/MonthTotal";
 import { formatNumber } from "utils/dataConversion";
-import { DataTableCell } from "./components/data-table/data-table";
+import { DataTableCell, TableData } from "./components/data-table/data-table";
 
 const _ = require("lodash");
 
 const decimalPoints = 2;
 const blankMonth = "9999-12"
-
-type StatisticsTableData = {
-    footer: Array<string | Number>,
-    header: Array<string | Number>,
-    rows: Array<Array<string | Number | DataTableCell>>
-};
 
 class StatisticsTableCell implements DataTableCell {
     private categoryId: string;
@@ -116,12 +110,12 @@ const prepareData: Function = (
     statistics: Array<MonthStatistics>,
     numberOfMonths: Number,
     onTableCellClicked: Function
-): StatisticsTableData => {
+): TableData => {
     let footer = _.concat([i18n.statisticsTable.totalLabel], _.map(getTotals(statistics, numberOfMonths), formatNumericCell));
     let header = _.concat([i18n.statisticsTable.categoryLabel], getMonthNames(statistics, numberOfMonths as number));
     let rows = getRows(statistics, numberOfMonths, onTableCellClicked);
 
-    return { footer, header, rows } as StatisticsTableData;
+    return { footer, header, rows } as TableData;
 }
 
-export { prepareData, StatisticsTableData };
+export { prepareData, TableData };

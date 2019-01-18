@@ -2,8 +2,8 @@ import Vue from "vue";
 import "./styles.sass";
 import { retrieveMonthStatistics } from "utils/restClient";
 import MonthStatistics from "types/MonthStatistics";
-import { prepareData as prepareStatisticsTableData, StatisticsTableData } from "./statisticsTableDataProvider";
-import { component as dataTableComponent } from "./components/data-table/data-table";
+import { prepareData as prepareStatisticsTableData } from "./statisticsTableDataProvider";
+import { component as dataTableComponent, TableData } from "./components/data-table/data-table";
 
 const vm = new Vue({
     components: {
@@ -16,7 +16,7 @@ const vm = new Vue({
             footer: [],
             header: [],
             rows: []
-        } as StatisticsTableData
+        } as TableData
     },
     el: "#expenses-tracker",
     methods: {
