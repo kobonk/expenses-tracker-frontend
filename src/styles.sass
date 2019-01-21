@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css?family=Lato:300,400,700&subset=latin-ext')
+@import "./constants.sass"
 
 html, body
     height: 100%
@@ -16,7 +17,7 @@ html, body
 
     .sidebar
         box-sizing: border-box
-        box-shadow: 0 0 5px rgba(0, 0, 0, 0.25)
+        border-right: 1px solid $colorDivider
         display: block
         flex: 1
         min-height: 100%
@@ -25,7 +26,7 @@ html, body
         z-index: 3
 
     .content
-        background-color: #eee
+        background-color: $colorAccentLight
         box-sizing: border-box
         flex: 4
         height: 100%
@@ -42,14 +43,14 @@ html, body
                 cursor: pointer
                 padding: 0.75em
                 margin: 0 1em 0 0
-                background-color: #4336FF
-                color: #fff
+                background-color: $colorPrimaryDark
+                color: $colorAccentLight
                 font-style: inherit
                 font-size: inherit
                 transition: background-color 0.5s
 
                 &:hover
-                    background-color: #5B4FFF
+                    background-color: $colorPrimary
 
         .slide-fade-enter-active
             transition: all .25s ease

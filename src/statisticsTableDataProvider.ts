@@ -29,9 +29,12 @@ class StatisticsTableCell implements DataTableCell {
         return this.content;
     }
 
+    public isClickable(): boolean {
+        return _.isFunction(this.onClickCallback);
+    }
+
     public onClick() {
-        if (this.month === blankMonth) {
-            this.onClickCallback([]);
+        if (!this.isClickable()) {
             return;
         }
 
@@ -74,9 +77,9 @@ const getRows: Function = (
 
             return new StatisticsTableCell(
                 category.getId(),
-                _.isNil(monthTotal) ? blankMonth : month,
+                month,
                 formatNumber(total, decimalPoints),
-                onTableCellClicked
+                _.isNil(monthTotal) ? null : onTableCellClicked
             );
         });
 

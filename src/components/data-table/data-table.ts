@@ -4,7 +4,8 @@ const _ = require("lodash");
 
 interface DataTableCell {
     getContent(): string | Number;
-    onClick(): void
+    isClickable(): boolean;
+    onClick(): void;
 };
 
 class TableCell implements DataTableCell {
@@ -16,6 +17,10 @@ class TableCell implements DataTableCell {
 
     getContent(): string {
         return this.content;
+    }
+
+    isClickable(): boolean {
+        return false;
     }
 
     onClick() {
@@ -120,7 +125,15 @@ const component = {
             </thead>
             <tbody>
                 <tr v-for="(row, i) in bodyRows" v-bind:key="i">
-                    <td v-for="(cell, i) in row" v-bind:key="i" @click="cell.onClick()">{{ cell.getContent() }}</td>
+                    <td
+                        v-for="(cell, i) in row"
+                        v-bind:key="i">
+                        <span
+                            class="clickable"
+                            @click="cell.onClick()"
+                            v-if="cell.isClickable()">{{ cell.getContent() }}</span>
+                        <template v-else>{{ cell.getContent() }}</template>
+                    </td>
                 </tr>
             </tbody>
             <tfoot v-if="footerCells.length > 0">

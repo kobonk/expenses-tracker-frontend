@@ -1,21 +1,23 @@
+@import "./../../constants.sass"
+
 .auto-complete-list
     padding: 0
     margin: 0
     position: absolute
     z-index: 999
-    background: #fff
+    background: $colorAccentLight
     box-shadow: 0 0 1em rgba(0, 0, 0, 0.5)
     max-height: 50%
     overflow: auto
 
     li
-        color: #555
+        color: $colorPrimaryText
         padding: 0.5em
         transition: background-color 0.1s, color 0.1s
 
         &:hover
-            background-color: #298CFF
-            color: #fff
+            background-color: $colorPrimaryLight
+            color: $colorPrimaryDark
             cursor: pointer
 
             mark
@@ -23,13 +25,13 @@
 
         mark
             background: transparent
-            color: #006
+            color: $colorPrimaryDark
             font-weight: 700
             transition: inherit
 
     .selected
-        background-color: #4336FF
-        color: #fff
+        background-color: $colorPrimary
+        color: $colorAccentLight
 
         mark
             color: inherit

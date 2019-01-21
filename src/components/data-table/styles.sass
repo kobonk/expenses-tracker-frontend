@@ -1,3 +1,5 @@
+@import "./../../constants.sass"
+
 .data-table
     box-sizing: border-box
     border-collapse: collapse
@@ -6,9 +8,26 @@
 
     tr
         td, th
-            color: #333
+            color: $colorSecondaryText
             padding: 1em 0.5em
             text-align: right
+
+        td
+            color: $colorPrimaryText
+
+            .clickable
+                background-color: transparent
+                border-radius: 3px
+                color: $colorPrimaryText
+                cursor: pointer
+                font-weight: 700
+                margin: -0.5em
+                padding: 0.5em
+                transition: color 0.5s, background-color 0.5s
+
+                &:hover
+                    background-color: $colorAccent
+                    color: $colorAccentLight
 
         th
             text-transform: uppercase
@@ -30,11 +49,10 @@
 
             th
                 cursor: pointer
-                color: #666
                 transition: color 0.5s
 
                 &:hover
-                    color: #000
+                    color: $colorPrimaryText
 
                 &.sorted-asc
                     &:after
@@ -46,4 +64,4 @@
 
     tfoot
         tr
-            border-top: 1px solid rgba(0, 0, 0, 0.1)
+            border-top: 1px solid $colorDivider

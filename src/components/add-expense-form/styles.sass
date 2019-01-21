@@ -1,3 +1,5 @@
+@import "./../../constants.sass"
+
 @keyframes show-notification
     0%
         opacity: 0
@@ -11,7 +13,7 @@
         text-transform: uppercase
 
     input, button
-        border: 1px solid #ddd
+        border: 1px solid $colorDivider
         box-sizing: border-box
         font-size: 0.9em
         margin: 0.5em 0
@@ -19,32 +21,32 @@
         width: 100%
 
     button
-        background-color: #4336FF
-        color: #fff
+        background-color: $colorPrimaryDark
+        color: $colorAccentLight
         cursor: pointer
         transition: background-color 0.5s
 
         &:hover
-            background-color: #5B4FFF
+            background-color: $colorPrimary
 
     .notification
-        background: #eef
-        border-radius: 0.2em
+        background: $colorNeutralLight
+        border-radius: 3px
         box-shadow: 0 0 5px rgba(0, 0, 0, 0.5)
         box-sizing: border-box
-        color: #333
+        color: $colorPrimaryText
         font-weight: 700
         margin-top: 1em
         padding: 1.5em
         position: relative
 
         &.notification-error
-            background: #a00
-            color: #fff
+            background: $colorWarning
+            color: $colorAccentLight
 
     .notification-enter-active
         animation: show-notification 0.5s
-            color: #fff
+            color: $colorAccentLight
 
     .notification-leave-active
         animation: show-notification 1s reverse
