@@ -3,10 +3,11 @@ import { retrieveExpenses } from "utils/restClient";
 import ExpenseCategory from "types/ExpenseCategory";
 import MonthStatistics from "types/MonthStatistics";
 import MonthTotal from "types/MonthTotal";
-import { formatNumber } from "utils/dataConversion";
+import { extractMonthName, formatNumber } from "utils/dataConversion";
 import { DataTableCell, TableData } from "./components/data-table/data-table";
 
 const _ = require("lodash");
+const moment = require("moment");
 
 const decimalPoints = 2;
 const blankMonth = "9999-12"
@@ -39,21 +40,20 @@ class StatisticsTableCell implements DataTableCell {
     }
 }
 
-const createFakeCell: Function = (category: ExpenseCategory, total: number): DataTableCell => {
-    return new StatisticsTableCell(category.getId(), blankMonth, formatNumber(total, decimalPoints));
-}
+const getMonths: Function = (numberOfMonths: number): Array<string> => {
+    let currentMonth = moment();
+    return _.map(Array.from(Array(numberOfMonths).keys()), (monthDifference: number) => {
+        return currentMonth.clone().subtract(monthDifference, "months").format("YYYY-MM");
+    });
+};
 
-const getMonthNames: Function = (statistics: Array<MonthStatistics>, numberOfMonths: number): Array<string> => {
-    let rowWithGreatestMonthNumber = _.last(_.sortBy(statistics, (row: MonthStatistics) => row.getMonths().length))
-    let availableMonthNames = _.map(rowWithGreatestMonthNumber.getMonths(), _.method("getMonthName"));
-    let lackingMonths = _.fill(new Array(numberOfMonths - availableMonthNames.length), "n/a");
-
-    return _.concat(availableMonthNames, lackingMonths)
+const getMonthNames: Function = (months: Array<string>): Array<string> => {
+    return _.map(months, extractMonthName);
 };
 
 const getRows: Function = (
     statistics: Array<MonthStatistics>,
-    numberOfMonths: number,
+    months: Array<string>,
     onTableCellClicked: Function
 ): Array<Array<DataTableCell>> => {
     return _.map(statistics, (stat: MonthStatistics) => {
@@ -65,34 +65,43 @@ const getRows: Function = (
             onTableCellClicked
         );
 
-        let row: Array<DataTableCell> = _.map(stat.getMonths(), (month: MonthTotal): DataTableCell => {
+        let monthTotals: Array<MonthTotal> = stat.getMonths();
+        let monthTotalsMap = _.keyBy(monthTotals, _.method("getMonth"));
+
+        let row: Array<DataTableCell> = _.map(months, (month: string) => {
+            let monthTotal: MonthTotal = _.get(monthTotalsMap, month);
+            let total: number = _.isNil(monthTotal) ? 0 : monthTotal.getTotal() as number;
+
             return new StatisticsTableCell(
                 category.getId(),
-                month.getMonth(),
-                month.getFormattedTotal(decimalPoints),
+                _.isNil(monthTotal) ? blankMonth : month,
+                formatNumber(total, decimalPoints),
                 onTableCellClicked
             );
         });
 
-        let fillValue: DataTableCell = createFakeCell(stat.getCategory(), 0);
-
-        return _.concat([categoryCell], row, _.fill(new Array(Math.abs(numberOfMonths - row.length)), fillValue));
+        return _.concat([categoryCell], row);
     });
 };
 
-const getTotals: Function = (statistics: Array<MonthStatistics>, numberOfMonths: number): Array<number> => {
+const getTotals: Function = (statistics: Array<MonthStatistics>, months: Array<string>): Array<number> => {
     if (_.isEmpty(statistics)) {
         return [];
     }
 
-    let initialTable = _.fill(new Array(numberOfMonths), 0);
+    let initialTable = _.map(months, _.constant(0));
 
     return _.reduce(
         statistics,
         (result: Array<number>, row: MonthStatistics) => {
-            let monthTotals: Array<number> = _.map(row.getMonths(), (month: MonthTotal) => month.getTotal());
+            let monthTotalsMap = _.keyBy(row.getMonths(), _.method("getMonth"));
 
-            return _.map(result, (total: number, index: number) => total + _.get(monthTotals, index, 0));
+            return _.map(months, (month: string, index: number) => {
+                let monthTotal: MonthTotal = _.get(monthTotalsMap, month);
+                let total: number = _.isNil(monthTotal) ? 0 : monthTotal.getTotal() as number;
+
+                return result[index] + total;
+            });
         },
         initialTable
     );
@@ -116,9 +125,10 @@ const prepareData: Function = (
     numberOfMonths: Number,
     onTableCellClicked: Function
 ): TableData => {
-    let footer = _.concat([i18n.statisticsTable.totalLabel], _.map(getTotals(statistics, numberOfMonths), formatNumericCell));
-    let header = _.concat([i18n.statisticsTable.categoryLabel], getMonthNames(statistics, numberOfMonths as number));
-    let rows = getRows(statistics, numberOfMonths, onTableCellClicked);
+    let months: Array<string> = getMonths(numberOfMonths);
+    let footer = _.concat([i18n.statisticsTable.totalLabel], _.map(getTotals(statistics, months), formatNumericCell));
+    let header = _.concat([i18n.statisticsTable.categoryLabel], getMonthNames(months));
+    let rows = getRows(statistics, months, onTableCellClicked);
 
     return { footer, header, rows } as TableData;
 }
