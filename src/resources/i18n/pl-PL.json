@@ -14,7 +14,8 @@
     "expensesTable": {
         "expenseLabel": "Wydatek",
         "dateLabel": "Data",
-        "costLabel": "Kwota"
+        "costLabel": "Kwota",
+        "totalLabel": "Suma"
     },
     "statisticsTable": {
         "categoryLabel": "Nazwa Kategorii",

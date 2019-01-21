@@ -14,7 +14,8 @@
     "expensesTable": {
         "expenseLabel": "Expense",
         "dateLabel": "Date",
-        "costLabel": "Cost"
+        "costLabel": "Cost",
+        "totalLabel": "Total"
     },
     "statisticsTable": {
         "categoryLabel": "Category Name",
