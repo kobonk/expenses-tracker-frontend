@@ -66,7 +66,9 @@ const vm = new Vue({
                     return 0;
                 }
 
-                return _.reduce(expenses, (result: number, expense: Expense) => { return result + expense.getCost() }, 0);
+                let total =_.reduce(expenses, (result: number, expense: Expense) => { return result + expense.getCost() }, 0);
+
+                return Math.round(total * 100) / 100;
             })
         },
         days(): Array<string> {
