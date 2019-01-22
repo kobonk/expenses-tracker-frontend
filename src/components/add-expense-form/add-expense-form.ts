@@ -41,6 +41,7 @@ const component = {
             this.date = convertDateToString(new Date());
             this.name = "";
             this.$refs.form.reset();
+            this.$refs.form["name"].focus();
         },
         onSubmit(event: any): Promise<any> {
             return this.ensureCategoryRegistration(this.categoryName)
