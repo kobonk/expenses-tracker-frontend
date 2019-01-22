@@ -72,10 +72,37 @@ export default {
         onListMoveDown() {
             let nextItem: string = getNextItem(this.matchingItems, this.temporaryItem);
             this.temporaryItem = _.isNil(nextItem) ? _.first(this.matchingItems) : nextItem;
+            this.scrollToItem(this.temporaryItem);
         },
         onListMoveUp() {
             let prevItem = getPreviousItem(this.matchingItems, this.temporaryItem);
             this.temporaryItem = _.isNil(prevItem) ? _.last(this.matchingItems) : prevItem;
+            this.scrollToItem(this.temporaryItem);
+        },
+        scrollToItem(item: string) {
+            let itemIndex = _.indexOf(this.matchingItems, item);
+            let listElement = this.$refs["value-list"];
+            let listElementRect = listElement.getBoundingClientRect();
+            let itemElement = listElement.querySelectorAll("li")[itemIndex];
+            let itemElementRect = itemElement.getBoundingClientRect();
+
+            let listBounds = {
+                top: listElement.scrollTop,
+                bottom: listElement.scrollTop + listElementRect.height
+            }
+
+            let itemBounds = {
+                top: itemElement.offsetTop,
+                bottom: itemElement.offsetTop + itemElementRect.height
+            }
+
+            let outsideUpwards = itemBounds.top < listBounds.top;
+            let outsideDownwards = itemBounds.bottom > listBounds.bottom;
+            let outOfBounds = outsideUpwards || outsideDownwards;
+
+            if (outOfBounds) {
+                listElement.scrollTop = outsideUpwards ? itemBounds.top : itemBounds.bottom - listElementRect.height;
+            }
         },
         updateCurrentValue(item: string) {
             this.currentItem = item;
@@ -95,7 +122,7 @@ export default {
                 @keydown.enter="onListItemSelected"
                 @keyup.down="onListMoveDown"
                 @keyup.up="onListMoveUp">
-            <ul class="auto-complete-list" v-if="listVisible">
+            <ul ref="value-list" class="auto-complete-list" v-if="listVisible">
                 <li
                     @click="onClick(item)"
                     :class="{ selected: isCurrentItem(item) }"
