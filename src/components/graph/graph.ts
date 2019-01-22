@@ -37,8 +37,10 @@ export default {
             bindto: this.$el,
             data: {
                 columns: [
-                    ["days"].concat(this.days),
-                    ["values"].concat(this.xValues)
+                    ["days"].concat(this.days)
+                ].concat(this.xValues),
+                groups: [
+                    _.map(this.xValues, _.first)
                 ],
                 type: "bar",
                 x: "days"
@@ -50,6 +52,14 @@ export default {
             },
             legend: {
                 show: false
+            },
+            tooltip: {
+                format: {
+                    title: (x: string) => `${ this.month }-${ x }`,
+                    value: (value: number) => value.toFixed(2)
+                },
+                grouped: false,
+                show: true
             }
         });
     },

@@ -45,32 +45,6 @@ const vm = new Vue({
 
             return extractMonthName(_.first(this.expenses).getDate());
         },
-        dailyExpenses(): any {
-            return _.reduce(
-                this.days,
-                (result: any, day: string) => {
-                    return _.assign(
-                        {},
-                        result,
-                        { [day]: _.filter(this.expenses, (expense: Expense) => expense.getDate() === day) }
-                    )
-                },
-                {}
-            );
-        },
-        dailyTotals(): Array<number> {
-            return _.map(this.days, (day: string) => {
-                let expenses: Array<Expense> = _.get(this.dailyExpenses, day);
-
-                if (_.isEmpty(expenses)) {
-                    return 0;
-                }
-
-                let total =_.reduce(expenses, (result: number, expense: Expense) => { return result + expense.getCost() }, 0);
-
-                return Math.round(total * 100) / 100;
-            })
-        },
         days(): Array<string> {
             let firstDay = moment(`${ this.currentMonth }-01`);
             let daysInMonth = firstDay.daysInMonth();
@@ -78,6 +52,18 @@ const vm = new Vue({
             return _.map(Array.from(Array(daysInMonth).keys()), (day: number) => {
                 return firstDay.clone().add(day, "d").format("YYYY-MM-DD");
             });
+        },
+        dailyExpenseTotals(): Array<Array<any>> {
+            let expensesByNameMap = _.groupBy(this.expenses, _.method("getName"));
+            let totalsMap = _.mapValues(expensesByNameMap, (expenses: Array<Expense>) => {
+                return _.map(this.days, (day: string) => {
+                    let expense: Expense = _.find(expenses, (expense: Expense) => expense.getDate() === day);
+
+                    return _.isNil(expense) ? 0 : expense.getCost();
+                });
+            });
+
+            return _.map(totalsMap, (values: Array<number>, key: string) => _.concat([key], values));
         }
     },
     data: {
