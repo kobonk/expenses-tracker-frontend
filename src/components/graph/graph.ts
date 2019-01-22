@@ -22,15 +22,6 @@ export default {
     },
     mounted() {
         this.chart = c3.generate({
-            bindto: this.$el,
-            data: {
-                columns: [
-                    ["expenses"].concat(this.xValues)
-                ],
-                types: {
-                    expenses: "bar"
-                }
-            },
             axis: {
                 x: {
                     tick: {
@@ -43,10 +34,22 @@ export default {
                     ratio: 0.8
                 }
             },
+            bindto: this.$el,
+            data: {
+                columns: [
+                    ["days"].concat(this.days),
+                    ["values"].concat(this.xValues)
+                ],
+                type: "bar",
+                x: "days"
+            },
             grid: {
                 y: {
                     show: true
                 }
+            },
+            legend: {
+                show: false
             }
         });
     },
