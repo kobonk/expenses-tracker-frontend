@@ -33,9 +33,12 @@ export default {
             return true;
         },
         matchingItems(): Array<string> {
-            return _.filter(this.items, (item: string) => {
+            return _.chain(this.items)
+            .filter((item: string) => {
                 return (new RegExp(_.trim(this.currentItem), "i")).test(_.trim(item))
-            });
+            })
+            .sortBy((item: string) => _.toLower(_.trim(item)).indexOf(_.toLower(_.trim(this.currentItem))))
+            .value();
         }
     },
     created() {
