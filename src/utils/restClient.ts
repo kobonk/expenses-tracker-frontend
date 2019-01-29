@@ -2,7 +2,6 @@ import * as data from "config.json";
 import ExpenseCategory from "types/ExpenseCategory";
 import Expense from "types/Expense";
 import MonthStatistics from "types/MonthStatistics";
-import { AssertionError } from "assert";
 
 const _ = require("lodash");
 const axios = require("axios");

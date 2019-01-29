@@ -7,7 +7,7 @@
     <body>
         <div id="expenses-tracker">
             <aside class="sidebar">
-                <add-expense-form @submit="updateStatistics"></add-expense-form>
+                <add-expense-form @submit="refreshMainView"></add-expense-form>
             </aside>
             <main class="content">
                 <transition name="slide-fade" mode="out-in">

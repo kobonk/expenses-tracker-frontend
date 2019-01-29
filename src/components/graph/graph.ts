@@ -20,8 +20,27 @@ const component = {
             return _.map(this.data.xValues, (xValue: any) => _.concat([xValue.name], xValue.values));
         }
     },
+    data(): any {
+        return {
+            chart: c3.chart
+        };
+    },
+    methods: {
+        createData(): any {
+            return {
+                columns: [
+                    ["xTicks"].concat(this.data.xTicks),
+                ].concat(this.values),
+                groups: [
+                    _.map(this.data.xValues, _.property("name"))
+                ],
+                type: "bar",
+                x: "xTicks"
+            }
+        }
+    },
     mounted() {
-        let chart = c3.generate({
+        this.chart = c3.generate({
             axis: {
                 x: {
                     tick: {
@@ -35,16 +54,7 @@ const component = {
                 }
             },
             bindto: this.$el,
-            data: {
-                columns: [
-                    ["xTicks"].concat(this.data.xTicks),
-                ].concat(this.values),
-                groups: [
-                    _.map(this.data.xValues, _.property("name"))
-                ],
-                type: "bar",
-                x: "xTicks"
-            },
+            data: this.createData(),
             grid: {
                 y: {
                     show: true
@@ -72,7 +82,13 @@ const component = {
             } as GraphData
         }
     },
-    template: `<div class="graph" style="height: 300px"></div>`
+    template: `<div class="graph" style="height: 300px"></div>`,
+    watch: {
+        data() {
+            this.chart.unload();
+            this.chart.load(this.createData());
+        }
+    }
 };
 
 export { component, GraphData, GraphInput };

@@ -1,6 +1,6 @@
 import Vue from "vue";
 import "./styles.sass";
-import { retrieveMonthStatistics } from "utils/restClient";
+import { retrieveExpenses, retrieveMonthStatistics } from "utils/restClient";
 import { extractMonthName, getDaysOfMonth } from "utils/stringUtils";
 import Expense from "types/Expense";
 import MonthStatistics from "types/MonthStatistics";
@@ -78,7 +78,7 @@ const vm = new Vue({
         clearExpensesTableData() {
             vm.expensesTableData = blankTableData;
         },
-        updateStatistics() {
+        refreshMainView() {
             retrieveMonthStatistics(this.numberOfStatisticsMonths)
             .then((statistics: Array<MonthStatistics>) => {
                 vm.statistics = statistics;
@@ -86,16 +86,21 @@ const vm = new Vue({
                 vm.statisticsTableData = prepareStatisticsTableData(
                     statistics,
                     this.numberOfStatisticsMonths,
-                    this.onTableCellClicked
+                    this.updateExpensesView
                 );
+
+                if (!_.isEmpty(vm.expenses)) {
+                    retrieveExpenses(_.first(vm.expenses).getCategory().getId(), vm.currentMonth)
+                    .then((expenses: Array<Expense>) => vm.updateExpensesView(expenses));
+                }
             })
         },
-        onTableCellClicked(expenses: Array<Expense>) {
+        updateExpensesView(expenses: Array<Expense>) {
             vm.expenses = expenses;
             vm.expensesTableData = prepareExpensesTableData(expenses);
         }
     },
     mounted() {
-        this.updateStatistics()
+        this.refreshMainView()
     }
 });
