@@ -1,7 +1,7 @@
 import Vue from "vue";
 import "./styles.sass";
 import { retrieveMonthStatistics } from "utils/restClient";
-import { extractMonthName } from "utils/dataConversion";
+import { extractMonthName } from "utils/stringUtils";
 import Expense from "types/Expense";
 import MonthStatistics from "types/MonthStatistics";
 import prepareExpensesTableData from "./expensesTableDataProvider";

@@ -1,6 +1,6 @@
 import Expense from "types/Expense";
 import { TableData } from "./components/data-table/data-table";
-import { formatNumber } from "utils/dataConversion";
+import { formatNumber } from "utils/stringUtils";
 import i18n from "utils/i18n";
 
 const _ = require("lodash");

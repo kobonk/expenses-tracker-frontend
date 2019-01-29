@@ -1,6 +1,6 @@
 import i18n from "utils/i18n";
 import Deserializable from "./Deserializable";
-import { extractMonthName, formatNumber } from "utils/dataConversion";
+import { extractMonthName, formatNumber } from "utils/stringUtils";
 
 const _ = require("lodash");
 

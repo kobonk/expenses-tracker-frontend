@@ -3,7 +3,7 @@ import { retrieveExpenses } from "utils/restClient";
 import ExpenseCategory from "types/ExpenseCategory";
 import MonthStatistics from "types/MonthStatistics";
 import MonthTotal from "types/MonthTotal";
-import { extractMonthName, formatNumber } from "utils/dataConversion";
+import { extractMonthName, formatNumber } from "utils/stringUtils";
 import { DataTableCell, TableData } from "./components/data-table/data-table";
 
 const _ = require("lodash");
