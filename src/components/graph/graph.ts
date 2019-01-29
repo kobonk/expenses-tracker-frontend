@@ -21,8 +21,6 @@ const component = {
         }
     },
     mounted() {
-        console.log(this.data);
-
         let chart = c3.generate({
             axis: {
                 x: {
