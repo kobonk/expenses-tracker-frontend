@@ -1,4 +1,5 @@
 import i18n from "utils/i18n";
+import { utc } from "moment";
 
 const _ = require("lodash");
 
@@ -28,4 +29,13 @@ const formatNumber: Function = (numericValue: number, decimalPlaces: number = 2)
     return _.join(numericChunks, " ") + decimalPart;
 };
 
-export { convertDateToString, extractMonthName, formatNumber };
+const getDaysOfMonth: Function = (month: String): Array<String> => {
+    let firstDay = utc(`${ month }-01`);
+    let daysInMonth = firstDay.daysInMonth();
+
+    return _.map(Array.from(Array(daysInMonth).keys()), (day: number) => {
+        return firstDay.clone().add(day, "d").format("YYYY-MM-DD");
+    });
+}
+
+export { convertDateToString, extractMonthName, formatNumber, getDaysOfMonth };

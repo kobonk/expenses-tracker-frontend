@@ -1,7 +1,7 @@
 import Vue from "vue";
 import "./styles.sass";
 import { retrieveMonthStatistics } from "utils/restClient";
-import { extractMonthName } from "utils/stringUtils";
+import { extractMonthName, getDaysOfMonth } from "utils/stringUtils";
 import Expense from "types/Expense";
 import MonthStatistics from "types/MonthStatistics";
 import prepareExpensesTableData from "./expensesTableDataProvider";
@@ -46,22 +46,16 @@ const vm = new Vue({
 
             return extractMonthName(_.first(this.expenses).getDate());
         },
-        days(): Array<string> {
-            let firstDay = moment(`${ this.currentMonth }-01`);
-            let daysInMonth = firstDay.daysInMonth();
-
-            return _.map(Array.from(Array(daysInMonth).keys()), (day: number) => {
-                return firstDay.clone().add(day, "d").format("YYYY-MM-DD");
-            });
-        },
         monthGraphData(): GraphData {
+            let days: Array<String> = getDaysOfMonth(this.currentMonth);
+
             return {
-                xTicks: _.map(this.days, (day: String) => day.slice(-2)),
-                xTitles: this.days,
+                xTicks: _.map(days, (day: String) => day.slice(-2)),
+                xTitles: days,
                 xValues: _.chain(this.expenses)
                     .groupBy(_.method("getName"))
                     .mapValues((expenses: Array<Expense>) => {
-                        return _.map(this.days, (day: string) => {
+                        return _.map(days, (day: string) => {
                             let expense: Expense = _.find(expenses, (expense: Expense) => expense.getDate() === day);
 
                             return _.isNil(expense) ? 0 : expense.getCost();
