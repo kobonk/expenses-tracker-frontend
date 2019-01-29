@@ -76,6 +76,7 @@ const vm = new Vue({
     el: "#expenses-tracker",
     methods: {
         clearExpensesTableData() {
+            vm.expenses = [];
             vm.expensesTableData = blankTableData;
         },
         refreshMainView() {
