@@ -7,6 +7,7 @@ import MonthStatistics from "types/MonthStatistics";
 import prepareExpensesTableData from "./expensesTableDataProvider";
 import prepareStatisticsTableData from "./statisticsTableDataProvider";
 import { component as dataTableComponent, TableData } from "./components/data-table/data-table";
+import { component as graphComponent, GraphData, GraphInput } from "./components/graph/graph";
 
 const _ = require("lodash");
 const moment = require("moment");
@@ -20,7 +21,7 @@ const blankTableData = {
 const vm = new Vue({
     components: {
         "add-expense-form": () => import("./components/add-expense-form/add-expense-form"),
-        "graph": () => import("./components/graph/graph"),
+        "graph": graphComponent,
         "data-table": dataTableComponent
     },
     computed: {
@@ -53,17 +54,22 @@ const vm = new Vue({
                 return firstDay.clone().add(day, "d").format("YYYY-MM-DD");
             });
         },
-        dailyExpenseTotals(): Array<Array<any>> {
-            let expensesByNameMap = _.groupBy(this.expenses, _.method("getName"));
-            let totalsMap = _.mapValues(expensesByNameMap, (expenses: Array<Expense>) => {
-                return _.map(this.days, (day: string) => {
-                    let expense: Expense = _.find(expenses, (expense: Expense) => expense.getDate() === day);
+        monthGraphData(): GraphData {
+            return {
+                xTicks: _.map(this.days, (day: String) => day.slice(-2)),
+                xTitles: this.days,
+                xValues: _.chain(this.expenses)
+                    .groupBy(_.method("getName"))
+                    .mapValues((expenses: Array<Expense>) => {
+                        return _.map(this.days, (day: string) => {
+                            let expense: Expense = _.find(expenses, (expense: Expense) => expense.getDate() === day);
 
-                    return _.isNil(expense) ? 0 : expense.getCost();
-                });
-            });
-
-            return _.map(totalsMap, (values: Array<number>, key: string) => _.concat([key], values));
+                            return _.isNil(expense) ? 0 : expense.getCost();
+                        });
+                    })
+                    .map((values: Array<Number>, key: String): GraphInput => { return { name: key, values } as GraphInput; })
+                    .value()
+            } as GraphData
         }
     },
     data: {

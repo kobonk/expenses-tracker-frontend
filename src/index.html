@@ -22,9 +22,7 @@
                             <button @click="clearExpensesTableData">«</button>
                             {{ currentCategoryName }} / {{ currentMonthName }}
                         </h3>
-                        <graph
-                            :month="currentMonth"
-                            :x-values="dailyExpenseTotals"></graph>
+                        <graph :data="monthGraphData"></graph>
                         <data-table
                             :footer="expensesTableData.footer"
                             :header="expensesTableData.header"

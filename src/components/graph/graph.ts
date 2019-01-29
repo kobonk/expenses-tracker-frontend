@@ -2,30 +2,32 @@ import "./styles.sass"
 
 const c3 = require("c3");
 const _ = require("lodash");
-const moment = require("moment");
 
-export default {
+type GraphData = {
+    xTicks: Array<String>,
+    xTitles: Array<String>,
+    xValues: Array<GraphInput>
+};
+
+type GraphInput = {
+    name: String,
+    values: Array<Number>
+}
+
+const component = {
     computed: {
-        days(): Array<string> {
-            let firstDay = moment(`${ this.month }-01`);
-            let daysInMonth = firstDay.daysInMonth();
-
-            return _.map(Array.from(Array(daysInMonth).keys()), (day: number) => {
-                return firstDay.clone().add(day, "d").format("DD");
-            });
-        }
-    },
-    data() {
-        return {
-            chart: null as any
+        values() {
+            return _.map(this.data.xValues, (xValue: any) => _.concat([xValue.name], xValue.values));
         }
     },
     mounted() {
-        this.chart = c3.generate({
+        console.log(this.data);
+
+        let chart = c3.generate({
             axis: {
                 x: {
                     tick: {
-                        values: this.days
+                        values: this.data.xTicks
                     }
                 }
             },
@@ -37,13 +39,13 @@ export default {
             bindto: this.$el,
             data: {
                 columns: [
-                    ["days"].concat(this.days)
-                ].concat(this.xValues),
+                    ["xTicks"].concat(this.data.xTicks),
+                ].concat(this.values),
                 groups: [
-                    _.map(this.xValues, _.first)
+                    _.map(this.data.xValues, _.property("name"))
                 ],
                 type: "bar",
-                x: "days"
+                x: "xTicks"
             },
             grid: {
                 y: {
@@ -55,7 +57,7 @@ export default {
             },
             tooltip: {
                 format: {
-                    title: (x: string) => `${ this.month }-${ x }`,
+                    title: (xTick: string, index: Number) => this.data.xTitles[index as number],
                     value: (value: number) => value.toFixed(2)
                 },
                 grouped: false,
@@ -64,13 +66,15 @@ export default {
         });
     },
     props: {
-        month: {
-            type: String,
-            default: moment().format("YYYY-MM")
-        },
-        xValues: {
-            default: []
+        data: {
+            default: {
+                xTicks: [],
+                xTitles: [],
+                xValues: []
+            } as GraphData
         }
     },
     template: `<div class="graph" style="height: 300px"></div>`
 };
+
+export { component, GraphData, GraphInput };
