@@ -17,7 +17,7 @@
                         :header="statisticsTableData.header"
                         :rows="statisticsTableData.rows">
                     </data-table>
-                    <div v-else>
+                    <div class="expenses-category-month" v-else>
                         <h3>
                             <button @click="clearExpensesTableData">«</button>
                             {{ currentCategoryName }} / {{ currentMonthName }}
