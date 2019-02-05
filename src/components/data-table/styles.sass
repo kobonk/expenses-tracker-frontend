@@ -3,10 +3,19 @@
 .data-table
     box-sizing: border-box
     border-collapse: collapse
-    margin-bottom: 2em
+    display: flex
+    flex-direction: column
+    height: 100%
     width: 100%
 
+    thead, tbody, tfoot
+        display: block
+        width: 100%
+
     tr
+        display: grid
+        grid-template-columns: minmax(200px, 2fr) minmax(100px, 1fr) minmax(100px, 1fr) minmax(100px, 1fr) minmax(100px, 1fr)
+
         td, th
             color: $colorSecondaryText
             padding: 1em 0.5em
@@ -61,6 +70,22 @@
                     &:after
                         content: " \2193"
 
+    tbody
+        height: 100%
+        overflow: auto
+
     tfoot
         tr
             border-top: 1px solid $colorDivider
+
+    &.columns-2
+        tr
+            grid-template-columns: minmax(200px, 2fr) minmax(100px, 1fr)
+
+    &.columns-3
+        tr
+            grid-template-columns: minmax(200px, 2fr) minmax(100px, 1fr) minmax(100px, 1fr)
+
+    &.columns-4
+        tr
+            grid-template-columns: minmax(200px, 2fr) minmax(100px, 1fr) minmax(100px, 1fr) minmax(100px, 1fr)
