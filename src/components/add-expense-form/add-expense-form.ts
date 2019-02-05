@@ -19,6 +19,9 @@ const component = {
     computed: {
         categoryNames(): Array<ExpenseCategory> {
             return _.map(this.categories, _.method("getName")) as Array<ExpenseCategory>;
+        },
+        similarNames(): Array<string> {
+            return _.uniq(_.map(this.similarExpenseSchemas, _.property("name"))) as Array<string>;
         }
     },
     data() {
@@ -30,7 +33,7 @@ const component = {
             errorMessage: null as unknown,
             i18n: i18n.addExpenseForm,
             name: "",
-            similarNames: [] as Array<string>,
+            similarExpenseSchemas: [] as Array<any>,
             toastMessage: null as unknown
         };
     },
@@ -150,7 +153,14 @@ const component = {
             }
 
             retrieveSimilarExpenseNames(expenseName)
-            .then((names: Array<string>) => this.similarNames = names)
+            .then((expenseSchemas: Array<any>) => this.similarExpenseSchemas = expenseSchemas)
+            .then(() => {
+                let schema = _.find(this.similarExpenseSchemas, { name: this.name });
+
+                if (schema) {
+                    this.categoryName = schema.category;
+                }
+            })
             .catch((error: Error) => {
                 this.showError(error);
             });
