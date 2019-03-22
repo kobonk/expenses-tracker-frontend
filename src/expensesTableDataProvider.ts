@@ -1,4 +1,4 @@
-import { ExpenseDataTableCellNumber, ExpenseDataTableCellString } from "./expensesTableTypes";
+import { ExpenseDataTableCellNumber, ExpenseDataTableCellString, ExpensesDataTableRow } from "./expensesTableTypes";
 import Expense from "types/Expense";
 import { DataTableCell, TableData } from "./components/data-table/data-table";
 import { formatNumber } from "utils/stringUtils";
@@ -6,15 +6,18 @@ import i18n from "utils/i18n";
 
 const _ = require("lodash");
 
-const getRows: Function = (expenses: Array<Expense>): Array<Array<DataTableCell>> => {
-    return _.map(expenses, (expense: Expense): Array<DataTableCell> => {
+const getRows: Function = (expenses: Array<Expense>): Array<ExpensesDataTableRow> => {
+    return _.map(expenses, (expense: Expense): ExpensesDataTableRow => {
         const onClick = (id: string, value: string | number) => console.log(id, value);
 
-        return [
-            new ExpenseDataTableCellString(expense.getId(), expense.getName(), onClick),
-            new ExpenseDataTableCellNumber(expense.getId(), expense.getCost(), onClick),
-            new ExpenseDataTableCellString(expense.getId(), expense.getDate(), onClick)
-        ];
+        return new ExpensesDataTableRow(
+            expense.getId(),
+            [
+                new ExpenseDataTableCellString("name", expense.getName(), onClick),
+                new ExpenseDataTableCellNumber("cost", expense.getCost(), onClick),
+                new ExpenseDataTableCellString("date", expense.getDate(), onClick)
+            ]
+        );
     });
 };
 

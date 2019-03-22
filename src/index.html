@@ -25,6 +25,7 @@
                         <graph :data="monthGraphData"></graph>
                         <data-table
                             class="columns-3"
+                            @onCellEdited="updateExpense"
                             :footer="expensesTableData.footer"
                             :header="expensesTableData.header"
                             :rows="expensesTableData.rows"

@@ -29,6 +29,10 @@ class StatisticsTableCell implements DataTableCell {
         return this.content;
     }
 
+    public getName(): string {
+        return "";
+    }
+
     public isClickable(): boolean {
         return _.isFunction(this.onClickCallback);
     }

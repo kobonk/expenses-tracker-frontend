@@ -1,13 +1,39 @@
 import "./styles.sass";
+import { hasMethods } from "./../../utils/objectUtils";
 
 const _ = require("lodash");
 
 interface DataTableCell {
     getContent(): string | Number;
+    getName(): string,
     isClickable(): boolean;
     isEditable(): boolean;
     onClick(): void;
+    toString(): string;
 };
+
+interface DataTableRow {
+    getCells(): Array<DataTableCell>;
+    getId(): string
+}
+
+class TableRow implements DataTableRow {
+    private cells: Array<DataTableCell>;
+    private id: string;
+
+    constructor(id: string, cells: Array<DataTableCell>) {
+        this.cells = cells;
+        this.id = id;
+    }
+
+    public getCells(): Array<DataTableCell> {
+        return this.cells;
+    }
+
+    public getId(): string {
+        return this.id;
+    }
+}
 
 class TableCell implements DataTableCell {
     private content: string;
@@ -18,6 +44,10 @@ class TableCell implements DataTableCell {
 
     getContent(): string {
         return this.content;
+    }
+
+    getName(): string {
+        return "";
     }
 
     isClickable(): boolean {
@@ -36,13 +66,15 @@ class TableCell implements DataTableCell {
 type TableData = {
     footer: Array<string | Number>,
     header: Array<string | Number>,
-    rows: Array<Array<string | Number | DataTableCell>>
+    rows: Array<Array<string | Number | DataTableCell> | DataTableRow>
 };
 
 const isDataTableCellInstance: Function = (value: any): boolean => {
-    let methodNames = ["getContent", "onClick"];
+    return hasMethods(value, ["getContent", "onClick"]);
+};
 
-    return _.every(_.map(methodNames, (methodName: string) => _.isFunction(_.get(value, methodName))))
+const isDataTableRowInstance: Function = (value: any): boolean => {
+    return hasMethods(value, ["getId", "getCells"]);
 };
 
 const getSortableContent: Function = (cell: DataTableCell): string | number => {
@@ -70,8 +102,16 @@ const component = {
             return _.isEmpty(this.header) ? [] : this.addMissingCells(this.header);
         },
         normalizedBodyRows(): Array<Array<DataTableCell>> {
+            // You really need to rewrite this method!!!
+
+
+
+
             return _.map(
-                _.map(this.rows, this.addMissingCells),
+                _.chain(this.rows)
+                .map((row: Array<string | number | DataTableCell> | DataTableRow) => isDataTableRowInstance(row) ? (row as DataTableRow).getCells() : row)
+                .map(this.addMissingCells)
+                .value(),
                 (row: Array<string | number | DataTableCell>) => {
                     return _.map(row, (cell: string | number | DataTableCell) => {
                         if (isDataTableCellInstance(cell)) {
@@ -83,11 +123,23 @@ const component = {
                 }
             )
         },
+        normalizeBodyCell: (cell: string | number | DataTableCell): DataTableCell => {
+            if (isDataTableCellInstance(cell)) return cell as DataTableCell;
+
+            return new TableCell(cell.toString());
+        },
+        normalizeBodyRow(row: Array<string | number | DataTableCell> | DataTableRow): DataTableRow {
+            if (isDataTableRowInstance(row)) return row as DataTableRow;
+
+            return new TableRow("", _.map(row, this.normalizeBodyCell));
+        },
         numberOfColumns(): Number {
             return _.reduce(
                 this.rows,
-                (result: Number, row: Array<string | Number>) => {
-                    return row.length > result ? row.length : result;
+                (result: Number, row: Array<string | Number | DataTableCell> | DataTableRow) => {
+                    const cellCount: number = isDataTableRowInstance(row) ? (row as DataTableRow).getCells().length : (row as Array<any>).length;
+
+                    return cellCount > result ? cellCount : result;
                 },
                 0
             )
@@ -105,15 +157,20 @@ const component = {
     },
     methods: {
         addMissingCells(row: Array<string | Number | DataTableCell>): Array<string | DataTableCell> {
+            console.log(this.numberOfColumns, row.length);
             let missingCells = _.fill(new Array(Math.abs(this.numberOfColumns - row.length)), "");
 
             return _.concat(row, missingCells);
         },
-        onCellClick(cell: DataTableCell) {
+        onCellClicked(cell: DataTableCell) {
             if (cell.isClickable() && cell.isEditable() && this.cellInEdit !== cell) {
                 this.cellInEdit = cell;
+                return;
             }
             cell.onClick();
+        },
+        onFieldUpdated(cell: DataTableCell, value: string) {
+            this.onCellEdited(cell.getName(), value);
         },
         sortColumn(columnIndex: number) {
             if (this.sortColumnIndex === columnIndex) {
@@ -123,7 +180,7 @@ const component = {
             this.sortColumnIndex = columnIndex;
         }
     },
-    props: ["rows", "footer", "header", "sortDir", "sortBy"],
+    props: ["rows", "footer", "header", "onCellEdited", "sortDir", "sortBy"],
     template: `
         <table v-if="tableVisible" class="data-table">
             <thead v-if="headerCells.length > 0">
@@ -143,12 +200,16 @@ const component = {
                         v-bind:key="i">
                         <span
                             class="clickable"
-                            @click="onCellClick(cell)"
+                            @click="onCellClicked(cell)"
                             v-if="cell.isClickable() && cell !== cellInEdit"
                         >
                             {{ cell.getContent() }}
                         </span>
-                        <input v-else-if="cell === cellInEdit" type="text" :value="cell.getContent()" />
+                        <input
+                            @keyup.enter="(event) => onFieldUpdated(cell, event.target.value)"
+                            :value="cell.getContent()"
+                            v-else-if="cell === cellInEdit" type="text"
+                        />
                         <template v-else>{{ cell.getContent() }}</template>
                     </td>
                 </tr>
@@ -162,4 +223,4 @@ const component = {
     `
 };
 
-export { component, DataTableCell, TableData };
+export { component, DataTableCell, DataTableRow, TableData };

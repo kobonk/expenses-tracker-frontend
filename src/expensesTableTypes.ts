@@ -1,8 +1,31 @@
-import { DataTableCell } from "./components/data-table/data-table";
+import { DataTableCell, DataTableRow } from "./components/data-table/data-table";
 import { formatNumber } from "utils/stringUtils";
+
+class ExpensesDataTableRow implements DataTableRow {
+    private expenseId: string;
+    private cells: Array<ExpenseDataTableCell>;
+
+    constructor(expenseId: string, cells: Array<ExpenseDataTableCell>) {
+        this.expenseId = expenseId;
+        this.cells = cells;
+    }
+
+    getId(): string {
+        return this.expenseId;
+    }
+
+    getCells(): Array<DataTableCell> {
+        return this.cells as Array<DataTableCell>;
+    }
+}
 
 class ExpenseDataTableCell implements DataTableCell {
     public getContent(): string {
+        // This has to be overriden
+        return "";
+    }
+
+    public getName(): string {
         // This has to be overriden
         return "";
     }
@@ -21,14 +44,14 @@ class ExpenseDataTableCell implements DataTableCell {
 }
 
 class ExpenseDataTableCellNumber extends ExpenseDataTableCell {
-    private expenseId: string;
+    private name: string;
     private onTableCellClicked: Function;
     private value: number;
 
-    constructor(expenseId: string, value: number, onTableCellClicked: Function) {
+    constructor(name: string, value: number, onTableCellClicked: Function) {
         super();
 
-        this.expenseId = expenseId;
+        this.name = name;
         this.onTableCellClicked = onTableCellClicked;
         this.value = value;
     }
@@ -37,21 +60,25 @@ class ExpenseDataTableCellNumber extends ExpenseDataTableCell {
         return formatNumber(this.value);
     }
 
+    getName(): string {
+        return this.name;
+    }
+
     onClick(): void {
-        this.onTableCellClicked(this.expenseId, this.value);
+        this.onTableCellClicked({ [this.name]: this.value });
     }
 }
 
 class ExpenseDataTableCellString extends ExpenseDataTableCell {
-    private expenseId: string;
+    private name: string;
     private onTableCellClicked: Function;
     private content: string;
 
-    constructor(expenseId: string, content: string, onTableCellClicked: Function) {
+    constructor(name:string, content: string, onTableCellClicked: Function) {
         super();
 
         this.content = content;
-        this.expenseId = expenseId;
+        this.name = name;
         this.onTableCellClicked = onTableCellClicked;
     }
 
@@ -59,9 +86,13 @@ class ExpenseDataTableCellString extends ExpenseDataTableCell {
         return this.content;
     }
 
+    getName(): string {
+        return this.name;
+    }
+
     onClick(): void {
-        this.onTableCellClicked(this.expenseId, this.content);
+        this.onTableCellClicked({ [this.name]: this.content });
     }
 }
 
-export { ExpenseDataTableCellNumber, ExpenseDataTableCellString };
+export { ExpenseDataTableCellNumber, ExpenseDataTableCellString, ExpensesDataTableRow };

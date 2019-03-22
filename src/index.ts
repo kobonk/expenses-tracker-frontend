@@ -96,6 +96,9 @@ const vm = new Vue({
                 }
             })
         },
+        updateExpense: async (expenseId: string, value: object) => {
+            console.log(expenseId, value);
+        },
         updateExpensesView(expenses: Array<Expense>) {
             vm.expenses = expenses;
             vm.expensesTableData = prepareExpensesTableData(expenses);
