@@ -41,7 +41,7 @@ const component = {
         onExpenseRegistered() {
             this.categoryName = "";
             this.cost = null;
-            this.date = convertDateToString(new Date());
+            this.date = this.date || convertDateToString(new Date());
             this.name = "";
             this.$refs.form.reset();
             this.$refs.form["name"].focus();
