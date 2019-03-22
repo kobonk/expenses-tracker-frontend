@@ -5,6 +5,7 @@ const _ = require("lodash");
 interface DataTableCell {
     getContent(): string | Number;
     isClickable(): boolean;
+    isEditable(): boolean;
     onClick(): void;
 };
 
@@ -20,6 +21,10 @@ class TableCell implements DataTableCell {
     }
 
     isClickable(): boolean {
+        return false;
+    }
+
+    isEditable(): boolean {
         return false;
     }
 
@@ -93,6 +98,7 @@ const component = {
     },
     data() {
         return {
+            cellInEdit: null as any,
             sortColumnIndex: _.isNil(this.sortBy) ? 0 : this.sortBy,
             sortDirection: _.isNil(this.sortDir) ? "asc" : this.sortDir
         }
@@ -102,6 +108,12 @@ const component = {
             let missingCells = _.fill(new Array(Math.abs(this.numberOfColumns - row.length)), "");
 
             return _.concat(row, missingCells);
+        },
+        onCellClick(cell: DataTableCell) {
+            if (cell.isClickable() && cell.isEditable() && this.cellInEdit !== cell) {
+                this.cellInEdit = cell;
+            }
+            cell.onClick();
         },
         sortColumn(columnIndex: number) {
             if (this.sortColumnIndex === columnIndex) {
@@ -130,8 +142,12 @@ const component = {
                         v-bind:key="i">
                         <span
                             class="clickable"
-                            @click="cell.onClick()"
-                            v-if="cell.isClickable()">{{ cell.getContent() }}</span>
+                            @click="onCellClick(cell)"
+                            v-if="cell.isClickable() && cell !== cellInEdit"
+                        >
+                            {{ cell.getContent() }}
+                        </span>
+                        <input v-else-if="cell === cellInEdit" type="text" :value="cell.getContent()" />
                         <template v-else>{{ cell.getContent() }}</template>
                     </td>
                 </tr>

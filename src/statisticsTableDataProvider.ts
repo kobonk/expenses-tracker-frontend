@@ -33,6 +33,10 @@ class StatisticsTableCell implements DataTableCell {
         return _.isFunction(this.onClickCallback);
     }
 
+    public isEditable(): boolean {
+        return false;
+    }
+
     public onClick() {
         if (!this.isClickable()) {
             return;

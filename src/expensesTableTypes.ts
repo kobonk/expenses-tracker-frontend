@@ -2,16 +2,20 @@ import { DataTableCell } from "./components/data-table/data-table";
 import { formatNumber } from "utils/stringUtils";
 
 class ExpenseDataTableCell implements DataTableCell {
-    getContent() {
+    public getContent(): string {
         // This has to be overriden
         return "";
     }
 
-    isClickable() {
+    public isClickable(): boolean {
         return true;
     }
 
-    onClick() {
+    public isEditable(): boolean {
+        return true;
+    }
+
+    public onClick(): void {
         // This has to be overriden
     }
 }
@@ -29,11 +33,11 @@ class ExpenseDataTableCellNumber extends ExpenseDataTableCell {
         this.value = value;
     }
 
-    getContent() {
+    getContent(): string {
         return formatNumber(this.value);
     }
 
-    onClick() {
+    onClick(): void {
         this.onTableCellClicked(this.expenseId, this.value);
     }
 }
@@ -51,11 +55,11 @@ class ExpenseDataTableCellString extends ExpenseDataTableCell {
         this.onTableCellClicked = onTableCellClicked;
     }
 
-    getContent() {
+    getContent(): string {
         return this.content;
     }
 
-    onClick() {
+    onClick(): void {
         this.onTableCellClicked(this.expenseId, this.content);
     }
 }
