@@ -138,6 +138,7 @@ const component = {
             <tbody>
                 <tr v-for="(row, i) in bodyRows" v-bind:key="i">
                     <td
+                        :class="cell === cellInEdit ? 'in-edit' : null"
                         v-for="(cell, i) in row"
                         v-bind:key="i">
                         <span
