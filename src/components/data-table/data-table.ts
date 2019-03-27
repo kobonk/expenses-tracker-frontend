@@ -1,5 +1,6 @@
 import "./styles.sass";
 import { hasMethods } from "./../../utils/objectUtils";
+import { InputText } from "./../input/InputText";
 
 const _ = require("lodash");
 
@@ -86,6 +87,9 @@ const getSortableContent: Function = (cell: DataTableCell): string | number => {
 }
 
 const component = {
+    components: {
+        "input-text": InputText
+    },
     computed: {
         bodyRows(): Array<Array<string>> {
             let sortedRows: Array<Array<DataTableCell>> = _.sortBy(
@@ -163,6 +167,7 @@ const component = {
             return _.concat(row, missingCells);
         },
         onCellClicked(cell: DataTableCell) {
+            console.log(cell.isEditable(), cell.isClickable(), this.cellInEdit !== cell);
             if (cell.isClickable() && cell.isEditable() && this.cellInEdit !== cell) {
                 this.cellInEdit = cell;
                 return;
@@ -205,10 +210,11 @@ const component = {
                         >
                             {{ cell.getContent() }}
                         </span>
-                        <input
-                            @keyup.enter="(event) => onFieldUpdated(cell, event.target.value)"
+                        <input-text
+                            v-else-if="cell === cellInEdit"
                             :value="cell.getContent()"
-                            v-else-if="cell === cellInEdit" type="text"
+                            :on-change="(value) => onFieldUpdated(cell, value)"
+                            :on-exit="() => cellInEdit = null"
                         />
                         <template v-else>{{ cell.getContent() }}</template>
                     </td>

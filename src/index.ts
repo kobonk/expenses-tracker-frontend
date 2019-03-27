@@ -79,6 +79,9 @@ const vm = new Vue({
             vm.expenses = [];
             vm.expensesTableData = blankTableData;
         },
+        onFieldValueChange: (value: any) => {
+            console.log(value);
+        },
         refreshMainView() {
             retrieveMonthStatistics(this.numberOfStatisticsMonths)
             .then((statistics: Array<MonthStatistics>) => {
