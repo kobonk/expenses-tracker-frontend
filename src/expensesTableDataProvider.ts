@@ -1,6 +1,6 @@
 import { ExpenseDataTableCellNumber, ExpenseDataTableCellString, ExpensesDataTableRow } from "./expensesTableTypes";
 import Expense from "types/Expense";
-import { DataTableCell, TableData } from "./components/data-table/data-table";
+import { TableData } from "./components/data-table/data-table";
 import { formatNumber } from "utils/stringUtils";
 import i18n from "utils/i18n";
 

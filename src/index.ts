@@ -10,7 +10,6 @@ import { component as dataTableComponent, TableData } from "./components/data-ta
 import { component as graphComponent, GraphData, GraphInput } from "./components/graph/graph";
 
 const _ = require("lodash");
-const moment = require("moment");
 
 const blankTableData = {
     footer: [],
@@ -78,9 +77,6 @@ const vm = new Vue({
         clearExpensesTableData() {
             vm.expenses = [];
             vm.expensesTableData = blankTableData;
-        },
-        onFieldValueChange: (value: any) => {
-            console.log(value);
         },
         refreshMainView() {
             retrieveMonthStatistics(this.numberOfStatisticsMonths)

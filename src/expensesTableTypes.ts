@@ -17,6 +17,25 @@ class ExpensesDataTableRow implements DataTableRow {
     getCells(): Array<DataTableCell> {
         return this.cells as Array<DataTableCell>;
     }
+
+    public getBuilder() {
+        let id: string = this.getId();
+        let cells: Array<ExpenseDataTableCell> = this.getCells();
+
+        return {
+            setId: function(newId: string) {
+                id = newId;
+                return this;
+            },
+            setCells: function(newCells: Array<ExpenseDataTableCell>) {
+                cells = newCells;
+                return this;
+            },
+            build: function() {
+                return new ExpensesDataTableRow(id, cells);
+            }
+        }
+    }
 }
 
 class ExpenseDataTableCell implements DataTableCell {

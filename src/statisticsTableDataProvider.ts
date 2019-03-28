@@ -68,20 +68,20 @@ const getRows: Function = (
     onTableCellClicked: Function
 ): Array<Array<DataTableCell>> => {
     return _.map(statistics, (stat: MonthStatistics) => {
-        let category: ExpenseCategory = stat.getCategory();
-        let categoryCell: DataTableCell = new StatisticsTableCell(
+        const category: ExpenseCategory = stat.getCategory();
+        const categoryCell: DataTableCell = new StatisticsTableCell(
             category.getId(),
             blankMonth,
             category.getName(),
             onTableCellClicked
         );
 
-        let monthTotals: Array<MonthTotal> = stat.getMonths();
-        let monthTotalsMap = _.keyBy(monthTotals, _.method("getMonth"));
+        const monthTotals: Array<MonthTotal> = stat.getMonths();
+        const monthTotalsMap = _.keyBy(monthTotals, _.method("getMonth"));
 
-        let row: Array<DataTableCell> = _.map(months, (month: string) => {
-            let monthTotal: MonthTotal = _.get(monthTotalsMap, month);
-            let total: number = _.isNil(monthTotal) ? 0 : monthTotal.getTotal() as number;
+        const row: Array<DataTableCell> = _.map(months, (month: string) => {
+            const monthTotal: MonthTotal = _.get(monthTotalsMap, month);
+            const total: number = _.isNil(monthTotal) ? 0 : monthTotal.getTotal() as number;
 
             return new StatisticsTableCell(
                 category.getId(),

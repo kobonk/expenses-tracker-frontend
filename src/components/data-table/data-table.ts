@@ -5,7 +5,7 @@ import { InputText } from "./../input/InputText";
 const _ = require("lodash");
 
 interface DataTableCell {
-    getContent(): string | Number;
+    getContent(): string;
     getName(): string,
     isClickable(): boolean;
     isEditable(): boolean;
@@ -14,6 +14,7 @@ interface DataTableCell {
 };
 
 interface DataTableRow {
+    getBuilder(): any,
     getCells(): Array<DataTableCell>;
     getId(): string
 }
@@ -33,6 +34,25 @@ class TableRow implements DataTableRow {
 
     public getId(): string {
         return this.id;
+    }
+
+    public getBuilder() {
+        let id: string = this.getId();
+        let cells: Array<DataTableCell> = this.getCells();
+
+        return {
+            setId: function(newId: string) {
+                id = newId;
+                return this;
+            },
+            setCells: function(newCells: Array<DataTableCell>) {
+                cells = newCells;
+                return this;
+            },
+            build: function() {
+                return new TableRow(id, cells);
+            }
+        }
     }
 }
 
@@ -83,7 +103,7 @@ const getSortableContent: Function = (cell: DataTableCell): string | number => {
         return parseFloat((cell.getContent() as string).replace(/\s/g, ""));
     }
 
-    return cell.getContent() as number;
+    return cell.getContent();
 }
 
 const component = {
@@ -92,50 +112,24 @@ const component = {
     },
     computed: {
         bodyRows(): Array<Array<string>> {
-            let sortedRows: Array<Array<DataTableCell>> = _.sortBy(
+            let sortedRows: Array<DataTableRow> = _.sortBy(
                 this.normalizedBodyRows,
-                (row: Array<DataTableCell>) => getSortableContent(row[this.sortColumnIndex])
+                (row: DataTableRow) => getSortableContent(row.getCells()[this.sortColumnIndex])
             );
 
             return this.sortDirection === "asc" ? sortedRows : _.reverse(sortedRows);
         },
-        footerCells(): Array<string | Number> {
+        footerRow(): DataTableRow {
             return _.isEmpty(this.footer) ? [] : this.addMissingCells(this.footer);
         },
-        headerCells(): Array<string | Number> {
+        headerRow(): DataTableRow {
             return _.isEmpty(this.header) ? [] : this.addMissingCells(this.header);
         },
         normalizedBodyRows(): Array<Array<DataTableCell>> {
-            // You really need to rewrite this method!!!
-
-
-
-
-            return _.map(
-                _.chain(this.rows)
-                .map((row: Array<string | number | DataTableCell> | DataTableRow) => isDataTableRowInstance(row) ? (row as DataTableRow).getCells() : row)
-                .map(this.addMissingCells)
-                .value(),
-                (row: Array<string | number | DataTableCell>) => {
-                    return _.map(row, (cell: string | number | DataTableCell) => {
-                        if (isDataTableCellInstance(cell)) {
-                            return cell;
-                        }
-
-                        return new TableCell(cell as string);
-                    })
-                }
-            )
-        },
-        normalizeBodyCell: (cell: string | number | DataTableCell): DataTableCell => {
-            if (isDataTableCellInstance(cell)) return cell as DataTableCell;
-
-            return new TableCell(cell.toString());
-        },
-        normalizeBodyRow(row: Array<string | number | DataTableCell> | DataTableRow): DataTableRow {
-            if (isDataTableRowInstance(row)) return row as DataTableRow;
-
-            return new TableRow("", _.map(row, this.normalizeBodyCell));
+            return _.chain(this.rows)
+            .map(this.normalizeBodyRow)
+            .map(this.addMissingCells)
+            .value();
         },
         numberOfColumns(): Number {
             return _.reduce(
@@ -160,22 +154,34 @@ const component = {
         }
     },
     methods: {
-        addMissingCells(row: Array<string | Number | DataTableCell>): Array<string | DataTableCell> {
-            console.log(this.numberOfColumns, row.length);
-            let missingCells = _.fill(new Array(Math.abs(this.numberOfColumns - row.length)), "");
+        addMissingCells(row: Array<string | number | DataTableCell> | DataTableRow): DataTableRow {
+            const validRow = isDataTableRowInstance(row) ? row : this.normalizeBodyRow(row);
+            let missingCells = _.fill(new Array(Math.abs(this.numberOfColumns - validRow.getCells().length)), new TableCell(""));
 
-            return _.concat(row, missingCells);
+            return validRow.getBuilder()
+            .setCells(_.concat(validRow.getCells(), missingCells))
+            .build();
+        },
+        normalizeBodyCell: (cell: string | number | DataTableCell): DataTableCell => {
+            if (isDataTableCellInstance(cell)) return cell as DataTableCell;
+
+            return new TableCell(_.isNumber(cell) ? String(cell) : cell as string);
+        },
+        normalizeBodyRow(row: Array<string | number | DataTableCell> | DataTableRow, index: number): DataTableRow {
+            if (isDataTableRowInstance(row)) return row as DataTableRow;
+
+            return new TableRow(!_.isNil(index) ? String(index + 1) : "", _.map(row, this.normalizeBodyCell));
         },
         onCellClicked(cell: DataTableCell) {
-            console.log(cell.isEditable(), cell.isClickable(), this.cellInEdit !== cell);
             if (cell.isClickable() && cell.isEditable() && this.cellInEdit !== cell) {
                 this.cellInEdit = cell;
                 return;
             }
+
             cell.onClick();
         },
-        onFieldUpdated(cell: DataTableCell, value: string) {
-            this.onCellEdited(cell.getName(), value);
+        onFieldUpdated(row: DataTableRow, cell: DataTableCell, value: string) {
+            this.onCellEdited(row.getId(), { [cell.getName()]: value });
         },
         sortColumn(columnIndex: number) {
             if (this.sortColumnIndex === columnIndex) {
@@ -188,20 +194,20 @@ const component = {
     props: ["rows", "footer", "header", "onCellEdited", "sortDir", "sortBy"],
     template: `
         <table v-if="tableVisible" class="data-table">
-            <thead v-if="headerCells.length > 0">
+            <thead v-if="headerRow.getCells().length > 0">
                 <tr>
                     <th
                         :class="sortColumnIndex === i ? 'sorted-' + sortDirection : null"
                         @click="sortColumn(i)"
                         v-bind:key="i"
-                        v-for="(headerCell, i) in headerCells">{{ headerCell }}</th>
+                        v-for="(headerCell, i) in headerRow.getCells()">{{ headerCell.getContent() }}</th>
                 </tr>
             </thead>
             <tbody>
                 <tr v-for="(row, i) in bodyRows" v-bind:key="i">
                     <td
                         :class="cell === cellInEdit ? 'in-edit' : null"
-                        v-for="(cell, i) in row"
+                        v-for="(cell, i) in row.getCells()"
                         v-bind:key="i">
                         <span
                             class="clickable"
@@ -211,22 +217,28 @@ const component = {
                             {{ cell.getContent() }}
                         </span>
                         <input-text
+                            ref="inputInEdit"
                             v-else-if="cell === cellInEdit"
                             :value="cell.getContent()"
-                            :on-change="(value) => onFieldUpdated(cell, value)"
+                            :on-change="(value) => onFieldUpdated(row, cell, value)"
                             :on-exit="() => cellInEdit = null"
                         />
                         <template v-else>{{ cell.getContent() }}</template>
                     </td>
                 </tr>
             </tbody>
-            <tfoot v-if="footerCells.length > 0">
+            <tfoot v-if="footerRow.getCells().length > 0">
                 <tr>
-                    <th v-for="(footerCell, i) in footerCells" v-bind:key="i">{{ footerCell }}</th>
+                    <th v-for="(footerCell, i) in footerRow.getCells()" v-bind:key="i">{{ footerCell.getContent() }}</th>
                 </tr>
             </tfoot>
         </table>
-    `
+    `,
+    updated() {
+        if (!_.isEmpty(this.$refs.inputInEdit)) {
+            _.first(this.$refs.inputInEdit).focus();
+        }
+    }
 };
 
 export { component, DataTableCell, DataTableRow, TableData };

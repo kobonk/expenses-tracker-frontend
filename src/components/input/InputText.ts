@@ -1,11 +1,15 @@
 const InputText = {
     methods: {
+        focus() {
+            const field = this.$refs.input;
+
+            field.focus();
+            field.setSelectionRange(0, this.value.length);
+        },
         onBlur(event: { target: HTMLInputElement }) {
-            console.log("onBlur()");
             this.onExit(event.target.value);
         },
         onValueUpdate(event: { target: HTMLInputElement }) {
-            console.log("onValueUpdate()");
             this.onChange(event.target.value);
         }
     },
@@ -13,6 +17,7 @@ const InputText = {
     props: ["onExit", "onChange", "value"],
     template: `
         <input
+            ref="input"
             type="text"
             :value="value"
             @keyup.enter="(event) => onValueUpdate(event)"
