@@ -29,10 +29,6 @@ export default Vue.component("table-cell", {
             if (this.data.isClickable() && this.data.isEditable()) {
                 this.editing = true;
 
-                if (_.isFunction(this.onClick)) {
-                    this.onClick();
-                }
-
                 return;
             }
 
@@ -53,9 +49,6 @@ export default Vue.component("table-cell", {
             validator: (data: any) => isDataTableCellInstance(data)
         },
         onChange: {
-            type: Function
-        },
-        onClick: {
             type: Function
         }
     },

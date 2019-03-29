@@ -150,7 +150,6 @@ const component = {
     },
     data() {
         return {
-            cellInEdit: null as any,
             sortColumnIndex: _.isNil(this.sortBy) ? 0 : this.sortBy,
             sortDirection: _.isNil(this.sortDir) ? "asc" : this.sortDir
         }
@@ -175,7 +174,6 @@ const component = {
             return new TableRow(!_.isNil(index) ? String(index + 1) : "", _.map(row, this.normalizeBodyCell));
         },
         onFieldUpdated(row: DataTableRow, value: Object) {
-            this.cellInEdit = null;
             this.onCellEdited(row.getId(), value);
         },
         sortColumn(columnIndex: number) {
@@ -201,13 +199,11 @@ const component = {
             <tbody>
                 <tr v-for="(row, i) in bodyRows" v-bind:key="i">
                     <td
-                        :class="cell === cellInEdit ? 'in-edit' : null"
                         v-for="(cell, i) in row.getCells()"
                         v-bind:key="i">
                         <table-cell
                             :data="cell"
                             :on-change="(value) => onFieldUpdated(row, value)"
-                            :on-click="() => cellInEdit = cell"
                         />
                     </td>
                 </tr>
@@ -218,12 +214,7 @@ const component = {
                 </tr>
             </tfoot>
         </table>
-    `,
-    watch: {
-        cellInEdit(cell: any) {
-            console.log(cell);
-        }
-    }
+    `
 };
 
 export { component, DataTableCell, DataTableRow, TableData };
