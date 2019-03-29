@@ -17,53 +17,67 @@ const isDataTableCellInstance: Function = (value: any): boolean => {
     return hasMethods(value, ["getContent", "getName", "isClickable", "isEditable", "onClick"]);
 };
 
-export default Vue.component("table-content", {
+export default Vue.component("table-cell", {
     components: {
         "input-text": InputText
     },
-    data: {
-        edited: false
+    data(): Object {
+        return { editing: false };
     },
     methods: {
         onClicked() {
-            if (this.content.isClickable() && this.content.isEditable()) {
-                this.edited = true;
+            if (this.data.isClickable() && this.data.isEditable()) {
+                this.editing = true;
+
+                if (_.isFunction(this.onClick)) {
+                    this.onClick();
+                }
+
                 return;
             }
 
-            this.content.onClick();
+            this.data.onClick();
         },
         onFieldUpdated(value: any) {
-            if (_.isFunction(this.onChange)) {
-                this.onChange({ [this.content.getName()]: value });
+            if (_.isFunction(this.onChange) && this.data.getContent() !== value) {
+                this.onChange({ [this.data.getName()]: value });
             }
+
+            this.editing = false;
         }
     },
     props: {
-        content: {
+        data: {
             required: true,
             type: Object,
-            validator: (content: any) => isDataTableCellInstance(content)
+            validator: (data: any) => isDataTableCellInstance(data)
         },
         onChange: {
+            type: Function
+        },
+        onClick: {
             type: Function
         }
     },
     template: `
         <span
-            class="clickable"
+            :class="data.isClickable() ? 'clickable' : null"
             @click="onClicked()"
-            v-if="content.isClickable() && !edited"
+            v-if="!editing"
         >
-            {{ content.getContent() }}
+            {{ data.getContent() }}
         </span>
         <input-text
             ref="inputInEdit"
-            v-else-if="edited"
-            :value="content.getContent()"
-            :on-change="(value) => onFieldUpdated(row, content, value)"
-            :on-exit="() => edited = false"
+            v-else
+            :value="data.getContent()"
+            :on-change="(value) => onFieldUpdated(value)"
+            :on-exit="() => editing = false"
         />
-        <template v-else>{{ content.getContent() }}</template>
-    `
+    `,
+    updated() {
+        if (!_.isNil(this.$refs.inputInEdit)) {
+            this.$refs.inputInEdit.focus();
+        }
+    }
 });

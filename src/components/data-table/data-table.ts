@@ -1,6 +1,7 @@
 import "./styles.sass";
 import { hasMethods } from "./../../utils/objectUtils";
 import { InputText } from "./../input/InputText";
+import Cell from "./data-table-cell";
 
 const _ = require("lodash");
 
@@ -108,7 +109,8 @@ const getSortableContent: Function = (cell: DataTableCell): string | number => {
 
 const component = {
     components: {
-        "input-text": InputText
+        "input-text": InputText,
+        "table-cell": Cell
     },
     computed: {
         bodyRows(): Array<Array<string>> {
@@ -172,16 +174,9 @@ const component = {
 
             return new TableRow(!_.isNil(index) ? String(index + 1) : "", _.map(row, this.normalizeBodyCell));
         },
-        onCellClicked(cell: DataTableCell) {
-            if (cell.isClickable() && cell.isEditable() && this.cellInEdit !== cell) {
-                this.cellInEdit = cell;
-                return;
-            }
-
-            cell.onClick();
-        },
-        onFieldUpdated(row: DataTableRow, cell: DataTableCell, value: string) {
-            this.onCellEdited(row.getId(), { [cell.getName()]: value });
+        onFieldUpdated(row: DataTableRow, value: Object) {
+            this.cellInEdit = null;
+            this.onCellEdited(row.getId(), value);
         },
         sortColumn(columnIndex: number) {
             if (this.sortColumnIndex === columnIndex) {
@@ -209,21 +204,11 @@ const component = {
                         :class="cell === cellInEdit ? 'in-edit' : null"
                         v-for="(cell, i) in row.getCells()"
                         v-bind:key="i">
-                        <span
-                            class="clickable"
-                            @click="onCellClicked(cell)"
-                            v-if="cell.isClickable() && cell !== cellInEdit"
-                        >
-                            {{ cell.getContent() }}
-                        </span>
-                        <input-text
-                            ref="inputInEdit"
-                            v-else-if="cell === cellInEdit"
-                            :value="cell.getContent()"
-                            :on-change="(value) => onFieldUpdated(row, cell, value)"
-                            :on-exit="() => cellInEdit = null"
+                        <table-cell
+                            :data="cell"
+                            :on-change="(value) => onFieldUpdated(row, value)"
+                            :on-click="() => cellInEdit = cell"
                         />
-                        <template v-else>{{ cell.getContent() }}</template>
                     </td>
                 </tr>
             </tbody>
@@ -234,9 +219,9 @@ const component = {
             </tfoot>
         </table>
     `,
-    updated() {
-        if (!_.isEmpty(this.$refs.inputInEdit)) {
-            _.first(this.$refs.inputInEdit).focus();
+    watch: {
+        cellInEdit(cell: any) {
+            console.log(cell);
         }
     }
 };

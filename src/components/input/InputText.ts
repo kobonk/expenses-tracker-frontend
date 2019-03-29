@@ -21,6 +21,7 @@ const InputText = {
             type="text"
             :value="value"
             @keyup.enter="(event) => onValueUpdate(event)"
+            @keyup.esc="(event) => onBlur(event)"
             @blur="(event) => onBlur(event)"
         />`
 };

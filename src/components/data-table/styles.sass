@@ -19,11 +19,16 @@
 
         td, th
             color: $colorSecondaryText
-            padding: 1em 0.5em
+            padding: 0.5em 0.25em
             text-align: right
 
         td
             color: $colorPrimaryText
+
+            span
+                border: 1px solid transparent
+                display: inline-block
+                padding: 0.5em 0.25em
 
             .clickable
                 background-color: transparent
@@ -31,8 +36,6 @@
                 color: $colorPrimaryText
                 cursor: pointer
                 font-weight: 700
-                margin: -0.5em
-                padding: 0.5em
                 transition: color 0.5s
 
                 &:hover
@@ -46,9 +49,6 @@
                 padding: 0.5em 0.25em
                 text-align: inherit
                 width: calc(100% - 1em)
-
-            &.in-edit
-                padding: calc(0.5em - 2px) 0.25em
 
         th
             text-transform: uppercase
