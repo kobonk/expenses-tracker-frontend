@@ -5,7 +5,7 @@ import { InputText } from "./../input/InputText";
 const _ = require("lodash");
 
 interface DataTableCell {
-    getContent(): string;
+    getValue(): string;
     getName(): string,
     isClickable(): boolean;
     isEditable(): boolean;
@@ -14,7 +14,7 @@ interface DataTableCell {
 };
 
 const isDataTableCellInstance: Function = (value: any): boolean => {
-    return hasMethods(value, ["getContent", "getName", "isClickable", "isEditable", "onClick"]);
+    return hasMethods(value, ["getValue", "getName", "isClickable", "isEditable", "onClick"]);
 };
 
 export default Vue.component("table-cell", {
@@ -35,7 +35,7 @@ export default Vue.component("table-cell", {
             this.data.onClick();
         },
         onFieldUpdated(value: any) {
-            if (_.isFunction(this.onChange) && this.data.getContent() !== value) {
+            if (_.isFunction(this.onChange) && this.data.getValue() !== value) {
                 this.onChange({ [this.data.getName()]: value });
             }
 
@@ -58,12 +58,12 @@ export default Vue.component("table-cell", {
             @click="onClicked()"
             v-if="!editing"
         >
-            {{ data.getContent() }}
+            {{ data.getValue() }}
         </span>
         <input-text
             ref="inputInEdit"
             v-else
-            :value="data.getContent()"
+            :value="data.getValue()"
             :on-change="(value) => onFieldUpdated(value)"
             :on-exit="() => editing = false"
         />

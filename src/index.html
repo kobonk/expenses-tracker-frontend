@@ -13,9 +13,7 @@
                 <transition name="slide-fade" mode="out-in">
                     <data-table
                         v-if="expensesTableData.rows.length <= 0"
-                        :footer="statisticsTableData.footer"
-                        :header="statisticsTableData.header"
-                        :rows="statisticsTableData.rows">
+                        :data="statisticsTableData.data">
                     </data-table>
                     <div class="expenses-category-month" v-else>
                         <h3>
