@@ -61,11 +61,20 @@ const persistExpense:Function = async (expense:Expense):Promise<Expense> => {
     return Expense.prototype.fromAsset(response.data);
 }
 
+const updateExpense: Function = async (expenseId: string, changes: Object) => {
+    let response = await axios.patch(`${ backendUrl }/expense/${ expenseId }`, changes);
+
+    console.log(response.data);
+
+    return Expense.prototype.fromAsset(response.data);
+}
+
 export {
     persistCategory,
     persistExpense,
     retrieveCategories,
     retrieveExpenses,
     retrieveMonthStatistics,
-    retrieveSimilarExpenseNames
+    retrieveSimilarExpenseNames,
+    updateExpense
 };

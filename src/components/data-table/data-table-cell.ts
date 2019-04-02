@@ -1,17 +1,8 @@
 import Vue from "vue";
 import { hasMethods } from "./../../utils/objectUtils";
-import { InputText } from "./../input/InputText";
+import { InputNumber, InputText } from "./../input";
 
 const _ = require("lodash");
-
-interface DataTableCell {
-    getValue(): string;
-    getName(): string,
-    isClickable(): boolean;
-    isEditable(): boolean;
-    onClick(): void;
-    toString(): string;
-};
 
 const isDataTableCellInstance: Function = (value: any): boolean => {
     return hasMethods(value, ["getValue", "getName", "isClickable", "isEditable", "onClick"]);
@@ -19,6 +10,7 @@ const isDataTableCellInstance: Function = (value: any): boolean => {
 
 export default Vue.component("table-cell", {
     components: {
+        "input-number": InputNumber,
         "input-text": InputText
     },
     data(): Object {
@@ -60,17 +52,19 @@ export default Vue.component("table-cell", {
         >
             {{ data.getValue() }}
         </span>
+
+        <input-number
+            v-else-if="editing && data.getType() === 'number'"
+            :value="data.getValue()"
+            :on-change="(value) => onFieldUpdated(value)"
+            :on-exit="() => editing = false"
+        />
+
         <input-text
-            ref="inputInEdit"
             v-else
             :value="data.getValue()"
             :on-change="(value) => onFieldUpdated(value)"
             :on-exit="() => editing = false"
         />
-    `,
-    updated() {
-        if (!_.isNil(this.$refs.inputInEdit)) {
-            this.$refs.inputInEdit.focus();
-        }
-    }
+    `
 });

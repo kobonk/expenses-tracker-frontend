@@ -1,7 +1,7 @@
 import "./styles.sass";
 import { InputText } from "./../input/InputText";
 import Cell from "./data-table-cell";
-import { DataTableRecord } from "./data-table-types";
+import { DataTableRecord, DataTableRecordCollection } from "./data-table-types";
 
 const _ = require("lodash");
 
@@ -43,8 +43,8 @@ const component = {
         }
     },
     methods: {
-        onFieldUpdated(row: DataTableRow, value: Object) {
-            this.onCellEdited(row.getId(), value);
+        onFieldUpdated(row: DataTableRecordCollection, value: Object) {
+            this.onCellEdited(row.getKey(), value);
         },
         onHeaderClicked(cell: DataTableRecord) {
             cell.onClick();
@@ -67,7 +67,7 @@ const component = {
                     </th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody v-if="data.getBody().length > 0">
                 <tr v-for="(row) in data.getBody()" v-bind:key="row.getKey()">
                     <td v-for="(cell) in row.getRecords()" v-bind:key="cell.getName()">
                         <table-cell

@@ -1,6 +1,5 @@
 const CleanWebpackPlugin = require("clean-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-const VueLoaderPlugin = require("vue-loader/lib/plugin");
 
 const path = require("path");
 
@@ -14,9 +13,7 @@ module.exports = {
                 test: /\.vue$/,
                 loader: "vue-loader",
                 options: {
-                    cacheBusting: true,
                     loaders: {
-                        js: "babel-loader",
                         scss: "vue-style-loader!css-loader!sass-loader",
                         sass: "vue-style-loader!css-loader!sass-loader?indentedSyntax"
                     }
@@ -42,8 +39,7 @@ module.exports = {
         new HtmlWebpackPlugin({
             template: "./src/index.html",
             title: "Expenses Tracker"
-        }),
-        new VueLoaderPlugin()
+        })
     ],
     resolve: {
         alias: {

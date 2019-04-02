@@ -1,21 +1,24 @@
 import Vue from "vue";
 import "./styles.sass";
-import { retrieveExpenses, retrieveMonthStatistics } from "utils/restClient";
+import { retrieveExpenses, retrieveMonthStatistics, updateExpense } from "utils/restClient";
 import { extractMonthName, getDaysOfMonth } from "utils/stringUtils";
 import Expense from "types/Expense";
 import MonthStatistics from "types/MonthStatistics";
-import prepareExpensesTableData from "./expensesTableDataProvider";
-import prepareStatisticsTableData from "./statisticsTableDataProvider";
-import { component as dataTableComponent, TableData } from "./components/data-table/data-table";
+import { ExpensesTableData } from "./ExpensesTable";
+import { StatisticsTableData } from "./StatisticsTable";
+import { component as dataTableComponent } from "./components/data-table/data-table";
 import { component as graphComponent, GraphData, GraphInput } from "./components/graph/graph";
 
 const _ = require("lodash");
+const moment = require("moment");
 
-const blankTableData = {
-    footer: [],
-    header: [],
-    rows: []
-} as TableData
+const getMonths: Function = (numberOfMonths: number): Array<string> => {
+    const currentMonth = moment();
+
+    return _.map(Array.from(Array(numberOfMonths).keys()), (monthDifference: number) => {
+        return currentMonth.clone().subtract(monthDifference, "months").format("YYYY-MM");
+    });
+};
 
 const vm = new Vue({
     components: {
@@ -66,27 +69,33 @@ const vm = new Vue({
         }
     },
     data: {
+        activeView: "months",
         expenses: [],
-        expensesTableData: blankTableData,
+        expensesTableData: null,
         numberOfStatisticsMonths: 4,
         statistics: [],
-        statisticsTableData: blankTableData
+        statisticsTableData: null
     },
     el: "#expenses-tracker",
     methods: {
-        clearExpensesTableData() {
-            vm.expenses = [];
-            vm.expensesTableData = blankTableData;
+        onCategoryMonthSelected(data: any) {
+            if (!data.categoryId || !data.month) return;
+
+            retrieveExpenses(data.categoryId, data.month)
+            .then((expenses: Array<Expense>) => {
+                this.updateExpensesView(expenses);
+                this.activeView = "category-month"
+            });
         },
         refreshMainView() {
             retrieveMonthStatistics(this.numberOfStatisticsMonths)
             .then((statistics: Array<MonthStatistics>) => {
                 vm.statistics = statistics;
 
-                vm.statisticsTableData = prepareStatisticsTableData(
+                vm.statisticsTableData = new StatisticsTableData(
+                    getMonths(this.numberOfStatisticsMonths),
                     statistics,
-                    this.numberOfStatisticsMonths,
-                    this.updateExpensesView
+                    this.onCategoryMonthSelected
                 );
 
                 if (!_.isEmpty(vm.expenses)) {
@@ -95,12 +104,17 @@ const vm = new Vue({
                 }
             })
         },
+        showMonthsView() {
+            this.activeView = "months";
+        },
         updateExpense: async (expenseId: string, value: object) => {
             console.log(expenseId, value);
+            await updateExpense(expenseId, value);
+            await vm.refreshMainView();
         },
         updateExpensesView(expenses: Array<Expense>) {
             vm.expenses = expenses;
-            vm.expensesTableData = prepareExpensesTableData(expenses);
+            vm.expensesTableData = new ExpensesTableData(expenses);
         }
     },
     mounted() {
