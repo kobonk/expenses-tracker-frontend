@@ -108,7 +108,6 @@ const vm = new Vue({
             this.activeView = "months";
         },
         updateExpense: async (expenseId: string, value: object) => {
-            console.log(expenseId, value);
             await updateExpense(expenseId, value);
             await vm.refreshMainView();
         },

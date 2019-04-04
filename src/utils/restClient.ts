@@ -64,8 +64,6 @@ const persistExpense:Function = async (expense:Expense):Promise<Expense> => {
 const updateExpense: Function = async (expenseId: string, changes: Object) => {
     let response = await axios.patch(`${ backendUrl }/expense/${ expenseId }`, changes);
 
-    console.log(response.data);
-
     return Expense.prototype.fromAsset(response.data);
 }
 
