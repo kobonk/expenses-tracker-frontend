@@ -29,6 +29,7 @@ const InputNumber = {
     props: ["onExit", "onChange", "value"],
     template: `
         <input
+            class="input-field input-number"
             min="0"
             ref="input"
             step="0.01"

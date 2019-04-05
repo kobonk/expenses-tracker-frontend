@@ -1,5 +1,4 @@
 import "./styles.sass";
-import { InputText } from "./../input/InputText";
 import Cell from "./data-table-cell";
 import { DataTableRecord, DataTableRecordCollection } from "./data-table-types";
 
@@ -28,7 +27,6 @@ type TableData = {
 
 const component = {
     components: {
-        "input-text": InputText,
         "table-cell": Cell
     },
     computed: {
@@ -42,9 +40,20 @@ const component = {
             return _.isNil(this.data) ? false : this.data.getBody().length > 0;
         }
     },
+    data() {
+        return {
+            editedCell: null as any
+        }
+    },
     methods: {
         onFieldUpdated(row: DataTableRecordCollection, value: Object) {
             this.onCellEdited(row.getKey(), value);
+        },
+        onFieldExited() {
+            this.editedCell = null;
+        },
+        onCellClicked(cell: DataTableCell) {
+            this.editedCell = cell;
         },
         onHeaderClicked(cell: DataTableRecord) {
             cell.onClick();
@@ -72,7 +81,10 @@ const component = {
                     <td v-for="(cell) in row.getRecords()" v-bind:key="cell.getName()">
                         <table-cell
                             :data="cell"
+                            :is-edited="() => editedCell === cell"
                             :on-change="(value) => onFieldUpdated(row, value)"
+                            :on-edit="() => onCellClicked(cell)"
+                            :on-exit="onFieldExited"
                         />
                     </td>
                 </tr>

@@ -32,7 +32,7 @@ class ExpensesTableData implements DataTableData {
         this.body = this.createBody(expenses);
         this.footer = this.createFooter(expenses);
 
-        this.sortingKey = "date";
+        this.sortingKey = "purchase_date";
         this.sortingDirection = "asc";
 
         this.sort(this.sortingKey);
@@ -62,7 +62,7 @@ class ExpensesTableData implements DataTableData {
         const records: Array<DataTableRecord> = [
             new ExpensesTableHeaderRecord("name", i18n.expensesTable.expenseLabel, () => this.sort("name")),
             new ExpensesTableHeaderRecord("cost", i18n.expensesTable.costLabel, () => this.sort("cost")),
-            new ExpensesTableHeaderRecord("date", i18n.expensesTable.dateLabel, () => this.sort("date"))
+            new ExpensesTableHeaderRecord("purchase_date", i18n.expensesTable.dateLabel, () => this.sort("purchase_date"))
         ];
 
         return [new ExpensesTableRecordCollection("header", records)];
@@ -96,7 +96,7 @@ class ExpensesTableData implements DataTableData {
                     )
                 )
             ),
-            new ExpensesTableFooterRecord("date", "")
+            new ExpensesTableFooterRecord("purchase_date", "")
         ];
 
         return [new ExpensesTableRecordCollection("header", records)];

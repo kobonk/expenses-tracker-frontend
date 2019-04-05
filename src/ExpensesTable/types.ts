@@ -109,7 +109,7 @@ export class ExpensesTableDateRecord extends ExpensesTableRecordBase {
     constructor(value: string, onClickCallback: Function) {
         super();
 
-        this.name = "date";
+        this.name = "purchase_date";
         this.onClickCallback = onClickCallback;
         this.type = "date";
         this.value = value;

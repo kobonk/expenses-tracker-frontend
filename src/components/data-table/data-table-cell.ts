@@ -1,6 +1,6 @@
 import Vue from "vue";
 import { hasMethods } from "./../../utils/objectUtils";
-import { InputNumber, InputText } from "./../input";
+import { InputDate, InputNumber, InputText } from "./../input";
 
 const _ = require("lodash");
 
@@ -10,16 +10,19 @@ const isDataTableCellInstance: Function = (value: any): boolean => {
 
 export default Vue.component("table-cell", {
     components: {
+        "input-date": InputDate,
         "input-number": InputNumber,
         "input-text": InputText
     },
-    data(): Object {
-        return { editing: false };
+    computed: {
+        editing() {
+            return _.isFunction(this.isEdited) && this.isEdited();
+        }
     },
     methods: {
         onClicked() {
             if (this.data.isClickable() && this.data.isEditable()) {
-                this.editing = true;
+                if (_.isFunction(this.onEdit)) this.onEdit();
 
                 return;
             }
@@ -30,8 +33,6 @@ export default Vue.component("table-cell", {
             if (_.isFunction(this.onChange) && this.data.getValue() !== value) {
                 this.onChange({ [this.data.getName()]: value });
             }
-
-            this.editing = false;
         }
     },
     props: {
@@ -40,7 +41,16 @@ export default Vue.component("table-cell", {
             type: Object,
             validator: (data: any) => isDataTableCellInstance(data)
         },
+        isEdited: {
+            type: Function
+        },
         onChange: {
+            type: Function
+        },
+        onEdit: {
+            type: Function
+        },
+        onExit: {
             type: Function
         }
     },
@@ -57,14 +67,21 @@ export default Vue.component("table-cell", {
             v-else-if="editing && data.getType() === 'number'"
             :value="data.getValue()"
             :on-change="(value) => onFieldUpdated(value)"
-            :on-exit="() => editing = false"
+            :on-exit="onExit"
+        />
+
+        <input-date
+            v-else-if="editing && data.getType() === 'date'"
+            :value="data.getValue()"
+            :on-change="(value) => onFieldUpdated(value)"
+            :on-exit="onExit"
         />
 
         <input-text
             v-else
             :value="data.getValue()"
             :on-change="(value) => onFieldUpdated(value)"
-            :on-exit="() => editing = false"
+            :on-exit="onExit"
         />
     `
 });

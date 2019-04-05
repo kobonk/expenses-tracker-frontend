@@ -17,6 +17,7 @@ const InputText = {
     props: ["onExit", "onChange", "value"],
     template: `
         <input
+            class="input-field input-text"
             ref="input"
             type="text"
             :value="value"

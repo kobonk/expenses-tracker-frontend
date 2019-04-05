@@ -41,14 +41,48 @@
                 &:hover
                     color: $colorPrimary
 
-            input
+            .input-field
                 border: 1px solid $colorDivider
                 border-radius: $borderRadius
                 font-family: inherit
                 font-size: inherit
+                margin: 0
                 padding: 0.5em 0.25em
                 text-align: inherit
                 width: calc(100% - 1em)
+
+                input
+                    border: none
+                    font-family: inherit
+                    font-size: inherit
+                    padding: 0
+                    text-align: inherit
+
+                &.input-date
+                    align-items: center
+                    display: flex
+                    flex-direction: row
+                    justify-content: space-between
+
+                    input
+                        height: 1em
+                        width: 100%
+
+                    button
+                        background-color: $colorPrimaryDark
+                        border: none
+                        border-radius: $borderRadius
+                        color: $colorAccentLight
+                        cursor: pointer
+                        display: inline-block
+                        margin: -0.25em 0
+                        padding: 0.25em
+                        text-align: center
+                        transition: background-color 0.5s
+                        width: 2em
+
+                        &:hover
+                            background-color: $colorPrimary
 
         th
             text-transform: uppercase
