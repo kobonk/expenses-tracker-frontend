@@ -74,7 +74,7 @@ const vm = new Vue({
         activeView: "months",
         expenses: [],
         expensesTableData: null,
-        numberOfStatisticsMonths: 4,
+        numberOfStatisticsMonths: 6,
         statistics: [],
         statisticsTableData: null
     },
