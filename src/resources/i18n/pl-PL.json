@@ -18,7 +18,7 @@
         "totalLabel": "Suma"
     },
     "findExpensesForm": {
-        "expenseName": "Nazwa wydatku do podsumowania",
+        "expenseName": "Nazwa wydatku",
         "submitButton": "Znajdź"
     },
     "statisticsTable": {
