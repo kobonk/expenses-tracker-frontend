@@ -1,6 +1,7 @@
 import * as data from "config.json";
 import ExpenseCategory from "types/ExpenseCategory";
 import Expense from "types/Expense";
+import ExpenseSummary from "types/ExpenseSummary";
 import MonthStatistics from "types/MonthStatistics";
 
 const _ = require("lodash");
@@ -19,6 +20,12 @@ const retrieveExpenses: Function = async (categoryId: string, month: string): Pr
     let response: any = await axios.get(`${ backendUrl }/expenses/${ categoryId }/${ month }`);
 
     return _.map(response.data, Expense.prototype.fromAsset);
+};
+
+const retrieveExpenseSummary: Function = async (expenseName: string): Promise<Array<ExpenseSummary>> => {
+    const response: any = await axios.get(`${ backendUrl }/summary/${ expenseName }`);
+
+    return _.map(response.data, ExpenseSummary.prototype.fromAsset);
 };
 
 const retrieveMonthStatistics:Function = async (numberOfMonths:Number):Promise<Array<MonthStatistics>> => {
@@ -72,6 +79,7 @@ export {
     persistExpense,
     retrieveCategories,
     retrieveExpenses,
+    retrieveExpenseSummary,
     retrieveMonthStatistics,
     retrieveSimilarExpenseNames,
     updateExpense

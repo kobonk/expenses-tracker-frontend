@@ -17,6 +17,10 @@
         "costLabel": "Cost",
         "totalLabel": "Total"
     },
+    "findExpensesForm": {
+        "expenseName": "Name of Expense to summarize",
+        "submitButton": "Find Expenses"
+    },
     "statisticsTable": {
         "categoryLabel": "Category Name",
         "totalLabel": "Total"

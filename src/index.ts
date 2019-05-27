@@ -1,8 +1,9 @@
 import Vue from "vue";
 import "./styles.sass";
-import { retrieveExpenses, retrieveMonthStatistics, updateExpense } from "utils/restClient";
+import { retrieveExpenseSummary, retrieveExpenses, retrieveMonthStatistics, updateExpense } from "utils/restClient";
 import { extractMonthName, getDaysOfMonth } from "utils/stringUtils";
 import Expense from "types/Expense";
+import ExpenseSummary from "types/ExpenseSummary";
 import MonthStatistics from "types/MonthStatistics";
 import { ExpensesTableData } from "./ExpensesTable";
 import { StatisticsTableData } from "./StatisticsTable";
@@ -23,6 +24,7 @@ const getMonths: Function = (numberOfMonths: number): Array<string> => {
 const vm = new Vue({
     components: {
         "add-expense-form": () => import("./components/add-expense-form/add-expense-form"),
+        "find-expenses-form": () => import("./components/find-expenses-form"),
         "graph": graphComponent,
         "data-table": dataTableComponent
     },
@@ -78,6 +80,13 @@ const vm = new Vue({
     },
     el: "#expenses-tracker",
     methods: {
+        displayFoundExpenses(name: string) {
+            console.log(name);
+            retrieveExpenseSummary(name)
+            .then((summaries: Array<ExpenseSummary>) => {
+                console.log(summaries);
+            })
+        },
         onCategoryMonthSelected(data: any) {
             if (!data.categoryId || !data.month) return;
 

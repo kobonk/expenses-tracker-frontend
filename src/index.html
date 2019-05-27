@@ -10,6 +10,7 @@
                 <add-expense-form @submit="refreshMainView"></add-expense-form>
             </aside>
             <main class="content" v-if="statisticsTableData">
+                <find-expenses-form @submit="displayFoundExpenses"></find-expenses-form>
                 <transition name="slide-fade" mode="out-in">
                     <data-table
                         v-if="activeView === 'months'"
