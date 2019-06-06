@@ -137,8 +137,8 @@ const component = {
                 required
                 tabindex="2">
             </auto-complete-field>
-            <input tabindex="3" type="date" :placeholder="i18n.expenseDate" name="purchase_date" required v-model="date">
-            <input tabindex="4" autocomplete="off" type="number" :placeholder="i18n.expenseCost" name="cost" step="0.01" min="0.01" required v-model="cost">
+            <input tabindex="3" autocomplete="off" type="number" :placeholder="i18n.expenseCost" name="cost" step="0.01" min="0.01" required v-model="cost">
+            <input tabindex="4" type="date" :placeholder="i18n.expenseDate" name="purchase_date" required v-model="date">
             <button tabindex="5" type="submit" name="submit">{{ i18n.submitButton }}</button>
             <transition name="notification">
                 <div class="notification" v-if="toastMessage">{{ toastMessage }}</div>

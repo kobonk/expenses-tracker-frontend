@@ -39,8 +39,7 @@ const component = {
                 :items="similarNames"
                 :placeholder="i18n.expenseName"
                 name="name"
-                tabindex="1">
-            </auto-complete-field>
+            />
             <button tabindex="2" type="submit" name="submit">{{ i18n.submitButton }}</button>
             <transition name="notification">
                 <div class="notification" v-if="toastMessage">{{ toastMessage }}</div>
