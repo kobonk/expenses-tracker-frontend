@@ -19,6 +19,18 @@ import {
 
 const _ = require("lodash");
 
+const normalizeSortableValue = (value : string | number) : string | number => {
+    if (typeof value === 'number') {
+        return value;
+    }
+
+    if (/^\d{4}[-.]\d{2}[-.]\d{2}$/.test(value as string)) {
+        return parseInt(value.replace(/[.-]/g, ""), 10);
+    }
+
+    return parseFloat(value.replace(/\s/g, ""));
+};
+
 class ExpensesTableData implements DataTableData {
     private sortingKey: string;
     private sortingDirection: string;
@@ -28,14 +40,14 @@ class ExpensesTableData implements DataTableData {
     private footer: Array<DataTableRecordCollection>;
 
     constructor(expenses: Array<Expense>) {
-        this.header = this.createHeader();
-        this.body = this.createBody(expenses);
-        this.footer = this.createFooter(expenses);
-
         this.sortingKey = "purchase_date";
         this.sortingDirection = "asc";
+        this.body = this.createBody(expenses);
 
         this.sort(this.sortingKey);
+
+        this.header = this.createHeader();
+        this.footer = this.createFooter(expenses);
     }
 
     public getHeader(): Array<DataTableRecordCollection> {
@@ -109,15 +121,15 @@ class ExpensesTableData implements DataTableData {
 
         this.sortingKey = key;
 
-        const sorted = _.sortBy(this.body, (row: DataTableRecordCollection) => {
+        const sorted = _.sortBy(this.body, [(row: DataTableRecordCollection) => {
             const result = _.chain(row.getRecords())
             .find((record: DataTableRecord) => record.getName() === this.sortingKey)
             .value();
 
-            const numericValue = parseFloat(result.getValue().replace(/\s/g, ""));
+            const numericValue = normalizeSortableValue(result.getValue());
 
-            return isNaN(numericValue) ? result.getValue() : numericValue;
-        });
+            return isNaN(numericValue as number) ? result.getValue() : numericValue;
+        }]);
 
         this.body = this.sortingDirection === "asc" ? sorted : sorted.reverse();
     }
