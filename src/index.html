@@ -17,6 +17,7 @@
                         :data="statisticsTableData">
                     </data-table>
                     <filtered-expenses v-else-if="activeView === 'filtered-expenses'"
+                        :expenses-map="filteredExpensesMap"
                         :filter-text="filterText"
                         :on-close="showMonthsView">
                     </filtered-expenses>

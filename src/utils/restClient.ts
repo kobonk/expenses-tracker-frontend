@@ -21,16 +21,10 @@ const retrieveExpenses: Function = async (categoryId: string, month: string): Pr
     return _.map(response.data, Expense.prototype.fromAsset);
 };
 
-const filterExpenses: Function = async (expenseName: string): Promise<Map<string, Array<Expense>>> => {
+const filterExpenses: Function = async (expenseName: string): Promise<any> => {
     const response: any = await axios.get(`${ backendUrl }/filter/${ expenseName }`);
-    const result = new Map();
 
-    Object.keys(response.data).sort().reverse().forEach((key: string) => {
-        const expenses = _.map(response.data[key], Expense.prototype.fromAsset);
-        result.set(key, expenses);
-    });
-
-    return result;
+    return response.data;
 };
 
 const retrieveMonthStatistics:Function = async (numberOfMonths:Number):Promise<Array<MonthStatistics>> => {

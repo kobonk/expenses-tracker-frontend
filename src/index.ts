@@ -75,6 +75,7 @@ const vm = new Vue({
         activeView: "months",
         expenses: [],
         expensesTableData: null,
+        filteredExpensesMap: null,
         filterText: "",
         numberOfStatisticsMonths: 6,
         statistics: [],
@@ -84,12 +85,10 @@ const vm = new Vue({
     methods: {
         displayFilteredExpenses(name: string) {
             filterExpenses(name)
-            .then((expensesMap: Map<string, Array<Expense>>) => {
-                expensesMap.forEach((expenses:Array<Expense>, month:string) => {
-                    console.log(month, expenses.length);
-                    this.filterText = name;
-                    this.activeView = "filtered-expenses";
-                });
+            .then((expensesMap: any) => {
+                this.filteredExpensesMap = expensesMap;
+                this.filterText = name;
+                this.activeView = "filtered-expenses";
             })
         },
         onCategoryMonthSelected(data: any) {
