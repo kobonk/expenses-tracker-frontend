@@ -16,18 +16,17 @@
                         v-if="activeView === 'months'"
                         :data="statisticsTableData">
                     </data-table>
-                    <div class="expenses-category-month" v-else>
-                        <h3>
-                            <button @click="showMonthsView">«</button>
-                            {{ currentCategoryName }} / {{ currentMonthName }}
-                        </h3>
-                        <!-- <graph :data="monthGraphData"></graph> -->
-                        <data-table
-                            class="columns-3"
-                            :on-cell-edited="updateExpense"
-                            :data="expensesTableData">
-                        </data-table>
-                    </div>
+                    <filtered-expenses v-else-if="activeView === 'filtered-expenses'"
+                        :filter-text="filterText"
+                        :on-close="showMonthsView">
+                    </filtered-expenses>
+                    <expenses-category-month v-else
+                        :category-name="currentCategoryName"
+                        :data="expensesTableData"
+                        :month-name="currentMonthName"
+                        :on-close="showMonthsView"
+                        :on-edit="updateExpense"
+                    />
                 </transition>
             </main>
         </div>

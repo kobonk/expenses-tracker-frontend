@@ -17,9 +17,10 @@
         "costLabel": "Kwota",
         "totalLabel": "Suma"
     },
-    "findExpensesForm": {
+    "filterExpensesForm": {
         "expenseName": "Nazwa wydatku",
-        "submitButton": "Znajdź"
+        "resultTitle": "Znalezione wydatki dla hasła \"{FILTER_TEXT}\"",
+        "submitButton": "Filtruj"
     },
     "statisticsTable": {
         "categoryLabel": "Nazwa Kategorii",

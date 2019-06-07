@@ -17,7 +17,7 @@ const component = {
     data() {
         return {
             errorMessage: null as unknown,
-            i18n: i18n.findExpensesForm,
+            i18n: i18n.filterExpensesForm,
             name: "",
             similarExpenseSchemas: [] as Array<any>,
             toastMessage: null as unknown

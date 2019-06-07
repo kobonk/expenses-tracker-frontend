@@ -23,7 +23,9 @@ const getMonths: Function = (numberOfMonths: number): Array<string> => {
 const vm = new Vue({
     components: {
         "add-expense-form": () => import("./components/add-expense-form/add-expense-form"),
+        "expenses-category-month": () => import('./components/expenses-category-month'),
         "filter-expenses-form": () => import("./components/filter-expenses-form"),
+        "filtered-expenses": () => import("./components/filtered-expenses"),
         "graph": graphComponent,
         "data-table": dataTableComponent
     },
@@ -73,6 +75,7 @@ const vm = new Vue({
         activeView: "months",
         expenses: [],
         expensesTableData: null,
+        filterText: "",
         numberOfStatisticsMonths: 6,
         statistics: [],
         statisticsTableData: null
@@ -84,6 +87,8 @@ const vm = new Vue({
             .then((expensesMap: Map<string, Array<Expense>>) => {
                 expensesMap.forEach((expenses:Array<Expense>, month:string) => {
                     console.log(month, expenses.length);
+                    this.filterText = name;
+                    this.activeView = "filtered-expenses";
                 });
             })
         },

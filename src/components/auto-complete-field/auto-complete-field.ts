@@ -71,6 +71,8 @@ export default {
             if (!_.isEmpty(this.temporaryItem)) {
                 this.updateCurrentValue(this.temporaryItem);
             }
+            
+            this.debouncedOnBlur();
         },
         onListMoveDown() {
             let nextItem: string = getNextItem(this.matchingItems, this.temporaryItem);

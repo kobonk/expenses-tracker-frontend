@@ -17,9 +17,10 @@
         "costLabel": "Cost",
         "totalLabel": "Total"
     },
-    "findExpensesForm": {
-        "expenseName": "Name of Expense to summarize",
-        "submitButton": "Find Expenses"
+    "filterExpensesForm": {
+        "expenseName": "Name of Expense to filter by",
+        "resultTitle": "Expenses found for \"{FILTER_TEXT}\" phrase",
+        "submitButton": "Filter Expenses"
     },
     "statisticsTable": {
         "categoryLabel": "Category Name",
