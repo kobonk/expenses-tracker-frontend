@@ -39,8 +39,9 @@ const component = {
                 :items="similarNames"
                 :placeholder="i18n.expenseName"
                 name="name"
+                tabindex="6"
             />
-            <button tabindex="2" type="submit" name="submit">{{ i18n.submitButton }}</button>
+            <button tabindex="7" type="submit" name="submit">{{ i18n.submitButton }}</button>
             <transition name="notification">
                 <div class="notification" v-if="toastMessage">{{ toastMessage }}</div>
                 <div class="notification notification-error" v-if="errorMessage">{{ errorMessage }}</div>

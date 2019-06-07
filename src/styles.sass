@@ -38,6 +38,12 @@ html, body
         width: 100%
         z-index: 2
 
+        .filter-expenses-form
+            height: $filterFormHeight
+
+        .data-table
+            height: calc(100% - #{$filterFormHeight})
+
         .expenses-category-month
             display: flex
             flex-direction: column
