@@ -19,7 +19,8 @@
                     <filtered-expenses v-else-if="activeView === 'filtered-expenses'"
                         :expenses-map="filteredExpensesMap"
                         :filter-text="filterText"
-                        :on-close="showMonthsView">
+                        :on-close="showMonthsView"
+                        :on-edit="updateExpense">
                     </filtered-expenses>
                     <expenses-category-month v-else
                         :category-name="currentCategoryName"

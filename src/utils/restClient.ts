@@ -24,7 +24,16 @@ const retrieveExpenses: Function = async (categoryId: string, month: string): Pr
 const filterExpenses: Function = async (expenseName: string): Promise<any> => {
     const response: any = await axios.get(`${ backendUrl }/filter/${ expenseName }`);
 
-    return response.data;
+    return Object.keys(response.data).reduce(
+        (accumulator : any, month : string) : any => {
+            const expenses = response.data[month].map((asset : any) => {
+                return Expense.prototype.fromAsset(asset);
+            });
+
+            return { ...accumulator, [month]: expenses };
+        },
+        {}
+    );
 };
 
 const retrieveMonthStatistics:Function = async (numberOfMonths:Number):Promise<Array<MonthStatistics>> => {
