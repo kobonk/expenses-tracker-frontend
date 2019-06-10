@@ -1,4 +1,5 @@
 {
+    "averageLabel": "Average",
     "title": "Expenses Tracker",
     "description": "An Application for monitoring and categorising home expenses",
     "addExpenseForm": {
@@ -39,5 +40,6 @@
         "October",
         "November",
         "December"
-    ]
+    ],
+    "monthCount": "{one}month{few}months{else}months"
 }

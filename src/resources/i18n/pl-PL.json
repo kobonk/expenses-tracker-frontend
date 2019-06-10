@@ -1,4 +1,5 @@
 {
+    "averageLabel": "Średnia",
     "title": "Expenses Tracker",
     "description": "Aplikacja monitorująca i kategoryzująca wydatki domowe",
     "addExpenseForm": {
@@ -39,5 +40,6 @@
         "Październik",
         "Listopad",
         "Grudzień"
-    ]
+    ],
+    "monthCount": "{one}miesiąc{few}miesiące{else}miesięcy"
 }
