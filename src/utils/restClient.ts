@@ -36,8 +36,8 @@ const filterExpenses: Function = async (expenseName: string): Promise<any> => {
     );
 };
 
-const retrieveMonthStatistics:Function = async (numberOfMonths:Number):Promise<Array<MonthStatistics>> => {
-    let response:any = await axios.get(`${ backendUrl }/statistics/${ numberOfMonths }`);
+const retrieveMonthStatistics : Function = async (startingMonth : string, numberOfMonths : number) : Promise<Array<MonthStatistics>> => {
+    let response : any = await axios.get(`${ backendUrl }/statistics/${ startingMonth }/${ numberOfMonths }`);
 
     return _.chain(response.data)
     .groupBy((row:any) => row.category.id)

@@ -12,11 +12,11 @@ import { component as graphComponent, GraphData, GraphInput } from "./components
 const _ = require("lodash");
 const moment = require("moment");
 
-const getMonths: Function = (numberOfMonths: number): Array<string> => {
-    const currentMonth = moment();
+const getMonths: Function = (startingMonth : string, numberOfMonths : number) : Array<string> => {
+    const start = moment(startingMonth);
 
     return _.map(Array.from(Array(numberOfMonths).keys()), (monthDifference: number) => {
-        return currentMonth.clone().subtract(monthDifference, "months").format("YYYY-MM");
+        return start.clone().subtract(monthDifference, "months").format("YYYY-MM");
     });
 };
 
@@ -78,6 +78,7 @@ const vm = new Vue({
         filteredExpensesMap: null,
         filterText: "",
         numberOfStatisticsMonths: 6,
+        startingMonth: `${ (new Date(Date.now())).getFullYear() }-${ ('0' + ((new Date(Date.now())).getMonth() + 1)).slice(-2) }`,
         statistics: [],
         statisticsTableData: null
     },
@@ -101,12 +102,12 @@ const vm = new Vue({
             });
         },
         refreshMainView() {
-            retrieveMonthStatistics(this.numberOfStatisticsMonths)
+            retrieveMonthStatistics(this.startingMonth, this.numberOfStatisticsMonths)
             .then((statistics: Array<MonthStatistics>) => {
                 vm.statistics = statistics;
 
                 vm.statisticsTableData = new StatisticsTableData(
-                    getMonths(this.numberOfStatisticsMonths),
+                    getMonths(this.startingMonth, this.numberOfStatisticsMonths),
                     statistics,
                     this.onCategoryMonthSelected
                 );
