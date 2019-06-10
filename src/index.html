@@ -9,25 +9,34 @@
             <aside class="sidebar">
                 <add-expense-form @submit="refreshMainView"></add-expense-form>
             </aside>
-            <main class="content" v-if="statisticsTableData">
+            <main class="content" v-if="expenses">
                 <filter-expenses-form @submit="displayFilteredExpenses"></filter-expenses-form>
                 <transition name="slide-fade" mode="out-in">
-                    <data-table
-                        v-if="activeView === 'months'"
-                        :data="statisticsTableData">
-                    </data-table>
-                    <filtered-expenses v-else-if="activeView === 'filtered-expenses'"
-                        :expenses-map="filteredExpensesMap"
-                        :filter-text="filterText"
+                    <view-title
+                        v-if="activeView !== 'months'"
                         :on-close="showMonthsView"
+                        >
+                        {{ currentTitle }}
+                    </view-title>
+                </transition>
+                <transition name="slide-fade" mode="out-in">
+                    <expense-category-table-view
+                        v-if="activeView === 'months'"
+                        :expenses="expenses"
+                        :month-names="monthNames"
+                        :on-month-clicked="onCategoryMonthSelected"
+                        >
+                    </expense-category-table-view>
+                    <filtered-expenses v-else-if="activeView === 'filtered-expenses'"
+                        :expenses="expenses"
+                        :filter-text="filterText"
                         :on-edit="updateExpense">
                     </filtered-expenses>
-                    <expenses-category-month v-else
-                        :category-name="currentCategoryName"
-                        :data="expensesTableData"
-                        :month-name="currentMonthName"
-                        :on-close="showMonthsView"
-                        :on-edit="updateExpense"
+                    <expense-category-month-view v-else
+                        :category="currentCategory"
+                        :expenses="expenses"
+                        :month="currentMonth"
+                        :on-expense-edited="updateExpense"
                     />
                 </transition>
             </main>

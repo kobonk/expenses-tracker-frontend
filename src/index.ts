@@ -1,21 +1,19 @@
 import Vue from "vue";
 import "./styles.sass";
-import { filterExpenses, retrieveExpenses, retrieveMonthStatistics, updateExpense } from "utils/restClient";
-import { extractMonthName, getDaysOfMonth } from "utils/stringUtils";
+import { retrieveExpenses, updateExpense } from "utils/restClient";
+import { extractMonthName } from "utils/stringUtils";
+import i18n from "utils/i18n";
+import DataTable from "./components/DataTable";
 import Expense from "types/Expense";
-import MonthStatistics from "types/MonthStatistics";
-import { ExpensesTableData } from "./ExpensesTable";
-import { StatisticsTableData } from "./StatisticsTable";
-import { component as dataTableComponent } from "./components/data-table/data-table";
-import { component as graphComponent, GraphData, GraphInput } from "./components/graph/graph";
+import FilteredExpenses from "./components/FilteredExpenses";
+import ViewTitle from "./components/ViewTitle";
 
-const _ = require("lodash");
 const moment = require("moment");
 
 const getMonths: Function = (startingMonth : string, numberOfMonths : number) : Array<string> => {
     const start = moment(startingMonth);
 
-    return _.map(Array.from(Array(numberOfMonths).keys()), (monthDifference: number) => {
+    return Array.from(Array(numberOfMonths).keys()).map((monthDifference: number) => {
         return start.clone().subtract(monthDifference, "months").format("YYYY-MM");
     });
 };
@@ -23,111 +21,76 @@ const getMonths: Function = (startingMonth : string, numberOfMonths : number) : 
 const vm = new Vue({
     components: {
         "add-expense-form": () => import("./components/add-expense-form/add-expense-form"),
-        "expenses-category-month": () => import('./components/expenses-category-month'),
-        "filter-expenses-form": () => import("./components/filter-expenses-form"),
-        "filtered-expenses": () => import("./components/filtered-expenses"),
-        "graph": graphComponent,
-        "data-table": dataTableComponent
+        "expense-category-month-view": () => import('./components/ExpenseCategoryMonthView'),
+        "expense-category-table-view": () => import('./components/ExpenseCategoryTableView'),
+        "filter-expenses-form": () => import("./components/FilterExpensesForm"),
+        "filtered-expenses": FilteredExpenses,
+        "data-table": DataTable,
+        "view-title": ViewTitle
     },
     computed: {
-        currentCategoryName(): string {
-            if (_.isEmpty(this.expenses)) {
-                return "";
-            }
-
-            return _.first(this.expenses).getCategory().getName()
+        currentCategoryName() : string {
+            return this.currentCategory ? this.currentCategory.getName() : "";
         },
-        currentMonth(): string {
-            if (_.isEmpty(this.expenses)) {
-                return "";
-            }
-
-            return _.first(this.expenses).getDate().replace(/-\d{2}$/, "");
+        currentMonthName() : string {
+            return this.currentMonth ? extractMonthName(this.currentMonth) : "";
         },
-        currentMonthName(): string {
-            if (_.isEmpty(this.expenses)) {
-                return "";
-            }
-
-            return extractMonthName(_.first(this.expenses).getDate());
+        monthNames() : Array<string> {
+            return getMonths(this.startingMonth, this.numberOfVisibleMonths);
         },
-        monthGraphData(): GraphData {
-            let days: Array<String> = getDaysOfMonth(this.currentMonth);
-
-            return {
-                xTicks: _.map(days, (day: String) => day.slice(-2)),
-                xTitles: days,
-                xValues: _.chain(this.expenses)
-                    .groupBy(_.method("getName"))
-                    .mapValues((expenses: Array<Expense>) => {
-                        return _.map(days, (day: string) => {
-                            let expense: Expense = _.find(expenses, (expense: Expense) => expense.getDate() === day);
-
-                            return _.isNil(expense) ? 0 : expense.getCost();
-                        });
-                    })
-                    .map((values: Array<Number>, key: String): GraphInput => { return { name: key, values } as GraphInput; })
-                    .value()
-            } as GraphData
+        currentTitle() : string {
+            switch (this.activeView) {
+                case "filtered-expenses":
+                    return i18n.filterExpensesForm.resultTitle.replace("{FILTER_TEXT}", this.filterText);
+                case "category-month":
+                    return `${ this.currentMonthName } | ${ this.currentCategoryName }`;
+                default:
+                    return "";
+            }
         }
     },
     data: {
         activeView: "months",
+        currentCategory: null,
+        currentMonth: null,
         expenses: [],
-        expensesTableData: null,
         filteredExpensesMap: null,
         filterText: "",
-        numberOfStatisticsMonths: 6,
-        startingMonth: `${ (new Date(Date.now())).getFullYear() }-${ ('0' + ((new Date(Date.now())).getMonth() + 1)).slice(-2) }`,
-        statistics: [],
-        statisticsTableData: null
+        numberOfVisibleMonths: 6,
+        startingMonth: moment().format("YYYY-MM")
     },
     el: "#expenses-tracker",
     methods: {
         displayFilteredExpenses(name: string) {
-            filterExpenses(name)
-            .then((expensesMap: any) => {
-                this.filteredExpensesMap = expensesMap;
-                this.filterText = name;
-                this.activeView = "filtered-expenses";
-            })
+            this.filterText = name;
+            this.activeView = "filtered-expenses";
         },
         onCategoryMonthSelected(data: any) {
-            if (!data.categoryId || !data.month) return;
+            if (!data.category || !data.month) return;
 
-            retrieveExpenses(data.categoryId, data.month)
-            .then((expenses: Array<Expense>) => {
-                this.updateExpensesView(expenses);
-                this.activeView = "category-month"
-            });
+            this.currentCategory = data.category;
+            this.currentMonth = data.month;
+            this.activeView = "category-month"
         },
         refreshMainView() {
-            retrieveMonthStatistics(this.startingMonth, this.numberOfStatisticsMonths)
-            .then((statistics: Array<MonthStatistics>) => {
-                vm.statistics = statistics;
-
-                vm.statisticsTableData = new StatisticsTableData(
-                    getMonths(this.startingMonth, this.numberOfStatisticsMonths),
-                    statistics,
-                    this.onCategoryMonthSelected
-                );
-
-                if (!_.isEmpty(vm.expenses)) {
-                    retrieveExpenses(_.first(vm.expenses).getCategory().getId(), vm.currentMonth)
-                    .then((expenses: Array<Expense>) => vm.updateExpensesView(expenses));
-                }
-            })
+            retrieveExpenses(this.startingMonth, this.numberOfVisibleMonths)
+                .then((expenses : Array<Expense>) => {
+                    vm.expenses = expenses;
+                });
         },
         showMonthsView() {
             this.activeView = "months";
         },
         updateExpense: async (expenseId: string, value: object) => {
             await updateExpense(expenseId, value);
-            await vm.refreshMainView();
-        },
-        updateExpensesView(expenses: Array<Expense>) {
-            vm.expenses = expenses;
-            vm.expensesTableData = new ExpensesTableData(expenses);
+
+            const expenseIndex = vm.expenses.findIndex((expense : Expense) => {
+                return expense.getId() === expenseId;
+            });
+
+            const expense = Expense.prototype.fromAsset({ ...vm.expenses[expenseIndex].toAsset(), ...value });
+
+            vm.expenses = [...vm.expenses.slice(0, expenseIndex), expense, ...vm.expenses.slice(expenseIndex + 1)];
         }
     },
     mounted() {

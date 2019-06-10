@@ -1,6 +1,6 @@
 import Vue from "vue";
-import { hasMethods } from "./../../utils/objectUtils";
-import { InputDate, InputNumber, InputText } from "./../input";
+import { hasMethods } from "./../utils/objectUtils";
+import { InputDate, InputNumber, InputText } from "./input";
 
 const _ = require("lodash");
 

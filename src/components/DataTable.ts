@@ -1,31 +1,10 @@
-import "./styles.sass";
-import Cell from "./data-table-cell";
-import { DataTableRecord, DataTableRecordCollection } from "./data-table-types";
+import "./DataTableStyles.sass";
+import Cell from "./DataTableCell";
+import { DataTableRecord, DataTableRecordCollection, DataTableCell } from "./../types/DataTableTypes";
 
 const _ = require("lodash");
 
-interface DataTableCell {
-    getContent(): string;
-    getName(): string,
-    isClickable(): boolean;
-    isEditable(): boolean;
-    onClick(): void;
-    toString(): string;
-};
-
-interface DataTableRow {
-    getBuilder(): any,
-    getCells(): Array<DataTableCell>;
-    getId(): string
-}
-
-type TableData = {
-    footer: Array<string | Number>,
-    header: Array<string | Number>,
-    rows: Array<Array<string | Number | DataTableCell> | DataTableRow>
-};
-
-const component = {
+export default {
     components: {
         "table-cell": Cell
     },
@@ -48,6 +27,7 @@ const component = {
     methods: {
         onFieldUpdated(row: DataTableRecordCollection, value: Object) {
             this.onCellEdited(row.getKey(), value);
+            this.onFieldExited();
         },
         onFieldExited() {
             this.editedCell = null;
@@ -99,5 +79,3 @@ const component = {
         </table>
     `
 };
-
-export { component, DataTableCell, DataTableRow, TableData };

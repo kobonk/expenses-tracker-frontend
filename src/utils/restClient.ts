@@ -9,19 +9,19 @@ const axios = require("axios");
 const backendUrl = (data as any).backendUrl;
 const categoriesUrl:string = `${ backendUrl }/categories`;
 
-const retrieveCategories:Function = async ():Promise<Array<ExpenseCategory>> => {
+export const retrieveCategories:Function = async ():Promise<Array<ExpenseCategory>> => {
     let response:any = await axios.get(categoriesUrl);
 
     return _.map(response.data, ExpenseCategory.prototype.fromAsset);
 };
 
-const retrieveExpenses: Function = async (categoryId: string, month: string): Promise<Array<Expense>> => {
-    let response: any = await axios.get(`${ backendUrl }/expenses/${ categoryId }/${ month }`);
+export const retrieveExpenses: Function = async (latestMonth : string, numberOfMonths : number): Promise<Array<Expense>> => {
+    let response: any = await axios.get(`${ backendUrl }/expenses/${ latestMonth }/${ numberOfMonths }`);
 
     return _.map(response.data, Expense.prototype.fromAsset);
 };
 
-const filterExpenses: Function = async (expenseName: string): Promise<any> => {
+export const filterExpenses: Function = async (expenseName: string): Promise<any> => {
     const response: any = await axios.get(`${ backendUrl }/filter/${ expenseName }`);
 
     return Object.keys(response.data).reduce(
@@ -36,7 +36,7 @@ const filterExpenses: Function = async (expenseName: string): Promise<any> => {
     );
 };
 
-const retrieveMonthStatistics : Function = async (startingMonth : string, numberOfMonths : number) : Promise<Array<MonthStatistics>> => {
+export const retrieveMonthStatistics : Function = async (startingMonth : string, numberOfMonths : number) : Promise<Array<MonthStatistics>> => {
     let response : any = await axios.get(`${ backendUrl }/statistics/${ startingMonth }/${ numberOfMonths }`);
 
     return _.chain(response.data)
@@ -58,37 +58,26 @@ const retrieveMonthStatistics : Function = async (startingMonth : string, number
     .value()
 };
 
-const retrieveSimilarExpenseNames: Function = async (expenseName: string): Promise<Array<string>> => {
+export const retrieveSimilarExpenseNames: Function = async (expenseName: string): Promise<Array<string>> => {
     let response: any = await axios.get(`${ backendUrl }/expense-names/${ _.trim(expenseName) }`);
 
     return response.data as Array<string>;
 };
 
-const persistCategory: Function = async (categoryName: string):Promise<ExpenseCategory> => {
+export const persistCategory: Function = async (categoryName: string):Promise<ExpenseCategory> => {
     let response:any = await axios.post(categoriesUrl, { name: categoryName });
 
     return _.map(response.data, ExpenseCategory.prototype.fromAsset);
 };
 
-const persistExpense:Function = async (expense:Expense):Promise<Expense> => {
+export const persistExpense:Function = async (expense:Expense):Promise<Expense> => {
     let response = await axios.post(`${ backendUrl }/expense`, expense.toAsset());
 
     return Expense.prototype.fromAsset(response.data);
-}
+};
 
-const updateExpense: Function = async (expenseId: string, changes: Object) => {
+export const updateExpense: Function = async (expenseId: string, changes: Object) => {
     let response = await axios.patch(`${ backendUrl }/expense/${ expenseId }`, changes);
 
     return Expense.prototype.fromAsset(response.data);
-}
-
-export {
-    persistCategory,
-    persistExpense,
-    retrieveCategories,
-    retrieveExpenses,
-    filterExpenses,
-    retrieveMonthStatistics,
-    retrieveSimilarExpenseNames,
-    updateExpense
 };

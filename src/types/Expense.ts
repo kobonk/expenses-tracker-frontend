@@ -29,6 +29,10 @@ class Expense implements Deserializable, Serializable {
         return this.date;
     }
 
+    public getMonth() : string {
+        return this.date.slice(0, 7);
+    }
+
     public getName(): string {
         return this.name;
     }
@@ -40,7 +44,7 @@ class Expense implements Deserializable, Serializable {
     public fromAsset(asset: any): Expense {
         let category = ExpenseCategory.prototype.fromAsset(asset.category);
 
-        return new Expense(asset.id, asset.name, category, asset.date, asset.cost);
+        return new Expense(asset.id, asset.name, category, (asset.purchase_date || asset.date), asset.cost);
     }
 
     public toAsset(): any {

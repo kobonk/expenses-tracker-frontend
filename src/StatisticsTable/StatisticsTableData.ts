@@ -3,12 +3,7 @@ import ExpenseCategory from "types/ExpenseCategory";
 import MonthStatistics from "types/MonthStatistics";
 import MonthTotal from "types/MonthTotal";
 import { extractMonthName, formatNumber } from "utils/stringUtils";
-
-import {
-    DataTableData,
-    DataTableRecord,
-    DataTableRecordCollection
-} from "./../components/data-table/data-table-types";
+import { DataTableData, DataTableRecord, DataTableRecordCollection } from "./../types/DataTableTypes";
 
 import {
     StatisticsRecordCollection,
@@ -104,7 +99,7 @@ class StatisticsTableData implements DataTableData {
                 return new StatisticsMonthRecord(
                     month,
                     formatNumber(total),
-                    () => onTableCellClicked({ categoryId, month })
+                    () => onTableCellClicked({ category, month })
                 );
             });
 

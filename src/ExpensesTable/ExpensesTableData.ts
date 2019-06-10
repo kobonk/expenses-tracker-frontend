@@ -2,11 +2,7 @@ import Expense from "types/Expense";
 import { formatNumber } from "utils/stringUtils";
 import i18n from "utils/i18n";
 
-import {
-    DataTableData,
-    DataTableRecord,
-    DataTableRecordCollection
-} from "./../components/data-table/data-table-types";
+import { DataTableData, DataTableRecord, DataTableRecordCollection } from "./../types/DataTableTypes";
 
 import {
     ExpensesTableHeaderRecord,

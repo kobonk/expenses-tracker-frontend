@@ -1,4 +1,4 @@
-import { DataTableRecord, DataTableRecordCollection } from "./../components/data-table/data-table-types";
+import { DataTableRecord, DataTableRecordCollection } from "./../types/DataTableTypes";
 
 export class ExpensesTableRecordBase implements DataTableRecord {
     protected name: string;

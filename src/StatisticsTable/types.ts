@@ -1,5 +1,5 @@
 import { formatNumber } from "utils/stringUtils";
-import { DataTableRecord, DataTableRecordCollection } from "./../data-table/data-table-types";
+import { DataTableRecord, DataTableRecordCollection } from "./../types/DataTableTypes";
 
 const _ = require("lodash");
 

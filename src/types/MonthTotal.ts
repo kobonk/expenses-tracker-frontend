@@ -28,7 +28,7 @@ class MonthTotal implements Deserializable {
         return formatNumber(this.getTotal(), decimalPoints);
     }
 
-    public getTotal(): Number {
+    public getTotal() : number {
         return _.get(this, "total", 0);
     }
 
