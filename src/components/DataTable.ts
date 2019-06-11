@@ -2,8 +2,6 @@ import "./DataTableStyles.sass";
 import Cell from "./DataTableCell";
 import { DataTableRecord, DataTableRecordCollection, DataTableCell } from "./../types/DataTableTypes";
 
-const _ = require("lodash");
-
 export default {
     components: {
         "table-cell": Cell
@@ -16,7 +14,7 @@ export default {
             return this.data.getSortingKey();
         },
         tableVisible(): boolean {
-            return _.isNil(this.data) ? false : this.data.getBody().length > 0;
+            return this.data || this.data.getBody().length > 0;
         }
     },
     data() {

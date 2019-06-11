@@ -1,6 +1,8 @@
 import Vue from "vue";
 import { hasMethods } from "./../utils/objectUtils";
-import { InputDate, InputNumber, InputText } from "./input";
+import DataTableCellClickable from "./DataTableCellClickable";
+import DataTableCellEditable from "./DataTableCellEditable";
+import DataTableCellPlain from "./DataTableCellPlain";
 
 const _ = require("lodash");
 
@@ -10,9 +12,9 @@ const isDataTableCellInstance: Function = (value: any): boolean => {
 
 export default Vue.component("table-cell", {
     components: {
-        "input-date": InputDate,
-        "input-number": InputNumber,
-        "input-text": InputText
+        "table-cell-clickable": DataTableCellClickable,
+        "table-cell-editable": DataTableCellEditable,
+        "table-cell-plain": DataTableCellPlain
     },
     computed: {
         editing() {
@@ -55,33 +57,20 @@ export default Vue.component("table-cell", {
         }
     },
     template: `
-        <span
-            :class="data.isClickable() ? 'clickable' : null"
-            @click="onClicked()"
-            v-if="!editing"
+        <table-cell-editable v-if="data.isEditable()"
+            :value="data.getValue()"
+            :format="data.getType()"
+            :on-change="onFieldUpdated"
         >
-            {{ data.getValue() }}
-        </span>
-
-        <input-number
-            v-else-if="editing && data.getType() === 'number'"
+        </table-cell-editable>
+        <table-cell-clickable v-else-if="data.isClickable()"
             :value="data.getValue()"
-            :on-change="(value) => onFieldUpdated(value)"
-            :on-exit="onExit"
-        />
-
-        <input-date
-            v-else-if="editing && data.getType() === 'date'"
+            :on-click="onClicked"
+        >
+        </table-cell-clickable>
+        <table-cell-plain v-else
             :value="data.getValue()"
-            :on-change="(value) => onFieldUpdated(value)"
-            :on-exit="onExit"
-        />
-
-        <input-text
-            v-else
-            :value="data.getValue()"
-            :on-change="(value) => onFieldUpdated(value)"
-            :on-exit="onExit"
-        />
+        >
+        </table-cell-plain>
     `
 });
