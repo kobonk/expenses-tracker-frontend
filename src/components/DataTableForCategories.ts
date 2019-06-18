@@ -48,6 +48,9 @@ export default {
         tableVisible() : boolean {
             return this.data || this.data.getBody().length > 0;
         },
+        tableNodes() : NodeList {
+            return this.$el.querySelectorAll("tbody");
+        },
         tables() : Array<any> {
             const monthRows = this.rows.map((row : MonthStatistics) => {
                 return this.months.map((month : string) => {
@@ -151,9 +154,17 @@ export default {
         onHeaderClicked(cell: DataTableRecord) {
             cell.onClick();
         },
-        scrollingEventHandler(event : Event) {
-            this.nonScrollables
-                .forEach((column : HTMLElement) => column.scrollTop = (event.target as Element).scrollTop);
+        scrollingEventHandler(event : WheelEvent) {
+            this.tableNodes
+                .forEach((table : HTMLElement) => {
+                    if (event.target === this.scrollController) {
+                        table.scrollTop = (event.target as Element).scrollTop;
+                    }
+
+                    if (event.deltaY) {
+                        table.scrollTop += 5 * event.deltaY;
+                    }
+                });
         },
         sort(key : string) {
             if (key === this.sortingKey) {
@@ -177,21 +188,19 @@ export default {
         }
     },
     mounted() {
-        // this.$el.addEventListener("wheel", (event : WheelEvent) => {
-        //     const tbody = getTbodyParent(event.target as HTMLElement);
-        //
-        //     if (!tbody) {
-        //         return;
-        //     }
-        //
-        //     this.nonScrollables.forEach((column : HTMLElement) => {
-        //         column.scrollTop += 5 * event.deltaY;
-        //     });
-        // });
-        this.scrollController.addEventListener("scroll", this.scrollingEventHandler);
+        this.$el.addEventListener("wheel", (event : WheelEvent) => {
+            const tbody = getTbodyParent(event.target as HTMLElement);
+
+            if (!tbody) {
+                return;
+            }
+
+            this.scrollingEventHandler(event);
+        });
+        // this.scrollController.addEventListener("scroll", this.scrollingEventHandler);
     },
     beforeDestroy() {
-        this.scrollController.removeEventListener("scroll", this.scrollingEventHandler);
+        // this.scrollController.removeEventListener("scroll", this.scrollingEventHandler);
     },
     props: ["data", "onCellEdited", "months", "rows"],
     template: `

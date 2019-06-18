@@ -6,9 +6,11 @@
     height: 100%
     overflow: hidden
     width: 100%
+    height: calc(100% - #{$filterFormHeight})
 
     .data-table
         border-right: 1px solid $colorDivider
+        height: 100%
 
         &:last-child
             border-right: none
@@ -21,7 +23,7 @@
         flex-direction: column
         border-right: 1px solid $colorDivider
         overflow: auto hidden
-        height: calc(100% - #{$filterFormHeight})
+        height: 100%
 
         .data-table
             height: 100%
