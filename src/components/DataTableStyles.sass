@@ -13,12 +13,25 @@
         &:last-child
             border-right: none
 
+        &.fixed
+            min-width: 200px
+
+    .scroll-horizontal
+        display: flex
+        flex-direction: column
+        border-right: 1px solid $colorDivider
+        overflow: auto hidden
+        height: calc(100% - #{$filterFormHeight})
+
+        .data-table
+            height: 100%
+
 .data-table
     box-sizing: border-box
     border-collapse: collapse
     display: flex
     flex-direction: column
-    height: 100%
+    height: calc(100% - #{$filterFormHeight})
     overflow: hidden
     width: 100%
 
