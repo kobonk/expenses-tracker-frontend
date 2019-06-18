@@ -2,7 +2,7 @@ import Expense from "types/Expense";
 import MonthStatistics from "types/MonthStatistics";
 import MonthTotal from "types/MonthTotal";
 import { StatisticsTableData } from "./../StatisticsTable";
-import DataTable from "./DataTable";
+import DataTableForCategories from "./DataTableForCategories";
 
 const addExpenseToTotal = (expense : Expense, total : MonthTotal) : MonthTotal => {
     if (!total) {
@@ -43,21 +43,24 @@ const convertExpensesToStatistics = (expenses : Array<Expense>) : Array<MonthSta
 
 export default {
     components: {
-        "data-table": DataTable
+        "data-grid": DataTableForCategories
     },
     computed: {
+        gridRows() {
+            return convertExpensesToStatistics(this.expenses);
+        },
         tableData() {
-            return new StatisticsTableData(
-                this.monthNames,
-                convertExpensesToStatistics(this.expenses),
-                this.onMonthClicked
-            );
+            return new StatisticsTableData(this.monthNames, this.gridRows, this.onMonthClicked);
         }
     },
     props: ["monthNames", "expenses", "onMonthClicked"],
     template: `
-        <data-table
-            :data="tableData">
-        </data-table>
+        <data-grid
+            :data="tableData"
+            :months="monthNames"
+            :onCellEdited="onMonthClicked"
+            :rows="gridRows"
+        >
+        </data-grid>
     `
 };

@@ -17,13 +17,6 @@ import {
 const _ = require("lodash");
 const moment = require("moment");
 
-const getMonths: Function = (numberOfMonths: number): Array<string> => {
-    let currentMonth = moment();
-    return _.map(Array.from(Array(numberOfMonths).keys()), (monthDifference: number) => {
-        return currentMonth.clone().subtract(monthDifference, "months").format("YYYY-MM");
-    });
-};
-
 class StatisticsTableData implements DataTableData {
     private months: Array<string>;
     private sortingKey: string;
@@ -63,6 +56,26 @@ class StatisticsTableData implements DataTableData {
 
     public getSortingKey(): string {
         return this.sortingKey;
+    }
+
+    public sort(key : string) {
+        if (key === this.sortingKey) {
+            this.sortingDirection = this.sortingDirection === "asc" ? "desc" : "asc";
+        }
+
+        this.sortingKey = key;
+
+        const sorted = _.sortBy(this.body, (row: DataTableRecordCollection) => {
+            const result = _.chain(row.getRecords())
+            .find((record: DataTableRecord) => record.getName() === this.sortingKey)
+            .value();
+
+            const numericValue = parseFloat(result.getValue().replace(/\s/g, ""));
+
+            return isNaN(numericValue) ? result.getValue() : numericValue;
+        });
+
+        return this.body = this.sortingDirection === "asc" ? sorted : sorted.reverse();
     }
 
     private createHeader(): Array<DataTableRecordCollection> {
@@ -128,26 +141,6 @@ class StatisticsTableData implements DataTableData {
         .value();
 
         return [new StatisticsRecordCollection("footer", [new StatisticsFooterRecord(i18n.statisticsTable.totalLabel), ...records])];
-    }
-
-    private sort(key: string) {
-        if (key === this.sortingKey) {
-            this.sortingDirection = this.sortingDirection === "asc" ? "desc" : "asc";
-        }
-
-        this.sortingKey = key;
-
-        const sorted = _.sortBy(this.body, (row: DataTableRecordCollection) => {
-            const result = _.chain(row.getRecords())
-            .find((record: DataTableRecord) => record.getName() === this.sortingKey)
-            .value();
-
-            const numericValue = parseFloat(result.getValue().replace(/\s/g, ""));
-
-            return isNaN(numericValue) ? result.getValue() : numericValue;
-        });
-
-        this.body = this.sortingDirection === "asc" ? sorted : sorted.reverse();
     }
 }
 

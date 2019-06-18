@@ -18,7 +18,8 @@ export interface DataTableData {
     getBody(): Array<DataTableRecordCollection>,
     getFooter(): Array<DataTableRecordCollection>,
     getSortingDirection(): string,
-    getSortingKey(): string
+    getSortingKey(): string,
+    sort(key : string) : Array<DataTableRecordCollection>
 }
 
 export interface DataTableCell {

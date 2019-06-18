@@ -1,5 +1,18 @@
 @import "./../constants.sass"
 
+.compound-table
+    display: flex
+    flex-direction: row
+    height: 100%
+    overflow: hidden
+    width: 100%
+
+    .data-table
+        border-right: 1px solid $colorDivider
+
+        &:last-child
+            border-right: none
+
 .data-table
     box-sizing: border-box
     border-collapse: collapse
@@ -9,18 +22,34 @@
     overflow: hidden
     width: 100%
 
+    &.scroll-disabled
+        tbody
+            overflow: hidden
+
+    &.align-left
+        td, th
+            justify-content: flex-start
+
+    &.align-right
+        td, th
+            justify-content: flex-end
+
     thead, tbody, tfoot
         display: block
         width: 100%
 
     tr
-        display: grid
-        grid-template-columns: minmax(200px, 2fr) minmax(100px, 1fr) minmax(100px, 1fr) minmax(100px, 1fr) minmax(100px, 1fr) minmax(100px, 1fr) minmax(100px, 1fr)
+        display: flex
+        flex-direction: row
 
         td, th
             color: $colorSecondaryText
-            padding: 0.5em 0.25em
-            text-align: right
+            height: 40px
+            display: flex
+            flex-direction: row
+            align-items: center
+            flex: 1
+            min-width: 0
 
         td
             color: $colorPrimaryText
@@ -29,6 +58,9 @@
                 border: 1px solid transparent
                 display: inline-block
                 padding: 0.5em 0.25em
+                overflow: hidden
+                text-overflow: ellipsis
+                white-space: nowrap
 
             .clickable
                 background-color: transparent
@@ -87,13 +119,7 @@
         th
             text-transform: uppercase
             font-weight: 700
-            padding: 1em
-
-        td:first-child
-            text-align: left
-
-        th:first-child
-            text-align: left
+            padding: 1em 0.5em
 
         &:nth-child(even)
             td
@@ -125,15 +151,3 @@
     tfoot
         tr
             border-top: 1px solid $colorDivider
-
-    &.columns-2
-        tr
-            grid-template-columns: minmax(200px, 2fr) minmax(100px, 1fr)
-
-    &.columns-3
-        tr
-            grid-template-columns: minmax(200px, 2fr) minmax(100px, 1fr) minmax(100px, 1fr)
-
-    &.columns-4
-        tr
-            grid-template-columns: minmax(200px, 2fr) minmax(100px, 1fr) minmax(100px, 1fr) minmax(100px, 1fr)
