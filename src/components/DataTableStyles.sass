@@ -1,12 +1,26 @@
 @import "./../constants.sass"
 
+$horizontalScrollHeight: 20px
+
 .compound-table
     display: flex
-    flex-direction: row
+    flex-direction: column
     height: 100%
     overflow: hidden
     width: 100%
     height: calc(100% - #{$filterFormHeight})
+
+    .compound-table-row-layout
+        height: calc(100% - #{$horizontalScrollHeight})
+        display: flex
+        flex-direction: row
+
+        &.compound-table-horizontal-scroll
+            height: $horizontalScrollHeight
+
+            .scroll-horizontal
+                overflow-x: auto
+                overflow-y: hidden
 
     .data-table
         border-right: 1px solid $colorDivider
@@ -15,18 +29,18 @@
         &:last-child
             border-right: none
 
-        &.fixed
-            min-width: 200px
-
     .scroll-horizontal
-        display: flex
+        display: block
         flex-direction: column
+        flex: 1
         border-right: 1px solid $colorDivider
-        overflow: auto hidden
+        overflow: hidden
         height: 100%
 
         .data-table
             height: 100%
+            display: block
+            width: auto
 
 .data-table
     box-sizing: border-box
@@ -64,7 +78,8 @@
             flex-direction: row
             align-items: center
             flex: 1
-            min-width: 0
+            min-width: 130px
+            padding: 0
 
         td
             color: $colorPrimaryText
@@ -72,7 +87,7 @@
             span
                 border: 1px solid transparent
                 display: inline-block
-                padding: 0.5em 0.25em
+                padding: 0
                 overflow: hidden
                 text-overflow: ellipsis
                 white-space: nowrap
@@ -94,7 +109,7 @@
                 font-family: inherit
                 font-size: inherit
                 margin: 0
-                padding: 0.5em 0.25em
+                padding: 0.25em
                 text-align: inherit
                 width: calc(100% - 1em)
 
@@ -134,7 +149,7 @@
         th
             text-transform: uppercase
             font-weight: 700
-            padding: 1em 0.5em
+            padding: 0
 
         &:nth-child(even)
             td
@@ -142,8 +157,6 @@
 
     thead
         tr
-            border-bottom: 1px solid $colorDivider
-
             th
                 cursor: pointer
                 transition: color 0.5s
@@ -161,8 +174,7 @@
 
     tbody
         max-height: 100%
-        overflow: auto
-
-    tfoot
-        tr
-            border-top: 1px solid $colorDivider
+        overflow-x: hidden
+        overflow-y: auto
+        border-bottom: 1px solid $colorDivider
+        border-top: 1px solid $colorDivider

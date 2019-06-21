@@ -61,6 +61,10 @@ const vm = new Vue({
     },
     el: "#expenses-tracker",
     methods: {
+        increaseMonths() {
+            this.numberOfVisibleMonths += 1;
+            this.refreshMainView();
+        },
         displayFilteredExpenses(name: string) {
             this.filterText = name;
             this.activeView = "filtered-expenses";

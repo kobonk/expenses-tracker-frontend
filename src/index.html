@@ -8,6 +8,7 @@
         <div id="expenses-tracker">
             <aside class="sidebar">
                 <add-expense-form @submit="refreshMainView"></add-expense-form>
+                <button @click="increaseMonths">+1</button>
             </aside>
             <main class="content" v-if="expenses">
                 <filter-expenses-form @submit="displayFilteredExpenses"></filter-expenses-form>

@@ -38,6 +38,12 @@ export default {
         "table-cell": Cell
     },
     computed: {
+        horizontalScrollController() : HTMLElement {
+            return this.$el.querySelector(".compound-table-horizontal-scroll .scroll-horizontal");
+        },
+        horizontalScrollTarget() : HTMLElement {
+            return this.$el.querySelector(".compound-table-row-layout .scroll-horizontal table");
+        },
         monthColumns() : Array<any> {
             return this.months
                 .map((month : string) => {
@@ -46,12 +52,6 @@ export default {
                         name: extractMonthName(month)
                     };
                 });
-        },
-        nonScrollables() : NodeList {
-            return this.$el.querySelectorAll('.scroll-disabled tbody');
-        },
-        scrollController() : HTMLElement {
-            return this.$refs["scrollController"].$el.querySelector('table:last-child tbody');
         },
         tableVisible() : boolean {
             return this.data || this.data.getBody().length > 0;
@@ -92,9 +92,9 @@ export default {
             return [
                 {
                     id: "categories",
-                    class: "data-table fixed scroll-disabled align-left",
+                    class: "data-table scroll-disabled align-left",
                     style: {
-                        width: "15%"
+                        width: "220px"
                     },
                     header: [
                         i18n.statisticsTable.categoryLabel
@@ -109,19 +109,16 @@ export default {
                 {
                     id: "months",
                     class: "data-table scroll-disabled align-right",
-                    style: {
-                        minWidth: "650px",
-                        width: "100%"
-                    },
+                    style: {},
                     header: this.months.map(extractMonthName),
                     body: monthRows,
                     footer: monthTotals
                 },
                 {
                     id: "summary",
-                    class: "data-table fixed align-right",
+                    class: "data-table align-right",
                     style: {
-                        width: "15%"
+                        width: "260px"
                     },
                     header: ["Average", "Total"],
                     body: categoryTotals
@@ -138,6 +135,12 @@ export default {
                         .map((total : number) => formatNumber(total, 2))
                 }
             ]
+        },
+        verticalScrollTargets() : NodeList {
+            return this.$el.querySelectorAll('.scroll-disabled tbody');
+        },
+        verticalScrollController() : HTMLElement {
+            return this.$refs["verticalScrollController"].$el.querySelector('table:last-child tbody');
         }
     },
     data() {
@@ -149,20 +152,10 @@ export default {
         }
     },
     methods: {
-        onFieldUpdated(row: DataTableRecordCollection, value: Object) {
-            this.onCellEdited(row.getKey(), value);
-            this.onFieldExited();
+        handleHorizontalScroll(event : Event) {
+            this.horizontalScrollTarget.scrollLeft = (event.target as HTMLElement).scrollLeft;
         },
-        onFieldExited() {
-            this.editedCell = null;
-        },
-        onCellClicked(cell: DataTableCell) {
-            this.editedCell = cell;
-        },
-        onHeaderClicked(cell: DataTableRecord) {
-            cell.onClick();
-        },
-        scrollingEventHandler(event : Event) {
+        handleVerticalScroll(event : Event) {
             const tbody = getFirstTbodyParent(event.target as HTMLElement);
 
             if (!tbody) {
@@ -176,9 +169,35 @@ export default {
                     }
 
                     if ((event as WheelEvent).deltaY) {
-                        tableBody.scrollTop += 5 * (event as WheelEvent).deltaY;
+                        const wheelFactor = (event as WheelEvent).deltaMode === 0 ? 0.25 : 5;
+                        tableBody.scrollTop += wheelFactor * (event as WheelEvent).deltaY;
                     }
                 });
+        },
+        observeWidthChange(mutationsList : Array<MutationRecord>) {
+            const childListChange = mutationsList.find((mutation : MutationRecord) => mutation.type === "childList");
+
+            if (childListChange) {
+                this.horizontalScrollTarget.querySelectorAll("thead, tbody, tfoot")
+                    .forEach((element : HTMLElement) => {
+                        element.style.width = `${this.horizontalScrollTarget.scrollWidth}px`;
+                    });
+
+                this.horizontalScrollController.querySelector("div").style.width = `${this.horizontalScrollTarget.scrollWidth}px`;
+            }
+        },
+        onFieldUpdated(row: DataTableRecordCollection, value: Object) {
+            this.onCellEdited(row.getKey(), value);
+            this.onFieldExited();
+        },
+        onFieldExited() {
+            this.editedCell = null;
+        },
+        onCellClicked(cell: DataTableCell) {
+            this.editedCell = cell;
+        },
+        onHeaderClicked(cell: DataTableRecord) {
+            cell.onClick();
         },
         sort(key : string) {
             if (key === this.sortingKey) {
@@ -202,12 +221,20 @@ export default {
         }
     },
     mounted() {
-        this.scrollController.addEventListener("scroll", this.scrollingEventHandler);
-        this.$el.addEventListener("wheel", this.scrollingEventHandler);
+        this.verticalScrollController.addEventListener("scroll", this.handleVerticalScroll);
+        this.$el.addEventListener("wheel", this.handleVerticalScroll);
+        this.horizontalScrollController.addEventListener("scroll", this.handleHorizontalScroll);
+
+        this.widthChangeObserver = new MutationObserver(this.observeWidthChange);
+        this.widthChangeObserver.observe(
+            this.horizontalScrollTarget,
+            { attributes: true, childList: true, subtree: true }
+        );
     },
     beforeDestroy() {
-        this.scrollController.removeEventListener("scroll", this.scrollingEventHandler);
-        this.$el.removeEventListener("wheel", this.scrollingEventHandler);
+        this.verticalScrollController.removeEventListener("scroll", this.handleVerticalScroll);
+        this.$el.removeEventListener("wheel", this.handleVerticalScroll);
+        this.horizontalScrollController.removeEventListener("scroll", this.handleHorizontalScroll);
     },
     props: ["data", "onCellEdited", "months", "rows"],
     template: `
@@ -215,30 +242,48 @@ export default {
             class="compound-table"
             v-if="tableVisible"
         >
-            <plain-table
-                :class="tables[0].class"
-                :style="tables[0].style"
-                :header="tables[0].header"
-                :body="tables[0].body"
-                :footer="tables[0].footer"
-            />
-            <div class="scroll-horizontal" style="width: 70%">
+            <div class="compound-table-row-layout">
                 <plain-table
-                    :class="tables[1].class"
-                    :style="tables[1].style"
-                    :header="tables[1].header"
-                    :body="tables[1].body"
-                    :footer="tables[1].footer"
+                    :class="tables[0].class"
+                    :style="tables[0].style"
+                    :header="tables[0].header"
+                    :body="tables[0].body"
+                    :footer="tables[0].footer"
+                />
+                <div class="scroll-horizontal" style="width: 70%">
+                    <plain-table
+                        :class="tables[1].class"
+                        :style="tables[1].style"
+                        :header="tables[1].header"
+                        :body="tables[1].body"
+                        :footer="tables[1].footer"
+                    />
+                </div>
+                <plain-table
+                    ref="verticalScrollController"
+                    :class="tables[2].class"
+                    :style="tables[2].style"
+                    :header="tables[2].header"
+                    :body="tables[2].body"
+                    :footer="tables[2].footer"
                 />
             </div>
-            <plain-table
-                ref="scrollController"
-                :class="tables[2].class"
-                :style="tables[2].style"
-                :header="tables[2].header"
-                :body="tables[2].body"
-                :footer="tables[2].footer"
-            />
+            <div class="compound-table-row-layout compound-table-horizontal-scroll">
+                <div
+                    :class="tables[0].class"
+                    :style="tables[0].style"
+                />
+                <div class="scroll-horizontal" style="width: 70%">
+                    <div
+                        :class="tables[1].class"
+                        :style="tables[1].style"
+                    />
+                </div>
+                <div
+                    :class="tables[2].class"
+                    :style="tables[2].style"
+                />
+            </div>
         </div>
     `,
     watch: {
