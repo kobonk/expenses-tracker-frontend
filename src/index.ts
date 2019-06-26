@@ -1,6 +1,6 @@
 import Vue from "vue";
 import "./styles.sass";
-import { retrieveExpenses, updateExpense } from "utils/restClient";
+import { retrieveExpenses, retrieveMonths, updateExpense } from "utils/restClient";
 import { extractMonthName } from "utils/stringUtils";
 import i18n from "utils/i18n";
 import DataTable from "./components/DataTable";
@@ -51,6 +51,7 @@ const vm = new Vue({
     },
     data: {
         activeView: "months",
+        availableMonths: [],
         currentCategory: null,
         currentMonth: null,
         expenses: [],
@@ -77,9 +78,15 @@ const vm = new Vue({
             this.activeView = "category-month"
         },
         refreshMainView() {
-            retrieveExpenses(this.startingMonth, this.numberOfVisibleMonths)
-                .then((expenses : Array<Expense>) => {
-                    vm.expenses = expenses;
+            retrieveMonths()
+                .then((months : Array<string>) => {
+                    this.availableMonths = months;
+                })
+                .then(() => {
+                    retrieveExpenses(this.startingMonth, this.numberOfVisibleMonths)
+                    .then((expenses : Array<Expense>) => {
+                        vm.expenses = expenses;
+                    });
                 });
         },
         showMonthsView() {

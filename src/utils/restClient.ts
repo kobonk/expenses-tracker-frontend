@@ -15,6 +15,12 @@ export const retrieveCategories:Function = async ():Promise<Array<ExpenseCategor
     return _.map(response.data, ExpenseCategory.prototype.fromAsset);
 };
 
+export const retrieveMonths : Function = async (): Promise<Array<string>> => {
+    let response: any = await axios.get(`${ backendUrl }/months`);
+
+    return response.data;
+};
+
 export const retrieveExpenses: Function = async (latestMonth : string, numberOfMonths : number): Promise<Array<Expense>> => {
     let response: any = await axios.get(`${ backendUrl }/expenses/${ latestMonth }/${ numberOfMonths }`);
 

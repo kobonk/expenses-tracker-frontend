@@ -250,7 +250,7 @@ export default {
                     :body="tables[0].body"
                     :footer="tables[0].footer"
                 />
-                <div class="scroll-horizontal" style="width: 70%">
+                <div class="scroll-horizontal">
                     <plain-table
                         :class="tables[1].class"
                         :style="tables[1].style"
