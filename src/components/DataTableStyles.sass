@@ -30,7 +30,7 @@ $horizontalScrollHeight: 20px
             border-right: none
 
     .scroll-horizontal
-        display: block
+        display: flex
         flex-direction: column
         flex: 1
         border-right: 1px solid $colorDivider
@@ -39,7 +39,7 @@ $horizontalScrollHeight: 20px
 
         .data-table
             height: 100%
-            display: block
+            display: flex
             width: auto
 
 .data-table
@@ -147,8 +147,8 @@ $horizontalScrollHeight: 20px
                             background-color: $colorPrimary
 
         th
+            font-size: 0.75em
             text-transform: uppercase
-            font-weight: 700
             padding: 0
 
         &:nth-child(even)
@@ -178,3 +178,8 @@ $horizontalScrollHeight: 20px
         overflow-y: auto
         border-bottom: 1px solid $colorDivider
         border-top: 1px solid $colorDivider
+
+    tfoot
+        tr
+            th
+                font-size: 0.875em
