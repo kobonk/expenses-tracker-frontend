@@ -29,6 +29,14 @@ $horizontalScrollHeight: 20px
         &:last-child
             border-right: none
 
+    .summary-table
+        td:last-child, th:last-child
+            span
+                padding-right: 20px
+
+        td, th
+            min-width: 130px
+
     .scroll-horizontal
         display: flex
         flex-direction: column
@@ -78,11 +86,8 @@ $horizontalScrollHeight: 20px
             flex-direction: row
             align-items: center
             flex: 1
-            min-width: 130px
+            min-width: 170px
             padding: 0
-
-        td
-            color: $colorPrimaryText
 
             span
                 border: 1px solid transparent
@@ -91,6 +96,9 @@ $horizontalScrollHeight: 20px
                 overflow: hidden
                 text-overflow: ellipsis
                 white-space: nowrap
+
+        td
+            color: $colorPrimaryText
 
             .clickable
                 background-color: transparent
@@ -147,7 +155,6 @@ $horizontalScrollHeight: 20px
                             background-color: $colorPrimary
 
         th
-            font-size: 0.75em
             text-transform: uppercase
             padding: 0
 
@@ -178,8 +185,3 @@ $horizontalScrollHeight: 20px
         overflow-y: auto
         border-bottom: 1px solid $colorDivider
         border-top: 1px solid $colorDivider
-
-    tfoot
-        tr
-            th
-                font-size: 0.875em

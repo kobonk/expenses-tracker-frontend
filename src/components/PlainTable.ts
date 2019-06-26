@@ -8,7 +8,7 @@ export default {
                         v-for="headerCell, a in header"
                         v-bind:key="a"
                     >
-                        {{headerCell}}
+                        <span>{{headerCell}}</span>
                     </th>
                 </tr>
             </thead>
@@ -31,7 +31,7 @@ export default {
                         v-for="footerCell, b in footer"
                         v-bind:key="b"
                     >
-                        {{footerCell}}
+                        <span>{{footerCell}}</span>
                     </th>
                 </tr>
             </tfoot>

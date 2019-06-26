@@ -116,7 +116,7 @@ export default {
                 },
                 {
                     id: "summary",
-                    class: "data-table align-right",
+                    class: "data-table align-right summary-table",
                     style: {
                         width: "260px"
                     },
