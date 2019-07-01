@@ -1,7 +1,7 @@
 import * as data from "config.json";
 import ExpenseCategory from "types/ExpenseCategory";
 import Expense from "types/Expense";
-import MonthStatistics from "types/MonthStatistics";
+import ExpenseCategorySummary from "types/ExpenseCategorySummary";
 
 const _ = require("lodash");
 const axios = require("axios");
@@ -42,7 +42,7 @@ export const filterExpenses: Function = async (expenseName: string): Promise<any
     );
 };
 
-export const retrieveMonthStatistics : Function = async (startingMonth : string, numberOfMonths : number) : Promise<Array<MonthStatistics>> => {
+export const retrieveMonthStatistics : Function = async (startingMonth : string, numberOfMonths : number) : Promise<Array<ExpenseCategorySummary>> => {
     let response : any = await axios.get(`${ backendUrl }/statistics/${ startingMonth }/${ numberOfMonths }`);
 
     return _.chain(response.data)
@@ -60,7 +60,7 @@ export const retrieveMonthStatistics : Function = async (startingMonth : string,
             { category: null, months: [] }
         )
     })
-    .map(MonthStatistics.prototype.fromAsset)
+    .map(ExpenseCategorySummary.prototype.fromAsset)
     .value()
 };
 

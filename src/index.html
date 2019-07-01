@@ -23,6 +23,7 @@
                 <transition name="slide-fade" mode="out-in">
                     <expense-category-table-view
                         v-if="activeView === 'months'"
+                        :categories="categories"
                         :expenses="expenses"
                         :month-names="monthNames"
                         :on-month-clicked="onCategoryMonthSelected"

@@ -1,7 +1,7 @@
 import Expense from "types/Expense";
-import MonthStatistics from "types/MonthStatistics";
+import ExpenseCategory from "types/ExpenseCategory";
+import ExpenseCategorySummary from "types/ExpenseCategorySummary";
 import MonthTotal from "types/MonthTotal";
-import { StatisticsTableData } from "./../StatisticsTable";
 import DataTableForCategories from "./DataTableForCategories";
 
 const addExpenseToTotal = (expense : Expense, total : MonthTotal) : MonthTotal => {
@@ -12,11 +12,14 @@ const addExpenseToTotal = (expense : Expense, total : MonthTotal) : MonthTotal =
     return new MonthTotal(total.getMonth(), total.getTotal() + expense.getCost());
 };
 
-const convertExpensesToStatistics = (expenses : Array<Expense>) : Array<MonthStatistics> => {
+const convertExpensesToStatistics = (
+    expenses : Array<Expense>,
+    categories : Array<ExpenseCategory>
+) : Array<ExpenseCategorySummary> => {
     const categoryMap = expenses.reduce(
         (accumulator : any, expense : Expense) => {
             const categoryId = expense.getCategory().getId();
-            const statistics = accumulator[categoryId] || new MonthStatistics(expense.getCategory(), []);
+            const statistics = accumulator[categoryId] || new ExpenseCategorySummary(expense.getCategory(), []);
             const monthTotal = statistics.getMonths().find((total : MonthTotal) => {
                 return total.getMonth() === expense.getMonth();
             });
@@ -25,7 +28,7 @@ const convertExpensesToStatistics = (expenses : Array<Expense>) : Array<MonthSta
 
             const totals = statistics.getMonths();
             const newTotals = [...totals.slice(0, totals.indexOf(monthTotal)), newTotal, ...totals.slice(totals.indexOf(monthTotal) + 1)];
-            const newStatistics = new MonthStatistics(statistics.getCategory(), newTotals);
+            const newStatistics = new ExpenseCategorySummary(statistics.getCategory(), newTotals);
 
             return { ...accumulator, [categoryId]: newStatistics };
         },
@@ -33,7 +36,7 @@ const convertExpensesToStatistics = (expenses : Array<Expense>) : Array<MonthSta
     );
 
     return Object.keys(categoryMap)
-        .reduce((accumulator : Array<MonthStatistics>, categoryId : string) => {
+        .reduce((accumulator : Array<ExpenseCategorySummary>, categoryId : string) => {
                 return [...accumulator, categoryMap[categoryId]];
             },
             []
@@ -47,16 +50,17 @@ export default {
     },
     computed: {
         gridRows() {
-            return convertExpensesToStatistics(this.expenses);
-        },
-        tableData() {
-            return new StatisticsTableData(this.monthNames, this.gridRows, this.onMonthClicked);
+            return convertExpensesToStatistics(this.expenses, this.categories);
         }
     },
-    props: ["monthNames", "expenses", "onMonthClicked"],
+    props: {
+        categories: Array,
+        expenses: Array,
+        monthNames: Array,
+        onMonthClicked: Function
+    },
     template: `
         <data-grid
-            :data="tableData"
             :months="monthNames"
             :onCellEdited="onMonthClicked"
             :rows="gridRows"

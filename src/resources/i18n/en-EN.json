@@ -23,7 +23,7 @@
         "resultTitle": "Expenses found for \"{FILTER_TEXT}\" phrase",
         "submitButton": "Filter Expenses"
     },
-    "statisticsTable": {
+    "categorySummaries": {
         "categoryLabel": "Category Name",
         "totalLabel": "Total"
     },

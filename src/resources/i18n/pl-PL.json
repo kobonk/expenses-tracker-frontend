@@ -23,7 +23,7 @@
         "resultTitle": "Znalezione wydatki dla hasła \"{FILTER_TEXT}\"",
         "submitButton": "Filtruj"
     },
-    "statisticsTable": {
+    "categorySummaries": {
         "categoryLabel": "Nazwa Kategorii",
         "totalLabel": "Suma"
     },

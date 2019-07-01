@@ -1,6 +1,6 @@
 import i18n from 'utils/i18n';
 import ExpenseCategory from "types/ExpenseCategory";
-import MonthStatistics from "types/MonthStatistics";
+import ExpenseCategorySummary from "types/ExpenseCategorySummary";
 import MonthTotal from "types/MonthTotal";
 import { extractMonthName, formatNumber } from "utils/stringUtils";
 import { DataTableData, DataTableRecord, DataTableRecordCollection } from "./../types/DataTableTypes";
@@ -26,7 +26,7 @@ class StatisticsTableData implements DataTableData {
     private body: Array<DataTableRecordCollection>;
     private footer: Array<DataTableRecordCollection>;
 
-    constructor(months: Array<string>, statistics: Array<MonthStatistics>, onTableCellClicked: Function) {
+    constructor(months: Array<string>, statistics: Array<ExpenseCategorySummary>, onTableCellClicked: Function) {
         this.months = months;
         this.header = this.createHeader();
         this.body = this.createBody(statistics, onTableCellClicked);
@@ -85,7 +85,7 @@ class StatisticsTableData implements DataTableData {
         })
         .value();
 
-        const categoryLabel = i18n.statisticsTable.categoryLabel;
+        const categoryLabel = i18n.categorySummaries.categoryLabel;
 
         const categoryRecord = new StatisticsHeaderRecord(
             "category",
@@ -96,8 +96,8 @@ class StatisticsTableData implements DataTableData {
         return [new StatisticsRecordCollection("header", [categoryRecord, ...records])];
     }
 
-    private createBody(statistics: Array<MonthStatistics>, onTableCellClicked: Function): Array<DataTableRecordCollection> {
-        return _.map(statistics, (stat: MonthStatistics) => {
+    private createBody(statistics: Array<ExpenseCategorySummary>, onTableCellClicked: Function): Array<DataTableRecordCollection> {
+        return _.map(statistics, (stat: ExpenseCategorySummary) => {
             const category: ExpenseCategory = stat.getCategory();
             const categoryId: string = category.getId();
             const categoryRecord: StatisticsCategoryRecord = new StatisticsCategoryRecord("category", category.getName());
@@ -120,12 +120,12 @@ class StatisticsTableData implements DataTableData {
         });
     }
 
-    private createFooter(statistics: Array<MonthStatistics>): Array<DataTableRecordCollection> {
+    private createFooter(statistics: Array<ExpenseCategorySummary>): Array<DataTableRecordCollection> {
         let initialTotals: Array<number> = _.map(this.months, _.constant(0));
 
         const records = _.chain(statistics)
         .reduce(
-            (result: Array<number>, row: MonthStatistics) => {
+            (result: Array<number>, row: ExpenseCategorySummary) => {
                 let monthTotalsMap = _.keyBy(row.getMonths(), _.method("getMonth"));
 
                 return _.map(this.months, (month: string, index: number) => {
@@ -140,7 +140,7 @@ class StatisticsTableData implements DataTableData {
         .map((total: number) => new StatisticsFooterRecord(formatNumber(total)))
         .value();
 
-        return [new StatisticsRecordCollection("footer", [new StatisticsFooterRecord(i18n.statisticsTable.totalLabel), ...records])];
+        return [new StatisticsRecordCollection("footer", [new StatisticsFooterRecord(i18n.categorySummaries.totalLabel), ...records])];
     }
 }
 

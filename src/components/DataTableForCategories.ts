@@ -4,7 +4,7 @@ import { extractMonthName, formatNumber } from "utils/stringUtils";
 import Cell from "./DataTableCell";
 import DataTable from "./DataTable";
 import PlainTable from "./PlainTable";
-import MonthStatistics from "./../types/MonthStatistics";
+import ExpenseCategorySummary from "./../types/ExpenseCategorySummary";
 import MonthTotal from "./../types/MonthTotal";
 import { DataTableRecord, DataTableRecordCollection, DataTableCell } from "./../types/DataTableTypes";
 import { StatisticsTableData } from "./../StatisticsTable";
@@ -54,13 +54,13 @@ export default {
                 });
         },
         tableVisible() : boolean {
-            return this.data || this.data.getBody().length > 0;
+            return this.rows || this.rows.length > 0;
         },
         tableNodes() : NodeList {
             return this.$el.querySelectorAll("tbody");
         },
         tables() : Array<any> {
-            const monthRows = this.rows.map((row : MonthStatistics) => {
+            const monthRows = this.rows.map((row : ExpenseCategorySummary) => {
                 return this.months.map((month : string) => {
                     const total : MonthTotal = row.getMonths()
                         .find((rowMonth : MonthTotal) => rowMonth.getMonth() === month);
@@ -83,7 +83,7 @@ export default {
             })
             .map((total : number) => formatNumber(total, 2));
 
-            const categoryTotals = this.rows.map((row : MonthStatistics) => {
+            const categoryTotals = this.rows.map((row : ExpenseCategorySummary) => {
                 const total = row.getMonths().reduce((sum : number, total : MonthTotal) => sum + total.getTotal(), 0);
 
                 return [total / this.months.length, total];
@@ -97,13 +97,13 @@ export default {
                         width: "220px"
                     },
                     header: [
-                        i18n.statisticsTable.categoryLabel
+                        i18n.categorySummaries.categoryLabel
                     ],
-                    body: this.rows.map((row : MonthStatistics) => {
+                    body: this.rows.map((row : ExpenseCategorySummary) => {
                         return [row.getCategoryName()];
                     }),
                     footer: [
-                        i18n.statisticsTable.totalLabel
+                        i18n.categorySummaries.totalLabel
                     ]
                 },
                 {
@@ -146,7 +146,7 @@ export default {
     data() {
         return {
             editedCell: null as DataTableCell,
-            sortedRows: [] as Array<MonthStatistics>,
+            sortedRows: [] as Array<ExpenseCategorySummary>,
             sortingKey: "category",
             sortingDirection: "asc"
         }
@@ -206,7 +206,7 @@ export default {
 
             this.sortingKey = key;
 
-            const sorted = [...this.rows].sort((rowA : MonthStatistics, rowB : MonthStatistics) : number => {
+            const sorted = [...this.rows].sort((rowA : ExpenseCategorySummary, rowB : ExpenseCategorySummary) : number => {
                 if (this.sortingKey === "category") {
                     const keys = [rowA.getCategoryName(), rowB.getCategoryName()];
 
@@ -236,7 +236,17 @@ export default {
         this.$el.removeEventListener("wheel", this.handleVerticalScroll);
         this.horizontalScrollController.removeEventListener("scroll", this.handleHorizontalScroll);
     },
-    props: ["data", "onCellEdited", "months", "rows"],
+    props: {
+        months: {
+            type: Array,
+            required: true
+        },
+        onCellEdited: Function,
+        rows: {
+            type: Array,
+            required: true
+        }
+    },
     template: `
         <div
             class="compound-table"
@@ -285,10 +295,5 @@ export default {
                 />
             </div>
         </div>
-    `,
-    watch: {
-        data(data : any) {
-            console.log('data changed!');
-        }
-    }
+    `
 };

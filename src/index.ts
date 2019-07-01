@@ -1,10 +1,11 @@
 import Vue from "vue";
 import "./styles.sass";
-import { retrieveExpenses, retrieveMonths, updateExpense } from "utils/restClient";
+import { retrieveCategories, retrieveExpenses, retrieveMonths, updateExpense } from "utils/restClient";
 import { extractMonthName } from "utils/stringUtils";
 import i18n from "utils/i18n";
 import DataTable from "./components/DataTable";
 import Expense from "types/Expense";
+import ExpenseCategory from "types/ExpenseCategory";
 import FilteredExpenses from "./components/FilteredExpenses";
 import ViewTitle from "./components/ViewTitle";
 
@@ -47,17 +48,32 @@ const vm = new Vue({
                 default:
                     return "";
             }
+        },
+        selectedMonths() : Array<string> {
+            let monthCount = 0;
+
+            return this.availableMonths
+                .reverse()
+                .filter((month : string) => {
+                    if (month === this.startingMonth || (monthCount >= 1 && monthCount < this.numberOfVisibleMonths)) {
+                        monthCount += 1;
+                        return true;
+                    }
+
+                    return false;
+                });
         }
     },
     data: {
         activeView: "months",
         availableMonths: [],
+        categories: [],
         currentCategory: null,
         currentMonth: null,
         expenses: [],
         filteredExpensesMap: null,
         filterText: "",
-        numberOfVisibleMonths: 6,
+        numberOfVisibleMonths: 7,
         startingMonth: moment().format("YYYY-MM")
     },
     el: "#expenses-tracker",
@@ -80,13 +96,17 @@ const vm = new Vue({
         refreshMainView() {
             retrieveMonths()
                 .then((months : Array<string>) => {
-                    this.availableMonths = months;
+                    this.availableMonths = months.includes(this.startingMonth) ? months : [...months, this.startingMonth];
+
+                    return retrieveCategories();
                 })
-                .then(() => {
-                    retrieveExpenses(this.startingMonth, this.numberOfVisibleMonths)
-                    .then((expenses : Array<Expense>) => {
-                        vm.expenses = expenses;
-                    });
+                .then((categories : Array<ExpenseCategory>) => {
+                    this.categories = categories;
+
+                    return retrieveExpenses(this.startingMonth, this.numberOfVisibleMonths)
+                })
+                .then((expenses : Array<Expense>) => {
+                    this.expenses = expenses;
                 });
         },
         showMonthsView() {

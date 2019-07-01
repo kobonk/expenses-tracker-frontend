@@ -2,9 +2,7 @@ import Deserializable from './Deserializable';
 import ExpenseCategory from './ExpenseCategory';
 import MonthTotal from "./MonthTotal";
 
-const _ = require("lodash");
-
-class MonthStatistics implements Deserializable {
+export default class ExpenseCategorySummary implements Deserializable {
     private category: ExpenseCategory;
     private months: Array<MonthTotal>
 
@@ -25,12 +23,10 @@ class MonthStatistics implements Deserializable {
         return this.months;
     }
 
-    public fromAsset(asset: any): MonthStatistics {
-        return new MonthStatistics(
+    public fromAsset(asset: any): ExpenseCategorySummary {
+        return new ExpenseCategorySummary(
             ExpenseCategory.prototype.fromAsset(asset.category),
-            _.map(asset.months, MonthTotal.prototype.fromAsset)
+            asset.months.map(MonthTotal.prototype.fromAsset)
         );
     }
-}
-
-export default MonthStatistics
+};
