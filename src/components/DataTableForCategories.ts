@@ -5,6 +5,7 @@ import Cell from "./DataTableCell";
 import DataTable from "./DataTable";
 import PlainTable from "./PlainTable";
 import ExpenseCategorySummary from "./../types/ExpenseCategorySummary";
+import ExpenseCategoryTableGrid from 'types/ExpenseCategoryTableGrid';
 import MonthTotal from "./../types/MonthTotal";
 import { DataTableRecord, DataTableRecordCollection, DataTableCell } from "./../types/DataTableTypes";
 import { StatisticsTableData } from "./../StatisticsTable";
@@ -103,9 +104,10 @@ export default {
                     header: [
                         i18n.categorySummaries.categoryLabel
                     ],
-                    body: this.rows.map((row : ExpenseCategorySummary) => {
-                        return [row.getCategoryName()];
-                    }),
+                    // body: this.rows.map((row : ExpenseCategorySummary) => {
+                    //     return [row.getCategoryName()];
+                    // }),
+                    body: this.grid.getColumn(0).map((cell : DataTableRecord) => [cell]),
                     footer: [
                         i18n.categorySummaries.totalLabel
                     ]
@@ -115,7 +117,8 @@ export default {
                     class: "data-table scroll-disabled align-right",
                     style: {},
                     header: this.months.map(extractMonthName),
-                    body: monthRows,
+                    // body: monthRows,
+                    body: this.grid.getRows().map((row : Array<DataTableRecord>) => row.slice(1)),
                     footer: monthTotals
                 },
                 {
@@ -241,6 +244,10 @@ export default {
         this.horizontalScrollController.removeEventListener("scroll", this.handleHorizontalScroll);
     },
     props: {
+        grid: {
+            type: ExpenseCategoryTableGrid,
+            required: true
+        },
         months: {
             type: Array,
             required: true
@@ -261,7 +268,7 @@ export default {
                     :class="tables[0].class"
                     :style="tables[0].style"
                     :header="tables[0].header"
-                    :body="tables[0].body"
+                    :body-cells="tables[0].body"
                     :footer="tables[0].footer"
                 />
                 <div class="scroll-horizontal">
@@ -269,7 +276,7 @@ export default {
                         :class="tables[1].class"
                         :style="tables[1].style"
                         :header="tables[1].header"
-                        :body="tables[1].body"
+                        :body-cells="tables[1].body"
                         :footer="tables[1].footer"
                     />
                 </div>

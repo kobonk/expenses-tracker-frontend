@@ -1,34 +1,91 @@
-import i18n from 'utils/i18n';
-import Expense from "types/Expense";
 import ExpenseCategory from "types/ExpenseCategory";
 import ExpenseCategorySummary from "types/ExpenseCategorySummary";
 import MonthTotal from "types/MonthTotal";
-import { extractMonthName, formatNumber } from "utils/stringUtils";
-import { DataTableData, DataTableRecord, DataTableRecordCollection } from "./../types/DataTableTypes";
+import { DataTableRecord } from "./../types/DataTableTypes";
 
-const _ = require("lodash");
-const moment = require("moment");
+class GridCell implements DataTableRecord {
+    private category : ExpenseCategory
+    private cellClickCallback : Function | null
+    private monthTotal : MonthTotal | null
+
+    constructor(category : ExpenseCategory, monthTotal : MonthTotal, cellClickCallback : Function) {
+        this.category = category;
+        this.monthTotal = monthTotal;
+        this.cellClickCallback = cellClickCallback;
+    }
+
+    public getName(): string {
+        return `${ this.category.getId() }${ this.monthTotal ? "|" : "" }${ this.monthTotal ? this.monthTotal.getMonth() : "" }`;
+    }
+
+    public getType() : string {
+        return "text";
+    }
+
+    public getValue() : string {
+        return this.monthTotal ? this.monthTotal.getFormattedTotal() : this.category.getName();
+    }
+
+    public isClickable(): boolean {
+        return this.monthTotal && this.monthTotal.getTotal() > 0;
+    }
+
+    public isEditable(): boolean {
+        return false;
+    }
+
+    public onClick(): void {
+        if (!this.isClickable()) {
+            return;
+        }
+
+        this.cellClickCallback({ category: this.category, month: this.monthTotal.getMonth() });
+    }
+
+    public toString(): string {
+        return this.getName();
+    }
+
+}
 
 export default class ExpenseCategoryTableGrid {
-    private months : Array<string>;
-    private categories : Array<ExpenseCategory>;
-    private expenses: Array<Expense>;
-    private onTableCellClicked : Function;
-    private grid : Array<Array<any>>
+    private grid : Array<Array<GridCell>>
 
-    constructor(
-        months : Array<string>,
-        categories : Array<ExpenseCategory>,
-        expenses: Array<Expense>,
-        onTableCellClicked : Function
-    ) {
-        this.months = months;
-        this.categories = categories;
-        this.expenses = expenses;
-        this.onTableCellClicked = onTableCellClicked;
+    constructor(summaries : Array<ExpenseCategorySummary>, cellClickCallback : Function) {
+        this.grid = summaries
+            .reduce(
+                (grid : Array<Array<GridCell>>, summary : ExpenseCategorySummary) : Array<Array<GridCell>> => {
+                    const gridRow = [
+                        new GridCell(summary.getCategory(), null, null),
+                        ...summary.getMonths().map((monthTotal : MonthTotal) => {
+                            return new GridCell(summary.getCategory(), monthTotal, cellClickCallback);
+                        })
+                    ];
+
+                    return [...grid, gridRow];
+                },
+                []
+            );
     }
 
-    getColumn(index : number) {
-
+    getCell(rowIndex : number, columnIndex : number) : GridCell {
+        return this.getColumn(columnIndex)[rowIndex];
     }
+
+    getColumn(index : number) : Array<GridCell> {
+        return this.grid
+            .reduce(
+                (result : Array<GridCell>, row : Array<GridCell>) : Array<GridCell> => [...result, row[index]],
+                []
+            );
+    }
+
+    getRow(index : number) : Array<GridCell> {
+        return this.grid[index];
+    }
+
+    getRows() : Array<Array<GridCell>> {
+        return this.grid;
+    }
+
 };

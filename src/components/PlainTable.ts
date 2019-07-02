@@ -1,5 +1,21 @@
+import Cell from "./DataTableCell";
+
 export default {
-    props: ["header", "body", "footer"],
+    components: {
+        "table-cell": Cell
+    },
+    props: {
+        header: {
+            type: Array,
+            required: true
+        },
+        body: Array,
+        bodyCells: Array,
+        footer: {
+            type: Array,
+            required: true
+        }
+    },
     template: `
         <table>
             <thead>
@@ -12,7 +28,20 @@ export default {
                     </th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody v-if="bodyCells">
+                <tr
+                    v-for="bodyRow, i in bodyCells"
+                    v-bind:key="i"
+                >
+                    <td
+                        v-for="bodyCell, j in bodyRow"
+                        v-bind:key="j"
+                    >
+                        <table-cell :data="bodyCell" />
+                    </td>
+                </tr>
+            </tbody>
+            <tbody v-else>
                 <tr
                     v-for="bodyRow, i in body"
                     v-bind:key="i"

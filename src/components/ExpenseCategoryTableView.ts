@@ -1,6 +1,7 @@
 import Expense from "types/Expense";
 import ExpenseCategory from "types/ExpenseCategory";
 import ExpenseCategorySummary from "types/ExpenseCategorySummary";
+import ExpenseCategoryTableGrid from "types/ExpenseCategoryTableGrid";
 import MonthTotal from "types/MonthTotal";
 import DataTableForCategories from "./DataTableForCategories";
 
@@ -18,7 +19,7 @@ const createEmptySummary = (category : ExpenseCategory, months : Array<string>) 
     return new ExpenseCategorySummary(category, monthTotals);
 };
 
-const convertExpensesToStatistics = (
+const convertExpensesToSummaries = (
     expenses : Array<Expense>,
     months : Array<string>,
     categories : Array<ExpenseCategory>
@@ -56,7 +57,10 @@ export default {
     },
     computed: {
         gridRows() {
-            return convertExpensesToStatistics(this.expenses, this.months, this.categories);
+            return convertExpensesToSummaries(this.expenses, this.months, this.categories);
+        },
+        grid() {
+            return new ExpenseCategoryTableGrid(convertExpensesToSummaries(this.expenses, this.months, this.categories), this.onMonthClicked);
         }
     },
     props: {
@@ -67,6 +71,7 @@ export default {
     },
     template: `
         <data-grid
+            :grid="grid"
             :months="months"
             :onCellEdited="onMonthClicked"
             :rows="gridRows"
