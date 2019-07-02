@@ -5,10 +5,8 @@ export default {
         "table-cell": Cell
     },
     props: {
-        header: {
-            type: Array,
-            required: true
-        },
+        header: Array,
+        headerCells: Array,
         body: Array,
         bodyCells: Array,
         footer: {
@@ -18,7 +16,17 @@ export default {
     },
     template: `
         <table>
-            <thead>
+            <thead v-if="headerCells">
+                <tr>
+                    <th
+                        v-for="headerCell, a in headerCells"
+                        v-bind:key="a"
+                    >
+                        <table-cell :data="headerCell" />
+                    </th>
+                </tr>
+            </thead>
+            <thead v-else>
                 <tr>
                     <th
                         v-for="headerCell, a in header"

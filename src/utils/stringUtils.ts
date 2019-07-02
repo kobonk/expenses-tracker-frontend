@@ -3,7 +3,7 @@ import { utc } from "moment";
 
 const _ = require("lodash");
 
-const convertDateToString: Function = (date: Date): string => {
+export const convertDateToString: Function = (date: Date): string => {
     let dateParts: Array<string> = [
         date.getFullYear() + "",
         date.getMonth() + 1 + "",
@@ -13,13 +13,13 @@ const convertDateToString: Function = (date: Date): string => {
     return dateParts.map((part) => part.length < 2 ? "0" + part : part).join("-");
 };
 
-const extractMonthName: Function = (date: string): string => {
+export const extractMonthName: Function = (date: string): string => {
     let [year, month] = date.split("-");
 
     return `${ i18n.monthNames[parseInt(month) - 1] } ${ year }`;
 };
 
-const formatNumber: Function = (numericValue: number, decimalPlaces: number = 2): string => {
+export const formatNumber: Function = (numericValue: number, decimalPlaces: number = 2): string => {
     let fixed = numericValue.toFixed(decimalPlaces);
     let integerPart = _.first(fixed.match(/^\d*/));
     let decimalPart = _.first(fixed.match(/\D.*$/));
@@ -29,13 +29,15 @@ const formatNumber: Function = (numericValue: number, decimalPlaces: number = 2)
     return _.join(numericChunks, " ") + decimalPart;
 };
 
-const getDaysOfMonth: Function = (month: String): Array<String> => {
+export const getDaysOfMonth: Function = (month: String): Array<String> => {
     let firstDay = utc(`${ month }-01`);
     let daysInMonth = firstDay.daysInMonth();
 
     return _.map(Array.from(Array(daysInMonth).keys()), (day: number) => {
         return firstDay.clone().add(day, "d").format("YYYY-MM-DD");
     });
-}
+};
 
-export { convertDateToString, extractMonthName, formatNumber, getDaysOfMonth };
+export const stringToFloat : Function = (numberAsString : string) : number => {
+    return parseFloat(numberAsString.replace(/\s/g, ""));
+};

@@ -1,6 +1,6 @@
 import i18n from 'utils/i18n';
 import "./DataTableForCategoriesStyles.sass";
-import { extractMonthName, formatNumber } from "utils/stringUtils";
+import { extractMonthName, formatNumber, stringToFloat } from "utils/stringUtils";
 import Cell from "./DataTableCell";
 import DataTable from "./DataTable";
 import PlainTable from "./PlainTable";
@@ -8,7 +8,6 @@ import ExpenseCategorySummary from "./../types/ExpenseCategorySummary";
 import ExpenseCategoryTableGrid from 'types/ExpenseCategoryTableGrid';
 import MonthTotal from "./../types/MonthTotal";
 import { DataTableRecord, DataTableRecordCollection, DataTableCell } from "./../types/DataTableTypes";
-import { StatisticsTableData } from "./../StatisticsTable";
 
 const getFirstTbodyParent = (element : HTMLElement) : HTMLElement => {
     if (!element) {
@@ -31,6 +30,77 @@ const getFirstTbodyParent = (element : HTMLElement) : HTMLElement => {
 
     return parent;
 };
+
+const getFormattedColumnTotals = (grid : ExpenseCategoryTableGrid, months : Array<string>) : Array<string> => {
+    return months
+        .map((month : string, index : number) => {
+            if (!grid) {
+                return 0;
+            }
+
+            return grid.getColumn(index + 1).reduce(
+                (sum : number, cell : DataTableRecord) => sum + stringToFloat(cell.getValue() as string),
+                0
+            )
+        })
+        .map((total : number) => formatNumber(total, 2));
+};
+
+const getFormattedRowTotals = (grid : ExpenseCategoryTableGrid, months : Array<string>) : Array<Array<number>> => {
+    if (!grid) {
+        return [[0, 0]];
+    }
+
+    return grid.getRows()
+        .map((row : Array<DataTableRecord>) => row.slice(1))
+        .map((row : Array<DataTableRecord>) => {
+            const total = row
+                .reduce(
+                    (sum : number, cell : DataTableRecord) : number => sum + stringToFloat(cell.getValue()),
+                    0
+                );
+
+            return [total / months.length, total];
+        });
+};
+
+class GridHeaderCell implements DataTableRecord {
+    private label : string
+    private cellClickCallback : Function | null
+
+    constructor(label : string, cellClickCallback : Function) {
+        this.label = label;
+        this.cellClickCallback = cellClickCallback;
+    }
+
+    public getName(): string {
+        return this.label;
+    }
+
+    public getType() : string {
+        return "text";
+    }
+
+    public getValue() : string {
+        return this.label;
+    }
+
+    public isClickable(): boolean {
+        return true;
+    }
+
+    public isEditable(): boolean {
+        return false;
+    }
+
+    public onClick(): void {
+        this.cellClickCallback();
+    }
+
+    public toString(): string {
+        return this.getName();
+    }
+}
 
 export default {
     components: {
@@ -55,44 +125,13 @@ export default {
                 });
         },
         tableVisible() : boolean {
-            return this.rows || this.rows.length > 0;
+            return this.grid || this.grid.length > 0;
         },
         tableNodes() : NodeList {
             return this.$el.querySelectorAll("tbody");
         },
         tables() : Array<any> {
-            const monthRows = this.rows.map((row : ExpenseCategorySummary) => {
-                return this.months.map((month : string) => {
-                    const total : MonthTotal = row.getMonths()
-                        .find((rowMonth : MonthTotal) => rowMonth.getMonth() === month);
-
-                    if (!total) {
-                        return formatNumber(0, 2);
-                    }
-
-                    return total.getFormattedTotal();
-                });
-            });
-
-            const monthTotals = this.months.map((month : string, i : number) => {
-                return monthRows.reduce(
-                    (sum : number, row : Array<string>) => {
-                        return sum += parseFloat(row[i].replace(/\s/g, ""));
-                    },
-                    0
-                );
-            })
-            .map((total : number) => formatNumber(total, 2));
-
-            const categoryTotals = this.rows.map((row : ExpenseCategorySummary) => {
-                const total = row.getMonths()
-                    .reduce(
-                        (sum : number, total : MonthTotal) => sum + total.getTotal(),
-                        0
-                    );
-
-                return [total / this.months.length, total];
-            });
+            const categoryTotals = getFormattedRowTotals(this.sortedGrid, this.months);
 
             return [
                 {
@@ -102,12 +141,9 @@ export default {
                         width: "220px"
                     },
                     header: [
-                        i18n.categorySummaries.categoryLabel
+                        new GridHeaderCell(i18n.categorySummaries.categoryLabel, () => this.sort(0))
                     ],
-                    // body: this.rows.map((row : ExpenseCategorySummary) => {
-                    //     return [row.getCategoryName()];
-                    // }),
-                    body: this.grid.getColumn(0).map((cell : DataTableRecord) => [cell]),
+                    body: !this.sortedGrid ? [] : this.sortedGrid.getColumn(0).map((cell : DataTableRecord) => [cell]),
                     footer: [
                         i18n.categorySummaries.totalLabel
                     ]
@@ -117,9 +153,8 @@ export default {
                     class: "data-table scroll-disabled align-right",
                     style: {},
                     header: this.months.map(extractMonthName),
-                    // body: monthRows,
-                    body: this.grid.getRows().map((row : Array<DataTableRecord>) => row.slice(1)),
-                    footer: monthTotals
+                    body: !this.sortedGrid ? [] : this.sortedGrid.getRows().map((row : Array<DataTableRecord>) => row.slice(1)),
+                    footer: getFormattedColumnTotals(this.sortedGrid, this.months)
                 },
                 {
                     id: "summary",
@@ -153,8 +188,8 @@ export default {
     data() {
         return {
             editedCell: null as DataTableCell,
-            sortedRows: [] as Array<ExpenseCategorySummary>,
-            sortingKey: "category",
+            sortedGrid: null as ExpenseCategoryTableGrid,
+            sortingColumn: 0,
             sortingDirection: "asc"
         }
     },
@@ -206,25 +241,18 @@ export default {
         onHeaderClicked(cell: DataTableRecord) {
             cell.onClick();
         },
-        sort(key : string) {
-            if (key === this.sortingKey) {
+        sort(columnIndex : number, direction : string) {
+            if (columnIndex === this.sortingColumn && !direction) {
                 this.sortingDirection = this.sortingDirection === "asc" ? "desc" : "asc";
             }
 
-            this.sortingKey = key;
+            if (direction) {
+                this.sortingDirection = direction;
+            }
 
-            const sorted = [...this.rows].sort((rowA : ExpenseCategorySummary, rowB : ExpenseCategorySummary) : number => {
-                if (this.sortingKey === "category") {
-                    const keys = [rowA.getCategoryName(), rowB.getCategoryName()];
+            this.sortingColumn = columnIndex;
 
-                    return keys[0] < keys[1] ? -1 : keys[0] > keys[1] ? 1 : 0;
-                }
-            });
-
-            this.sortedRows = this.sortingDirection === "asc" ? sorted : sorted.reverse();
-        },
-        tableData() {
-            return new StatisticsTableData(this.months, this.sortedRows, this.onCellEdited);
+            this.sortedGrid = this.grid.sort(this.sortingColumn, this.sortingDirection);
         }
     },
     mounted() {
@@ -237,6 +265,8 @@ export default {
             this.horizontalScrollTarget,
             { attributes: true, childList: true, subtree: true }
         );
+
+        this.sort(this.sortingColumn, this.sortingDirection);
     },
     beforeDestroy() {
         this.verticalScrollController.removeEventListener("scroll", this.handleVerticalScroll);
@@ -267,7 +297,7 @@ export default {
                 <plain-table
                     :class="tables[0].class"
                     :style="tables[0].style"
-                    :header="tables[0].header"
+                    :header-cells="tables[0].header"
                     :body-cells="tables[0].body"
                     :footer="tables[0].footer"
                 />
@@ -306,5 +336,10 @@ export default {
                 />
             </div>
         </div>
-    `
+    `,
+    watch: {
+        grid(grid : ExpenseCategoryTableGrid) {
+            this.sort(this.sortingColumn, this.sortingDirection);
+        }
+    }
 };

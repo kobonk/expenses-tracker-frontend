@@ -2,6 +2,7 @@ import ExpenseCategory from "types/ExpenseCategory";
 import ExpenseCategorySummary from "types/ExpenseCategorySummary";
 import MonthTotal from "types/MonthTotal";
 import { DataTableRecord } from "./../types/DataTableTypes";
+import { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } from "constants";
 
 class GridCell implements DataTableRecord {
     private category : ExpenseCategory
@@ -49,10 +50,15 @@ class GridCell implements DataTableRecord {
 }
 
 export default class ExpenseCategoryTableGrid {
+    private cellClickCallback : Function
     private grid : Array<Array<GridCell>>
+    private summaries : Array<ExpenseCategorySummary>
 
     constructor(summaries : Array<ExpenseCategorySummary>, cellClickCallback : Function) {
-        this.grid = summaries
+        this.cellClickCallback = cellClickCallback;
+        this.summaries = summaries;
+
+        this.grid = this.summaries
             .reduce(
                 (grid : Array<Array<GridCell>>, summary : ExpenseCategorySummary) : Array<Array<GridCell>> => {
                     const gridRow = [
@@ -88,4 +94,24 @@ export default class ExpenseCategoryTableGrid {
         return this.grid;
     }
 
+    sort(columnIndex : number, direction : string) : ExpenseCategoryTableGrid {
+        console.log("SORT:", columnIndex, direction);
+        if (columnIndex === 0) {
+            const summaries = [...this.summaries].sort((a : ExpenseCategorySummary, b : ExpenseCategorySummary) : number => {
+                if (a.getCategoryName() > b.getCategoryName()) {
+                    return 1;
+                }
+
+                if (a.getCategoryName() < b.getCategoryName()) {
+                    return -1;
+                }
+
+                return 0;
+            });
+
+            return new ExpenseCategoryTableGrid(direction === "desc" ? summaries.reverse() : summaries, this.cellClickCallback);
+        }
+
+        return this;
+    }
 };
