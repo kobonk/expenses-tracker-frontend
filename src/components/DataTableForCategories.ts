@@ -84,7 +84,11 @@ export default {
             .map((total : number) => formatNumber(total, 2));
 
             const categoryTotals = this.rows.map((row : ExpenseCategorySummary) => {
-                const total = row.getMonths().reduce((sum : number, total : MonthTotal) => sum + total.getTotal(), 0);
+                const total = row.getMonths()
+                    .reduce(
+                        (sum : number, total : MonthTotal) => sum + total.getTotal(),
+                        0
+                    );
 
                 return [total / this.months.length, total];
             });

@@ -12,25 +12,31 @@ const addExpenseToTotal = (expense : Expense, total : MonthTotal) : MonthTotal =
     return new MonthTotal(total.getMonth(), total.getTotal() + expense.getCost());
 };
 
+const createEmptySummary = (category : ExpenseCategory, months : Array<string>) => {
+    const monthTotals = months.map((month : string) => new MonthTotal(month, 0));
+
+    return new ExpenseCategorySummary(category, monthTotals);
+};
+
 const convertExpensesToStatistics = (
     expenses : Array<Expense>,
+    months : Array<string>,
     categories : Array<ExpenseCategory>
 ) : Array<ExpenseCategorySummary> => {
     const categoryMap = expenses.reduce(
         (accumulator : any, expense : Expense) => {
             const categoryId = expense.getCategory().getId();
-            const statistics = accumulator[categoryId] || new ExpenseCategorySummary(expense.getCategory(), []);
-            const monthTotal = statistics.getMonths().find((total : MonthTotal) => {
-                return total.getMonth() === expense.getMonth();
-            });
+            const categorySummary = (accumulator[categoryId] || createEmptySummary(expense.getCategory(), months)) as ExpenseCategorySummary;
 
+            const monthTotal = categorySummary.getMonths().find((total : MonthTotal) => total.getMonth() === expense.getMonth()) as MonthTotal;
+            const monthTotalIndex = categorySummary.getMonths().findIndex((total : MonthTotal) => total.getMonth() === expense.getMonth());
+            
             const newTotal = addExpenseToTotal(expense, monthTotal);
+            const totals = categorySummary.getMonths();
+            const newTotals = [...totals.slice(0, monthTotalIndex), newTotal, ...totals.slice(monthTotalIndex + 1)];
+            const newCategorySummary = new ExpenseCategorySummary(categorySummary.getCategory(), newTotals);
 
-            const totals = statistics.getMonths();
-            const newTotals = [...totals.slice(0, totals.indexOf(monthTotal)), newTotal, ...totals.slice(totals.indexOf(monthTotal) + 1)];
-            const newStatistics = new ExpenseCategorySummary(statistics.getCategory(), newTotals);
-
-            return { ...accumulator, [categoryId]: newStatistics };
+            return { ...accumulator, [categoryId]: newCategorySummary };
         },
         {}
     );
@@ -50,18 +56,18 @@ export default {
     },
     computed: {
         gridRows() {
-            return convertExpensesToStatistics(this.expenses, this.categories);
+            return convertExpensesToStatistics(this.expenses, this.months, this.categories);
         }
     },
     props: {
         categories: Array,
         expenses: Array,
-        monthNames: Array,
+        months: Array,
         onMonthClicked: Function
     },
     template: `
         <data-grid
-            :months="monthNames"
+            :months="months"
             :onCellEdited="onMonthClicked"
             :rows="gridRows"
         >
