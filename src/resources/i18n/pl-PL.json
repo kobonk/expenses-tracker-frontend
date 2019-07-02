@@ -24,6 +24,7 @@
         "submitButton": "Filtruj"
     },
     "categorySummaries": {
+        "averageLabel": "Średnia",
         "categoryLabel": "Nazwa Kategorii",
         "totalLabel": "Suma"
     },

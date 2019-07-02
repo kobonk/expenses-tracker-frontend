@@ -124,7 +124,7 @@ export default {
                     style: {
                         width: "260px"
                     },
-                    header: ["Average", "Total"],
+                    header: [i18n.categorySummaries.averageLabel, i18n.categorySummaries.totalLabel],
                     body: categoryTotals
                         .map((row : Array<number>) => {
                             return row.map((total : number) => formatNumber(total, 2));

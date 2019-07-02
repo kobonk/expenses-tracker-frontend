@@ -24,6 +24,7 @@
         "submitButton": "Filter Expenses"
     },
     "categorySummaries": {
+        "averageLabel": "Average",
         "categoryLabel": "Category Name",
         "totalLabel": "Total"
     },
