@@ -5,10 +5,11 @@ import { extractMonthName, formatNumber } from "utils/stringUtils";
 const _ = require("lodash");
 
 class MonthTotal implements Deserializable {
+    public static FAKE_MONTH = "9999-12"
     private month: string;
-    private total: Number;
+    private total: number;
 
-    constructor(month:string, total:Number) {
+    constructor(month : string, total : number) {
         this.checkIfMonthIsValid(month);
         this.checkIfTotalIsValid(total);
 

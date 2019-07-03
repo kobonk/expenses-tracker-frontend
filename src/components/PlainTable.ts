@@ -5,10 +5,14 @@ export default {
         "table-cell": Cell
     },
     props: {
-        header: Array,
-        headerCells: Array,
-        body: Array,
-        bodyCells: Array,
+        header: {
+            type: Array,
+            required: true
+        },
+        body: {
+            type: Array,
+            required: true
+        },
         footer: {
             type: Array,
             required: true
@@ -18,10 +22,10 @@ export default {
     },
     template: `
         <table>
-            <thead v-if="headerCells">
+            <thead>
                 <tr>
                     <th
-                        v-for="headerCell, a in headerCells"
+                        v-for="headerCell, a in header"
                         v-bind:key="a"
                         :class="a === sortedColumn ? 'sorted-' + sortingDirection : null"
                     >
@@ -29,19 +33,9 @@ export default {
                     </th>
                 </tr>
             </thead>
-            <thead v-else>
-                <tr>
-                    <th
-                        v-for="headerCell, a in header"
-                        v-bind:key="a"
-                    >
-                        <span>{{headerCell}}</span>
-                    </th>
-                </tr>
-            </thead>
-            <tbody v-if="bodyCells">
+            <tbody>
                 <tr
-                    v-for="bodyRow, i in bodyCells"
+                    v-for="bodyRow, i in body"
                     v-bind:key="i"
                 >
                     <td
@@ -52,26 +46,13 @@ export default {
                     </td>
                 </tr>
             </tbody>
-            <tbody v-else>
-                <tr
-                    v-for="bodyRow, i in body"
-                    v-bind:key="i"
-                >
-                    <td
-                        v-for="bodyCell, j in bodyRow"
-                        v-bind:key="j"
-                    >
-                        <span>{{bodyCell}}</span>
-                    </td>
-                </tr>
-            </tbody>
             <tfoot>
                 <tr>
                     <th
                         v-for="footerCell, b in footer"
                         v-bind:key="b"
                     >
-                        <span>{{footerCell}}</span>
+                        <table-cell :data="footerCell" />
                     </th>
                 </tr>
             </tfoot>

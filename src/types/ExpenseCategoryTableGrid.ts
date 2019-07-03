@@ -1,51 +1,6 @@
-import ExpenseCategory from "types/ExpenseCategory";
 import ExpenseCategorySummary from "types/ExpenseCategorySummary";
 import MonthTotal from "types/MonthTotal";
-import { DataTableRecord } from "./../types/DataTableTypes";
-
-class GridCell implements DataTableRecord {
-    private category : ExpenseCategory
-    private cellClickCallback : Function | null
-    private monthTotal : MonthTotal | null
-
-    constructor(category : ExpenseCategory, monthTotal : MonthTotal, cellClickCallback : Function) {
-        this.category = category;
-        this.monthTotal = monthTotal;
-        this.cellClickCallback = cellClickCallback;
-    }
-
-    public getName(): string {
-        return `${ this.category.getId() }${ this.monthTotal ? "|" : "" }${ this.monthTotal ? this.monthTotal.getMonth() : "" }`;
-    }
-
-    public getType() : string {
-        return "text";
-    }
-
-    public getValue() : string {
-        return this.monthTotal ? this.monthTotal.getFormattedTotal() : this.category.getName();
-    }
-
-    public isClickable(): boolean {
-        return this.monthTotal && this.monthTotal.getTotal() > 0;
-    }
-
-    public isEditable(): boolean {
-        return false;
-    }
-
-    public onClick(): void {
-        if (!this.isClickable()) {
-            return;
-        }
-
-        this.cellClickCallback({ category: this.category, month: this.monthTotal.getMonth() });
-    }
-
-    public toString(): string {
-        return this.getName();
-    }
-}
+import { CategoryBodyGridCell } from "./ExpenseCategoryTableGridTypes";
 
 const sortSummariesByCategory = (summaries : Array<ExpenseCategorySummary>) : Array<ExpenseCategorySummary> => {
     return [...summaries].sort((a : ExpenseCategorySummary, b : ExpenseCategorySummary) : number => {
@@ -70,9 +25,53 @@ const sortSummariesByMonthColumn = (summaries : Array<ExpenseCategorySummary>, c
     });
 };
 
+const sortSummariesByAverage = (summaries : Array<ExpenseCategorySummary>) : Array<ExpenseCategorySummary> => {
+    return [...summaries].sort((a : ExpenseCategorySummary, b : ExpenseCategorySummary) : number => {
+        if (a.getAverage() > b.getAverage()) {
+            return 1;
+        }
+
+        return a.getAverage() < b.getAverage() ? -1 : 0;
+    });
+};
+
+const sortSummariesByTotal = (summaries : Array<ExpenseCategorySummary>) : Array<ExpenseCategorySummary> => {
+    return [...summaries].sort((a : ExpenseCategorySummary, b : ExpenseCategorySummary) : number => {
+        if (a.getTotal() > b.getTotal()) {
+            return 1;
+        }
+
+        return a.getTotal() < b.getTotal() ? -1 : 0;
+    });
+};
+
+const getRowTotalCell = (summary : ExpenseCategorySummary) : CategoryBodyGridCell => {
+    return new CategoryBodyGridCell(summary.getCategory(), new MonthTotal(MonthTotal.FAKE_MONTH, summary.getTotal()), null);
+};
+
+const getRowAverageCell = (summary : ExpenseCategorySummary) : CategoryBodyGridCell => {
+    return new CategoryBodyGridCell(summary.getCategory(), new MonthTotal(MonthTotal.FAKE_MONTH, summary.getAverage()), null);
+};
+
+const sortSummaries = (summaries : Array<ExpenseCategorySummary>, columnIndex : number) : Array<ExpenseCategorySummary> => {
+    if (columnIndex === 0) {
+        return sortSummariesByCategory(summaries);
+    }
+
+    if (columnIndex === summaries[0].getMonths().length + 1) {
+        return sortSummariesByAverage(summaries);
+    }
+
+    if (columnIndex === summaries[0].getMonths().length + 2) {
+        return sortSummariesByTotal(summaries);
+    }
+
+    return sortSummariesByMonthColumn(summaries, columnIndex - 1);
+};
+
 export default class ExpenseCategoryTableGrid {
     private cellClickCallback : Function
-    private grid : Array<Array<GridCell>>
+    private grid : Array<Array<CategoryBodyGridCell>>
     private summaries : Array<ExpenseCategorySummary>
 
     constructor(summaries : Array<ExpenseCategorySummary>, cellClickCallback : Function) {
@@ -81,12 +80,17 @@ export default class ExpenseCategoryTableGrid {
 
         this.grid = this.summaries
             .reduce(
-                (grid : Array<Array<GridCell>>, summary : ExpenseCategorySummary) : Array<Array<GridCell>> => {
+                (grid : Array<Array<CategoryBodyGridCell>>, summary : ExpenseCategorySummary) : Array<Array<CategoryBodyGridCell>> => {
+                    const totalCell = getRowTotalCell(summary);
+                    const averageCell = getRowAverageCell(summary);
+
                     const gridRow = [
-                        new GridCell(summary.getCategory(), null, null),
+                        new CategoryBodyGridCell(summary.getCategory(), null, null),
                         ...summary.getMonths().map((monthTotal : MonthTotal) => {
-                            return new GridCell(summary.getCategory(), monthTotal, cellClickCallback);
-                        })
+                            return new CategoryBodyGridCell(summary.getCategory(), monthTotal, cellClickCallback);
+                        }),
+                        averageCell,
+                        totalCell
                     ];
 
                     return [...grid, gridRow];
@@ -95,29 +99,36 @@ export default class ExpenseCategoryTableGrid {
             );
     }
 
-    getCell(rowIndex : number, columnIndex : number) : GridCell {
+    getCell(rowIndex : number, columnIndex : number) : CategoryBodyGridCell {
         return this.getColumn(columnIndex)[rowIndex];
     }
 
-    getColumn(index : number) : Array<GridCell> {
+    getColumn(index : number) : Array<CategoryBodyGridCell> {
         return this.grid
             .reduce(
-                (result : Array<GridCell>, row : Array<GridCell>) : Array<GridCell> => [...result, row[index]],
+                (result : Array<CategoryBodyGridCell>, row : Array<CategoryBodyGridCell>) : Array<CategoryBodyGridCell> => [...result, row[index]],
                 []
             );
     }
 
-    getRow(index : number) : Array<GridCell> {
+    getColumnCount() : number {
+        if (!this.summaries || this.summaries.length <= 0) {
+            return 0;
+        }
+
+        return this.summaries[0].getMonths().length + 3; // 1 column for category name, 1 for Average, 1 for Total = 3
+    }
+
+    getRow(index : number) : Array<CategoryBodyGridCell> {
         return this.grid[index];
     }
 
-    getRows() : Array<Array<GridCell>> {
+    getRows() : Array<Array<CategoryBodyGridCell>> {
         return this.grid;
     }
 
     sort(columnIndex : number, direction : string) : ExpenseCategoryTableGrid {
-        const summaries = columnIndex === 0 ? sortSummariesByCategory(this.summaries) : sortSummariesByMonthColumn(this.summaries, columnIndex - 1);
-
+        const summaries = sortSummaries(this.summaries, columnIndex);
 
         return new ExpenseCategoryTableGrid(direction === "desc" ? summaries.reverse() : summaries, this.cellClickCallback);
     }

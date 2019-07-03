@@ -1,12 +1,15 @@
 import i18n from 'utils/i18n';
 import "./DataTableForCategoriesStyles.sass";
-import { extractMonthName, formatNumber, stringToFloat } from "utils/stringUtils";
+import { extractMonthName, stringToFloat } from "utils/stringUtils";
 import Cell from "./DataTableCell";
 import DataTable from "./DataTable";
 import PlainTable from "./PlainTable";
-import ExpenseCategorySummary from "./../types/ExpenseCategorySummary";
 import ExpenseCategoryTableGrid from 'types/ExpenseCategoryTableGrid';
-import MonthTotal from "./../types/MonthTotal";
+import {
+    CategoryHeaderGridCell,
+    CategoryFooterGridCellNumeric,
+    CategoryFooterGridCellText
+} from 'types/ExpenseCategoryTableGridTypes';
 import { DataTableRecord, DataTableRecordCollection, DataTableCell } from "./../types/DataTableTypes";
 
 const getFirstTbodyParent = (element : HTMLElement) : HTMLElement => {
@@ -31,76 +34,26 @@ const getFirstTbodyParent = (element : HTMLElement) : HTMLElement => {
     return parent;
 };
 
-const getFormattedColumnTotals = (grid : ExpenseCategoryTableGrid, months : Array<string>) : Array<string> => {
+const getMonthColumnTotals = (grid : ExpenseCategoryTableGrid, months : Array<string>) : Array<number> => {
     return months
         .map((month : string, index : number) => {
             if (!grid) {
                 return 0;
             }
 
-            return grid.getColumn(index + 1).reduce(
-                (sum : number, cell : DataTableRecord) => sum + stringToFloat(cell.getValue() as string),
-                0
-            )
-        })
-        .map((total : number) => formatNumber(total, 2));
-};
-
-const getFormattedRowTotals = (grid : ExpenseCategoryTableGrid, months : Array<string>) : Array<Array<number>> => {
-    if (!grid) {
-        return [[0, 0]];
-    }
-
-    return grid.getRows()
-        .map((row : Array<DataTableRecord>) => row.slice(1))
-        .map((row : Array<DataTableRecord>) => {
-            const total = row
-                .reduce(
-                    (sum : number, cell : DataTableRecord) : number => sum + stringToFloat(cell.getValue()),
-                    0
-                );
-
-            return [total / months.length, total];
+            return calculateColumnTotal(grid, index + 1);
         });
 };
 
-class GridHeaderCell implements DataTableRecord {
-    private label : string
-    private cellClickCallback : Function | null
-
-    constructor(label : string, cellClickCallback : Function) {
-        this.label = label;
-        this.cellClickCallback = cellClickCallback;
-    }
-
-    public getName(): string {
-        return this.label;
-    }
-
-    public getType() : string {
-        return "text";
-    }
-
-    public getValue() : string {
-        return this.label;
-    }
-
-    public isClickable(): boolean {
-        return true;
-    }
-
-    public isEditable(): boolean {
-        return false;
-    }
-
-    public onClick(): void {
-        this.cellClickCallback();
-    }
-
-    public toString(): string {
-        return this.getName();
-    }
-}
+const calculateColumnTotal = (grid : ExpenseCategoryTableGrid, columnIndex : number) : number => {
+    return grid.getRows()
+        .reduce(
+            (sum : number, row : Array<DataTableRecord>) => {
+                return sum + stringToFloat(row[columnIndex].getValue())
+            },
+            0
+        );
+};
 
 export default {
     components: {
@@ -131,7 +84,8 @@ export default {
             return this.$el.querySelectorAll("tbody");
         },
         tables() : Array<any> {
-            const categoryTotals = getFormattedRowTotals(this.sortedGrid, this.months);
+            const finalTotal = !this.sortedGrid ? 0 : calculateColumnTotal(this.sortedGrid, this.sortedGrid.getColumnCount() - 1);
+            const finalAverage = !this.sortedGrid ? 0 : calculateColumnTotal(this.sortedGrid, this.sortedGrid.getColumnCount() - 2);
 
             return [
                 {
@@ -141,20 +95,20 @@ export default {
                         width: "220px"
                     },
                     header: [
-                        new GridHeaderCell(i18n.categorySummaries.categoryLabel, () => this.sort(0))
+                        new CategoryHeaderGridCell(i18n.categorySummaries.categoryLabel, () => this.sort(0))
                     ],
                     body: !this.sortedGrid ? [] : this.sortedGrid.getColumn(0).map((cell : DataTableRecord) => [cell]),
                     footer: [
-                        i18n.categorySummaries.totalLabel
+                        new CategoryFooterGridCellText(i18n.categorySummaries.totalLabel)
                     ]
                 },
                 {
                     id: "months",
                     class: "data-table scroll-disabled align-right",
                     style: {},
-                    header: this.months.map((month : string, i : number) => new GridHeaderCell(extractMonthName(month), () => this.sort(i + 1))),
-                    body: !this.sortedGrid ? [] : this.sortedGrid.getRows().map((row : Array<DataTableRecord>) => row.slice(1)),
-                    footer: getFormattedColumnTotals(this.sortedGrid, this.months)
+                    header: this.months.map((month : string, i : number) => new CategoryHeaderGridCell(extractMonthName(month), () => this.sort(i + 1))),
+                    body: !this.sortedGrid ? [] : this.sortedGrid.getRows().map((row : Array<DataTableRecord>) => row.slice(1, this.months.length + 1)),
+                    footer: getMonthColumnTotals(this.sortedGrid, this.months).map((total : number) => new CategoryFooterGridCellNumeric(total))
                 },
                 {
                     id: "summary",
@@ -162,19 +116,15 @@ export default {
                     style: {
                         width: "260px"
                     },
-                    header: [i18n.categorySummaries.averageLabel, i18n.categorySummaries.totalLabel],
-                    body: categoryTotals
-                        .map((row : Array<number>) => {
-                            return row.map((total : number) => formatNumber(total, 2));
-                        }),
-                    footer: categoryTotals
-                        .reduce(
-                            (result : Array<number>, row : Array<number>) => {
-                                return result.map((total : number, i : number) => total + row[i]);
-                            },
-                            [0, 0]
-                        )
-                        .map((total : number) => formatNumber(total, 2))
+                    header: [
+                        new CategoryHeaderGridCell(i18n.categorySummaries.averageLabel, () => this.sort(this.sortedGrid.getColumnCount() - 2)),
+                        new CategoryHeaderGridCell(i18n.categorySummaries.totalLabel, () => this.sort(this.sortedGrid.getColumnCount() - 1))
+                    ],
+                    body: !this.sortedGrid ? [] : this.sortedGrid.getRows().map((row : Array<DataTableRecord>) => row.slice(-2)),
+                    footer: [
+                        new CategoryFooterGridCellNumeric(finalAverage),
+                        new CategoryFooterGridCellNumeric(finalTotal)
+                    ]
                 }
             ]
         },
@@ -297,8 +247,8 @@ export default {
                 <plain-table
                     :class="tables[0].class"
                     :style="tables[0].style"
-                    :header-cells="tables[0].header"
-                    :body-cells="tables[0].body"
+                    :header="tables[0].header"
+                    :body="tables[0].body"
                     :footer="tables[0].footer"
                     :sortedColumn="sortedColumn === 0 ? 0 : null"
                     :sortingDirection="sortingDirection"
@@ -307,8 +257,8 @@ export default {
                     <plain-table
                         :class="tables[1].class"
                         :style="tables[1].style"
-                        :header-cells="tables[1].header"
-                        :body-cells="tables[1].body"
+                        :header="tables[1].header"
+                        :body="tables[1].body"
                         :footer="tables[1].footer"
                         :sortedColumn="sortedColumn > 0 ? sortedColumn - 1 : null"
                         :sortingDirection="sortingDirection"
@@ -321,6 +271,8 @@ export default {
                     :header="tables[2].header"
                     :body="tables[2].body"
                     :footer="tables[2].footer"
+                    :sortedColumn="sortedColumn > 0 ? sortedColumn - months.length - 1 : null"
+                    :sortingDirection="sortingDirection"
                 />
             </div>
             <div class="compound-table-row-layout compound-table-horizontal-scroll">
