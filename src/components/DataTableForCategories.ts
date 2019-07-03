@@ -152,7 +152,7 @@ export default {
                     id: "months",
                     class: "data-table scroll-disabled align-right",
                     style: {},
-                    header: this.months.map(extractMonthName),
+                    header: this.months.map((month : string, i : number) => new GridHeaderCell(extractMonthName(month), () => this.sort(i + 1))),
                     body: !this.sortedGrid ? [] : this.sortedGrid.getRows().map((row : Array<DataTableRecord>) => row.slice(1)),
                     footer: getFormattedColumnTotals(this.sortedGrid, this.months)
                 },
@@ -189,7 +189,7 @@ export default {
         return {
             editedCell: null as DataTableCell,
             sortedGrid: null as ExpenseCategoryTableGrid,
-            sortingColumn: 0,
+            sortedColumn: 0,
             sortingDirection: "asc"
         }
     },
@@ -242,7 +242,7 @@ export default {
             cell.onClick();
         },
         sort(columnIndex : number, direction : string) {
-            if (columnIndex === this.sortingColumn && !direction) {
+            if (columnIndex === this.sortedColumn && !direction) {
                 this.sortingDirection = this.sortingDirection === "asc" ? "desc" : "asc";
             }
 
@@ -250,9 +250,9 @@ export default {
                 this.sortingDirection = direction;
             }
 
-            this.sortingColumn = columnIndex;
+            this.sortedColumn = columnIndex;
 
-            this.sortedGrid = this.grid.sort(this.sortingColumn, this.sortingDirection);
+            this.sortedGrid = this.grid.sort(this.sortedColumn, this.sortingDirection);
         }
     },
     mounted() {
@@ -266,7 +266,7 @@ export default {
             { attributes: true, childList: true, subtree: true }
         );
 
-        this.sort(this.sortingColumn, this.sortingDirection);
+        this.sort(this.sortedColumn, this.sortingDirection);
     },
     beforeDestroy() {
         this.verticalScrollController.removeEventListener("scroll", this.handleVerticalScroll);
@@ -300,14 +300,18 @@ export default {
                     :header-cells="tables[0].header"
                     :body-cells="tables[0].body"
                     :footer="tables[0].footer"
+                    :sortedColumn="sortedColumn === 0 ? 0 : null"
+                    :sortingDirection="sortingDirection"
                 />
                 <div class="scroll-horizontal">
                     <plain-table
                         :class="tables[1].class"
                         :style="tables[1].style"
-                        :header="tables[1].header"
+                        :header-cells="tables[1].header"
                         :body-cells="tables[1].body"
                         :footer="tables[1].footer"
+                        :sortedColumn="sortedColumn > 0 ? sortedColumn - 1 : null"
+                        :sortingDirection="sortingDirection"
                     />
                 </div>
                 <plain-table
@@ -339,7 +343,7 @@ export default {
     `,
     watch: {
         grid(grid : ExpenseCategoryTableGrid) {
-            this.sort(this.sortingColumn, this.sortingDirection);
+            this.sort(this.sortedColumn, this.sortingDirection);
         }
     }
 };

@@ -12,7 +12,9 @@ export default {
         footer: {
             type: Array,
             required: true
-        }
+        },
+        sortedColumn: Number,
+        sortingDirection: String
     },
     template: `
         <table>
@@ -21,6 +23,7 @@ export default {
                     <th
                         v-for="headerCell, a in headerCells"
                         v-bind:key="a"
+                        :class="a === sortedColumn ? 'sorted-' + sortingDirection : null"
                     >
                         <table-cell :data="headerCell" />
                     </th>

@@ -2,7 +2,6 @@ import ExpenseCategory from "types/ExpenseCategory";
 import ExpenseCategorySummary from "types/ExpenseCategorySummary";
 import MonthTotal from "types/MonthTotal";
 import { DataTableRecord } from "./../types/DataTableTypes";
-import { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } from "constants";
 
 class GridCell implements DataTableRecord {
     private category : ExpenseCategory
@@ -46,8 +45,30 @@ class GridCell implements DataTableRecord {
     public toString(): string {
         return this.getName();
     }
-
 }
+
+const sortSummariesByCategory = (summaries : Array<ExpenseCategorySummary>) : Array<ExpenseCategorySummary> => {
+    return [...summaries].sort((a : ExpenseCategorySummary, b : ExpenseCategorySummary) : number => {
+        if (a.getCategoryName() > b.getCategoryName()) {
+            return 1;
+        }
+
+        return a.getCategoryName() < b.getCategoryName() ? -1 : 0;
+    });
+};
+
+const sortSummariesByMonthColumn = (summaries : Array<ExpenseCategorySummary>, columnIndex : number) : Array<ExpenseCategorySummary> => {
+    return [...summaries].sort((a : ExpenseCategorySummary, b : ExpenseCategorySummary) : number => {
+        const aMonth = a.getMonths()[columnIndex];
+        const bMonth = b.getMonths()[columnIndex];
+
+        if (aMonth.getTotal() > bMonth.getTotal()) {
+            return 1;
+        }
+
+        return aMonth.getTotal() < bMonth.getTotal() ? -1 : 0;
+    });
+};
 
 export default class ExpenseCategoryTableGrid {
     private cellClickCallback : Function
@@ -95,23 +116,9 @@ export default class ExpenseCategoryTableGrid {
     }
 
     sort(columnIndex : number, direction : string) : ExpenseCategoryTableGrid {
-        console.log("SORT:", columnIndex, direction);
-        if (columnIndex === 0) {
-            const summaries = [...this.summaries].sort((a : ExpenseCategorySummary, b : ExpenseCategorySummary) : number => {
-                if (a.getCategoryName() > b.getCategoryName()) {
-                    return 1;
-                }
+        const summaries = columnIndex === 0 ? sortSummariesByCategory(this.summaries) : sortSummariesByMonthColumn(this.summaries, columnIndex - 1);
 
-                if (a.getCategoryName() < b.getCategoryName()) {
-                    return -1;
-                }
 
-                return 0;
-            });
-
-            return new ExpenseCategoryTableGrid(direction === "desc" ? summaries.reverse() : summaries, this.cellClickCallback);
-        }
-
-        return this;
+        return new ExpenseCategoryTableGrid(direction === "desc" ? summaries.reverse() : summaries, this.cellClickCallback);
     }
 };
