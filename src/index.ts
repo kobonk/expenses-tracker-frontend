@@ -3,11 +3,11 @@ import "./styles.sass";
 import { retrieveCategories, retrieveExpenses, retrieveMonths, updateExpense } from "utils/restClient";
 import { extractMonthName } from "utils/stringUtils";
 import i18n from "utils/i18n";
-import DataTable from "./components/DataTable";
 import Expense from "types/Expense";
 import ExpenseCategory from "types/ExpenseCategory";
 import FilteredExpenses from "./components/FilteredExpenses";
 import ViewTitle from "./components/ViewTitle";
+import MonthFilterForm from "./components/MonthFilterForm";
 
 const moment = require("moment");
 
@@ -26,7 +26,7 @@ const vm = new Vue({
         "expense-category-table-view": () => import('./components/ExpenseCategoryTableView'),
         "filter-expenses-form": () => import("./components/FilterExpensesForm"),
         "filtered-expenses": FilteredExpenses,
-        "data-table": DataTable,
+        "month-filter-form": MonthFilterForm,
         "view-title": ViewTitle
     },
     computed: {

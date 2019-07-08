@@ -11,6 +11,12 @@
                 <button @click="increaseMonths">+1</button>
             </aside>
             <main class="content" v-if="expenses">
+                <month-filter-form
+                    :months="availableMonths"
+                    :most-recent-month="startingMonth"
+                    :number-of-months="numberOfVisibleMonths"
+                >
+                </month-filter-form>
                 <filter-expenses-form @submit="displayFilteredExpenses"></filter-expenses-form>
                 <transition name="slide-fade" mode="out-in">
                     <view-title
