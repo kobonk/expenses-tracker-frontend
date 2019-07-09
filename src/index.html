@@ -15,6 +15,7 @@
                     :months="availableMonths"
                     :most-recent-month="startingMonth"
                     :number-of-months="numberOfVisibleMonths"
+                    @change="onMonthRangeChanged"
                 >
                 </month-filter-form>
                 <filter-expenses-form @submit="displayFilteredExpenses"></filter-expenses-form>

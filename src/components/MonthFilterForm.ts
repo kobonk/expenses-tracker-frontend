@@ -2,13 +2,21 @@ const moment = require("moment");
 
 export default {
     computed: {
-        selectedMonths() {
-            const borderMonth = moment(this.mostRecentMonth);
-
+        monthsList() {
             return [...this.months]
                 .reverse()
-                .filter((month : string) => moment(month).isSameOrBefore(borderMonth))
-                .slice(0, this.numberOfMonths);
+                .filter((month : string) => moment(month).isBetween(this.startingMonth, this.endingMonth, "month", "[]"))
+        }
+    },
+    data() {
+        return {
+            startingMonth: moment(this.mostRecentMonth).subtract(this.numberOfMonths - 1, "months").format("YYYY-MM"),
+            endingMonth: this.mostRecentMonth
+        }
+    },
+    methods: {
+        emitChange() {
+            this.$emit("change", this.monthsList);
         }
     },
     props: {
@@ -26,18 +34,35 @@ export default {
         }
     },
     template: `
-        <form>
-            Show consecutive
-            <input type="number" name="month_count" value="7" />
-            months ending on
-            <select name="last_month">
+        <form @submit.prevent="emitChange">
+            <select v-model="startingMonth">
                 <option
                     v-for="month, i in [...months].reverse()"
                     v-bind:key="i"
                     :value="month"
                 >{{month}}</option>
             </select>
-            {{selectedMonths}}
+            <select v-model="endingMonth">
+                <option
+                    v-for="month, i in [...months].reverse()"
+                    v-bind:key="i"
+                    :value="month"
+                >{{month}}</option>
+            </select>
+            <br>{{monthsList}}<br>
+            <button type="submit">EXECUTE</button>
         </form>
-    `
+    `,
+    watch: {
+        endingMonth(newEndingMonth : string) {
+            if (moment(newEndingMonth).diff(moment(this.startingMonth), "months") < 0) {
+                this.startingMonth = newEndingMonth;
+            }
+        },
+        startingMonth(newStartingMonth : string) {
+            if (moment(newStartingMonth).diff(moment(this.endingMonth), "months") > 0) {
+                this.endingMonth = newStartingMonth;
+            }
+        }
+    }
 }

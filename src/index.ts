@@ -93,6 +93,11 @@ const vm = new Vue({
             this.currentMonth = data.month;
             this.activeView = "category-month"
         },
+        onMonthRangeChanged(months : Array<string>) {
+            this.startingMonth = months[0];
+            this.numberOfVisibleMonths = months.length;
+            this.refreshMainView();
+        },
         refreshMainView() {
             retrieveMonths()
                 .then((months : Array<string>) => {

@@ -49,6 +49,10 @@ const calculateColumnTotal = (grid : ExpenseCategoryTableGrid, columnIndex : num
     return grid.getRows()
         .reduce(
             (sum : number, row : Array<DataTableRecord>) => {
+                if (!row[columnIndex]) {
+                    return sum;
+                }
+
                 return sum + stringToFloat(row[columnIndex].getValue())
             },
             0
