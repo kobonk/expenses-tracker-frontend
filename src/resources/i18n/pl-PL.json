@@ -19,9 +19,14 @@
         "totalLabel": "Suma"
     },
     "filterExpensesForm": {
-        "expenseName": "Nazwa wydatku",
+        "filterButtonLabel": "Wykonaj",
+        "monthRangeLabelFrom": "Pokaż miesiące od",
+        "monthRangeLabelTo": "do"
+    },
+    "findExpensesForm": {
+        "expenseName": "Szukaj wydatków...",
         "resultTitle": "Znalezione wydatki dla hasła \"{FILTER_TEXT}\"",
-        "submitButton": "Filtruj"
+        "submitButton": "Szukaj"
     },
     "categorySummaries": {
         "averageLabel": "Średnia",

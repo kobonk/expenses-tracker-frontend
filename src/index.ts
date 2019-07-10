@@ -19,12 +19,15 @@ const getMonths: Function = (startingMonth : string, numberOfMonths : number) : 
     });
 };
 
+const STARTING_MONTH = moment().format("YYYY-MM");
+const NUMBER_OF_VISIBLE_MONTHS = 6;
+
 const vm = new Vue({
     components: {
         "add-expense-form": () => import("./components/add-expense-form/add-expense-form"),
         "expense-category-month-view": () => import('./components/ExpenseCategoryMonthView'),
         "expense-category-table-view": () => import('./components/ExpenseCategoryTableView'),
-        "filter-expenses-form": () => import("./components/FilterExpensesForm"),
+        "filter-expenses-form": () => import("./components/FindExpensesForm"),
         "filtered-expenses": FilteredExpenses,
         "month-filter-form": MonthFilterForm,
         "view-title": ViewTitle
@@ -49,6 +52,9 @@ const vm = new Vue({
                     return "";
             }
         },
+        numberOfVisibleMonths() : number {
+            return this.visibleMonths.length;
+        },
         selectedMonths() : Array<string> {
             let monthCount = 0;
 
@@ -62,6 +68,9 @@ const vm = new Vue({
 
                     return false;
                 });
+        },
+        startingMonth() : string {
+            return this.visibleMonths[0];
         }
     },
     data: {
@@ -73,15 +82,10 @@ const vm = new Vue({
         expenses: [],
         filteredExpensesMap: null,
         filterText: "",
-        numberOfVisibleMonths: 7,
-        startingMonth: moment().format("YYYY-MM")
+        visibleMonths: getMonths(STARTING_MONTH, NUMBER_OF_VISIBLE_MONTHS)
     },
     el: "#expenses-tracker",
     methods: {
-        increaseMonths() {
-            this.numberOfVisibleMonths += 1;
-            this.refreshMainView();
-        },
         displayFilteredExpenses(name: string) {
             this.filterText = name;
             this.activeView = "filtered-expenses";
@@ -94,8 +98,7 @@ const vm = new Vue({
             this.activeView = "category-month"
         },
         onMonthRangeChanged(months : Array<string>) {
-            this.startingMonth = months[0];
-            this.numberOfVisibleMonths = months.length;
+            this.visibleMonths = months;
             this.refreshMainView();
         },
         refreshMainView() {

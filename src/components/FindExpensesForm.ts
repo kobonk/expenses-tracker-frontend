@@ -1,6 +1,6 @@
 import i18n from "utils/i18n";
 import AutoCompleteExpenseName from "./InputAutoCompleteExpenseName";
-import "./FilterExpensesFormStyles.sass";
+import "./FindExpensesFormStyles.sass";
 
 export default {
     components: {
@@ -9,7 +9,7 @@ export default {
     data() {
         return {
             errorMessage: null as unknown,
-            i18n: i18n.filterExpensesForm,
+            i18n: i18n.findExpensesForm,
             filterText: "",
             similarExpenseSchemas: [] as Array<any>,
             toastMessage: null as unknown

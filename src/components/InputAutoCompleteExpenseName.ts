@@ -23,7 +23,7 @@ export default {
     },
     data() {
         return {
-            i18n: i18n.filterExpensesForm,
+            i18n: i18n.findExpensesForm,
             name: "",
             similarExpenseSchemas: [] as Array<any>
         };

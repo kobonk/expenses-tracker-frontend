@@ -8,17 +8,18 @@
         <div id="expenses-tracker">
             <aside class="sidebar">
                 <add-expense-form @submit="refreshMainView"></add-expense-form>
-                <button @click="increaseMonths">+1</button>
             </aside>
             <main class="content" v-if="expenses">
-                <month-filter-form
-                    :months="availableMonths"
-                    :most-recent-month="startingMonth"
-                    :number-of-months="numberOfVisibleMonths"
-                    @change="onMonthRangeChanged"
-                >
-                </month-filter-form>
-                <filter-expenses-form @submit="displayFilteredExpenses"></filter-expenses-form>
+                <header class="content-header">
+                    <month-filter-form
+                        :months="availableMonths"
+                        :most-recent-month="startingMonth"
+                        :number-of-months="numberOfVisibleMonths"
+                        @change="onMonthRangeChanged"
+                    >
+                    </month-filter-form>
+                    <filter-expenses-form @submit="displayFilteredExpenses"></filter-expenses-form>
+                </header>
                 <transition name="slide-fade" mode="out-in">
                     <view-title
                         v-if="activeView !== 'months'"
@@ -32,7 +33,7 @@
                         v-if="activeView === 'months'"
                         :categories="categories"
                         :expenses="expenses"
-                        :months="monthNames"
+                        :months="visibleMonths"
                         :on-month-clicked="onCategoryMonthSelected"
                         >
                     </expense-category-table-view>

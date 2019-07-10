@@ -176,10 +176,16 @@ export default {
             if (childListChange) {
                 this.horizontalScrollTarget.querySelectorAll("thead, tbody, tfoot")
                     .forEach((element : HTMLElement) => {
-                        element.style.width = `${this.horizontalScrollTarget.scrollWidth}px`;
+                        if (element.scrollWidth < this.horizontalScrollTarget.scrollWidth) {
+                            element.style.width = `${this.horizontalScrollTarget.scrollWidth}px`;
+                        }
                     });
 
-                this.horizontalScrollController.querySelector("div").style.width = `${this.horizontalScrollTarget.scrollWidth}px`;
+                const controllerHandle = this.horizontalScrollController.querySelector("div");
+
+                if (controllerHandle.scrollWidth < this.horizontalScrollTarget.scrollWidth) {
+                    controllerHandle.style.width = `${this.horizontalScrollTarget.scrollWidth}px`;
+                }
             }
         },
         onFieldUpdated(row: DataTableRecordCollection, value: Object) {
@@ -299,6 +305,13 @@ export default {
     `,
     watch: {
         grid(grid : ExpenseCategoryTableGrid) {
+            this.horizontalScrollTarget.querySelectorAll("thead, tbody, tfoot")
+                .forEach((element : HTMLElement) => {
+                    element.style.width = null;
+                });
+
+            this.horizontalScrollController.querySelector("div").style.width = null;
+
             this.sort(this.sortedColumn, this.sortingDirection);
         }
     }

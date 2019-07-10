@@ -71,7 +71,7 @@ export default {
             if (!_.isEmpty(this.temporaryItem)) {
                 this.updateCurrentValue(this.temporaryItem);
             }
-            
+
             this.debouncedOnBlur();
         },
         onListMoveDown() {
@@ -115,7 +115,7 @@ export default {
     },
     props: ["value", "items"],
     template: `
-        <div>
+        <div class="auto-complete-field">
             <input
                 autocomplete="off"
                 ref="value-input"

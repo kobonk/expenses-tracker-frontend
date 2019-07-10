@@ -19,9 +19,14 @@
         "totalLabel": "Total"
     },
     "filterExpensesForm": {
-        "expenseName": "Name of Expense to filter by",
+        "filterButtonLabel": "Apply",
+        "monthRangeLabelFrom": "Display months from",
+        "monthRangeLabelTo": "to"
+    },
+    "findExpensesForm": {
+        "expenseName": "Search...",
         "resultTitle": "Expenses found for \"{FILTER_TEXT}\" phrase",
-        "submitButton": "Filter Expenses"
+        "submitButton": "Find Expenses"
     },
     "categorySummaries": {
         "averageLabel": "Average",

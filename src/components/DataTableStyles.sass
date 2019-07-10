@@ -8,7 +8,7 @@ $horizontalScrollHeight: 20px
     height: 100%
     overflow: hidden
     width: 100%
-    height: calc(100% - #{$filterFormHeight})
+    height: calc(100% - #{$contentHeaderHeight} - #{$contentHeaderMargin} - 1px)
 
     .compound-table-row-layout
         height: calc(100% - #{$horizontalScrollHeight})
@@ -59,7 +59,7 @@ $horizontalScrollHeight: 20px
     border-collapse: collapse
     display: flex
     flex-direction: column
-    height: calc(100% - #{$filterFormHeight})
+    height: calc(100% - #{$contentHeaderHeight} - #{$contentHeaderMargin} - 1px)
     overflow: hidden
     width: 100%
 
@@ -92,6 +92,7 @@ $horizontalScrollHeight: 20px
             flex: 1
             min-width: 170px
             padding: 0
+            width: 100%
 
             span
                 border: 1px solid transparent
