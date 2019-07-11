@@ -45,7 +45,7 @@ const vm = new Vue({
         currentTitle() : string {
             switch (this.activeView) {
                 case "filtered-expenses":
-                    return i18n.filterExpensesForm.resultTitle.replace("{FILTER_TEXT}", this.filterText);
+                    return i18n.findExpensesForm.resultTitle.replace("{FILTER_TEXT}", this.filterText);
                 case "category-month":
                     return `${ this.currentMonthName } | ${ this.currentCategoryName }`;
                 default:
