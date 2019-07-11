@@ -1,5 +1,4 @@
 import i18n from 'utils/i18n';
-import "./DataTableForCategoriesStyles.sass";
 import { extractMonthName, stringToFloat } from "utils/stringUtils";
 import Cell from "./DataTableCell";
 import DataTable from "./DataTable";

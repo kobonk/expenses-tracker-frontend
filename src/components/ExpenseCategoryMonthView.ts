@@ -25,7 +25,7 @@ export default {
     props: ["category", "expenses", "month", "onExpenseEdited"],
     template: `
         <data-table
-            class="columns-3"
+            class="align-right align-first-column-left"
             :on-cell-edited="onExpenseEdited"
             :data="tableData"
         />

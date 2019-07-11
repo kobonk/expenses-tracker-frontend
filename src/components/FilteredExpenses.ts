@@ -49,7 +49,7 @@ export default {
             <div v-for="month in Object.keys(expensesMap).sort().reverse()" :key="month">
                 <h2>{{ displayMonth(month) }} <small>({{ expensesMap[month].length }})</small></h2>
                 <data-table
-                    class="columns-3"
+                    class="align-right align-first-column-left"
                     :data="createExpensesTableData(expensesMap[month])"
                     :on-cell-edited="onEdit">
                 </data-table>
