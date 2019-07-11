@@ -12,12 +12,14 @@ import {
 } from 'types/ExpenseCategoryTableGridTypes';
 import { DataTableRecord, DataTableRecordCollection, DataTableCell } from "./../types/DataTableTypes";
 
-const getFirstTbodyParent = (element : HTMLElement) : HTMLElement => {
+const getFirstParentOfType = (element : HTMLElement, type : string) : HTMLElement => {
     if (!element) {
         return null;
     }
 
-    if ((/tbody/i).test(element.tagName)) {
+    const pattern = new RegExp(type, "i");
+
+    if (pattern.test(element.tagName)) {
         return element;
     }
 
@@ -27,7 +29,7 @@ const getFirstTbodyParent = (element : HTMLElement) : HTMLElement => {
 
     let parent = element.parentElement;
 
-    while (parent && !(/tbody/i).test(parent.tagName)) {
+    while (parent && !pattern.test(parent.tagName)) {
         parent = parent.parentElement;
     }
 
@@ -69,9 +71,6 @@ export default {
         horizontalScrollController() : HTMLElement {
             return this.$el.querySelector(".compound-table-horizontal-scroll .scroll-horizontal");
         },
-        horizontalScrollTarget() : HTMLElement {
-            return this.$el.querySelector(".compound-table-row-layout .scroll-horizontal table");
-        },
         monthColumns() : Array<any> {
             return this.months
                 .map((month : string) => {
@@ -94,7 +93,7 @@ export default {
             return [
                 {
                     id: "categories",
-                    class: "data-table scroll-disabled align-left",
+                    class: "data-table scroll-disabled align-left categories",
                     style: {
                         width: "220px"
                     },
@@ -149,10 +148,10 @@ export default {
     },
     methods: {
         handleHorizontalScroll(event : Event) {
-            this.horizontalScrollTarget.scrollLeft = (event.target as HTMLElement).scrollLeft;
+            this.scrollMonthsTableHorizontally((event.target as HTMLElement).scrollLeft);
         },
         handleVerticalScroll(event : Event) {
-            const tbody = getFirstTbodyParent(event.target as HTMLElement);
+            const tbody = getFirstParentOfType(event.target as HTMLElement, "tbody");
 
             if (!tbody) {
                 return;
@@ -170,24 +169,6 @@ export default {
                     }
                 });
         },
-        observeWidthChange(mutationsList : Array<MutationRecord>) {
-            const childListChange = mutationsList.find((mutation : MutationRecord) => mutation.type === "childList");
-
-            if (childListChange) {
-                this.horizontalScrollTarget.querySelectorAll("thead, tbody, tfoot")
-                    .forEach((element : HTMLElement) => {
-                        if (element.scrollWidth < this.horizontalScrollTarget.scrollWidth) {
-                            element.style.width = `${this.horizontalScrollTarget.scrollWidth}px`;
-                        }
-                    });
-
-                const controllerHandle = this.horizontalScrollController.querySelector("div");
-
-                if (controllerHandle.scrollWidth < this.horizontalScrollTarget.scrollWidth) {
-                    controllerHandle.style.width = `${this.horizontalScrollTarget.scrollWidth}px`;
-                }
-            }
-        },
         onFieldUpdated(row: DataTableRecordCollection, value: Object) {
             this.onCellEdited(row.getKey(), value);
             this.onFieldExited();
@@ -200,6 +181,35 @@ export default {
         },
         onHeaderClicked(cell: DataTableRecord) {
             cell.onClick();
+        },
+        onWindowResized() {
+            this.synchronizeTableSizes();
+            this.synchronizeHorizontallScrollerSize();
+        },
+        scrollMonthsTableHorizontally(distance : number) {
+            const nodes = this.$el.querySelectorAll(".compound-table-row-layout .scroll-horizontal, .compound-table-row-layout .scroll-horizontal table");
+
+            nodes.forEach((node : HTMLElement) => {
+                node.scrollLeft = distance;
+            });
+        },
+        synchronizeHorizontallScrollerSize() {
+            const scrollableContentTableBody = this.tableNodes[1];
+            const scrollableContentContainer = getFirstParentOfType(this.tableNodes[1], "div");
+            const horizontalScrollHandle = this.horizontalScrollController.querySelector("div");
+
+            if (scrollableContentContainer.clientWidth < scrollableContentTableBody.clientWidth) {
+                horizontalScrollHandle.style.width = `${scrollableContentTableBody.clientWidth}px`;
+            } else {
+                horizontalScrollHandle.style.width = null;
+            }
+
+        },
+        synchronizeTableSizes() {
+            const properHeightTableBody = this.tableNodes[0];
+            const wrongHeightTableBody = this.tableNodes[1];
+
+            wrongHeightTableBody.style.height = `${properHeightTableBody.clientHeight}px`
         },
         sort(columnIndex : number, direction : string) {
             if (columnIndex === this.sortedColumn && !direction) {
@@ -219,19 +229,19 @@ export default {
         this.verticalScrollController.addEventListener("scroll", this.handleVerticalScroll);
         this.$el.addEventListener("wheel", this.handleVerticalScroll);
         this.horizontalScrollController.addEventListener("scroll", this.handleHorizontalScroll);
-
-        this.widthChangeObserver = new MutationObserver(this.observeWidthChange);
-        this.widthChangeObserver.observe(
-            this.horizontalScrollTarget,
-            { attributes: true, childList: true, subtree: true }
-        );
+        window.addEventListener("resize", this.onWindowResized);
 
         this.sort(this.sortedColumn, this.sortingDirection);
+
     },
     beforeDestroy() {
         this.verticalScrollController.removeEventListener("scroll", this.handleVerticalScroll);
         this.$el.removeEventListener("wheel", this.handleVerticalScroll);
         this.horizontalScrollController.removeEventListener("scroll", this.handleHorizontalScroll);
+        window.removeEventListener("resize", this.onWindowResized);
+    },
+    updated() {
+        this.onWindowResized();
     },
     props: {
         grid: {
@@ -305,14 +315,10 @@ export default {
     `,
     watch: {
         grid(grid : ExpenseCategoryTableGrid) {
-            this.horizontalScrollTarget.querySelectorAll("thead, tbody, tfoot")
-                .forEach((element : HTMLElement) => {
-                    element.style.width = null;
-                });
-
-            this.horizontalScrollController.querySelector("div").style.width = null;
-
             this.sort(this.sortedColumn, this.sortingDirection);
+
+            // this.synchronizeTableSizes();
+            // this.synchronizeHorizontallScrollerSize();
         }
     }
 };

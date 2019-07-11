@@ -26,10 +26,17 @@ $horizontalScrollHeight: 20px
         border-right: 1px solid $colorDivider
         height: 100%
 
+        &.categories,.summary-table
+            display: flex
+            flex-direction: column
+
         &:last-child
             border-right: none
 
     .summary-table
+        display: flex
+        flex-direction: column
+
         td:last-child, th:last-child
             span
                 padding-right: 20px
@@ -47,8 +54,7 @@ $horizontalScrollHeight: 20px
 
         .data-table
             height: 100%
-            display: flex
-            width: auto
+            width: 100%
 
             td:last-child, th:last-child
                 span
@@ -57,8 +63,6 @@ $horizontalScrollHeight: 20px
 .data-table
     box-sizing: border-box
     border-collapse: collapse
-    display: flex
-    flex-direction: column
     height: calc(100% - #{$contentHeaderHeight} - #{$contentHeaderMargin} - 1px)
     overflow: hidden
     width: 100%
@@ -102,19 +106,21 @@ $horizontalScrollHeight: 20px
                 text-overflow: ellipsis
                 white-space: nowrap
 
+                &.clickable
+                    color: $colorPrimaryText
+                    cursor: pointer
+                    transition: color 0.5s
+
+                    &:hover
+                        color: $colorPrimary
+
         td
             color: $colorPrimaryText
 
             .clickable
                 background-color: transparent
                 border-radius: $borderRadius
-                color: $colorPrimaryText
-                cursor: pointer
                 font-weight: 700
-                transition: color 0.5s
-
-                &:hover
-                    color: $colorPrimary
 
             .input-field
                 border: 1px solid $colorDivider
@@ -170,12 +176,6 @@ $horizontalScrollHeight: 20px
     thead
         tr
             th
-                cursor: pointer
-                transition: color 0.5s
-
-                &:hover
-                    color: $colorPrimaryText
-
                 &.sorted-asc
                     &:after
                         content: " \2191"
