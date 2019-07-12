@@ -1,4 +1,4 @@
-import autoCompleteField from "../auto-complete-field/auto-complete-field";
+import AutoCompleteField from "../AutoCompleteField";
 import { convertDateToString } from "utils/stringUtils";
 import ExpenseCategory from "types/ExpenseCategory";
 import Expense from "types/Expense";
@@ -14,7 +14,7 @@ const trimAndLower = (text: string): string => {
 
 const component = {
     components: {
-        "auto-complete-field": autoCompleteField
+        "auto-complete-field": AutoCompleteField
     },
     computed: {
         categoryNames(): Array<ExpenseCategory> {

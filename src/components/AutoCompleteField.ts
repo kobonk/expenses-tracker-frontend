@@ -1,4 +1,4 @@
-import "./styles.sass"
+import "./AutoCompleteFieldStyles.sass"
 
 const _ = require("lodash");
 

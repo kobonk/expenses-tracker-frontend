@@ -1,5 +1,5 @@
 import i18n from "utils/i18n";
-import AutoCompleteField from "./auto-complete-field/auto-complete-field";
+import AutoCompleteField from "./AutoCompleteField";
 import { retrieveSimilarExpenseNames } from "utils/restClient";
 
 export default {
