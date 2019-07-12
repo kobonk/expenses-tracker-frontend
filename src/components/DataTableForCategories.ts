@@ -168,19 +168,6 @@ export default {
                     }
                 });
         },
-        onFieldUpdated(row: DataTableRecordCollection, value: Object) {
-            this.onCellEdited(row.getKey(), value);
-            this.onFieldExited();
-        },
-        onFieldExited() {
-            this.editedCell = null;
-        },
-        onCellClicked(cell: DataTableCell) {
-            this.editedCell = cell;
-        },
-        onHeaderClicked(cell: DataTableRecord) {
-            cell.onClick();
-        },
         onWindowResized() {
             this.synchronizeTableSizes();
             this.synchronizeHorizontallScrollerSize();

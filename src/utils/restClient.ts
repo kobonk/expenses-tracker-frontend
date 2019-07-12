@@ -42,28 +42,6 @@ export const filterExpenses: Function = async (expenseName: string): Promise<any
     );
 };
 
-export const retrieveMonthStatistics : Function = async (startingMonth : string, numberOfMonths : number) : Promise<Array<ExpenseCategorySummary>> => {
-    let response : any = await axios.get(`${ backendUrl }/statistics/${ startingMonth }/${ numberOfMonths }`);
-
-    return _.chain(response.data)
-    .groupBy((row:any) => row.category.id)
-    .toArray()
-    .map((assetGroup:Array<any>) => {
-        return _.reduce(
-            assetGroup,
-            (result:any, asset:any) => {
-                return {
-                    category: asset.category,
-                    months: _.concat(result.months, { month: asset.month, total: asset.total })
-                }
-            },
-            { category: null, months: [] }
-        )
-    })
-    .map(ExpenseCategorySummary.prototype.fromAsset)
-    .value()
-};
-
 export const retrieveSimilarExpenseNames: Function = async (expenseName: string): Promise<Array<string>> => {
     let response: any = await axios.get(`${ backendUrl }/expense-names/${ _.trim(expenseName) }`);
 
