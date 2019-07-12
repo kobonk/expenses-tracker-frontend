@@ -14,6 +14,10 @@ export default {
     methods: {
         onClick() {
             this.editing = true;
+
+            if (typeof this.onEnter === "function") {
+                this.onEnter();
+            }
         },
         onExit() {
             this.editing = false;
@@ -27,6 +31,10 @@ export default {
         }
     },
     props: {
+        currentlyEdited: {
+            required: true,
+            type: Boolean
+        },
         value: {
             required: true
         },
@@ -35,6 +43,9 @@ export default {
             type: String
         },
         onChange: {
+            type: Function
+        },
+        onEnter: {
             type: Function
         }
     },
@@ -67,5 +78,12 @@ export default {
             :on-change="(value) => onFieldUpdated(value)"
             :on-exit="onExit"
         />
-    `
+    `,
+    watch: {
+        currentlyEdited(isEdited : boolean) {
+            if (!isEdited) {
+                this.editing = false;
+            }
+        }
+    }
 };

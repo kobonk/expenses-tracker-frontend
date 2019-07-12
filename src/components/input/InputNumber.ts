@@ -1,4 +1,4 @@
-const InputNumber = {
+export default {
     computed: {
         numericValue(): number {
             return this.convertToNumber(this.value);
@@ -26,7 +26,20 @@ const InputNumber = {
         setTimeout(this.focus, 50);
     },
     inheritAttrs: true,
-    props: ["onExit", "onChange", "value"],
+    props: {
+        onExit: {
+            required: true,
+            type: Function
+        },
+        onChange: {
+            required: true,
+            type: Function
+        },
+        value: {
+            required: true,
+            type: String
+        }
+    },
     template: `
         <input
             class="input-field input-number"
@@ -40,5 +53,3 @@ const InputNumber = {
             @blur="(event) => onBlur(event)"
         />`
 };
-
-export { InputNumber };

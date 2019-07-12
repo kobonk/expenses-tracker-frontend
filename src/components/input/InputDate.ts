@@ -1,4 +1,4 @@
-const InputDate = {
+export default {
     beforeDestroy() {
         document.body.removeEventListener("click", this.onBlur);
     },
@@ -33,7 +33,20 @@ const InputDate = {
         );
     },
     inheritAttrs: true,
-    props: ["onExit", "onChange", "value"],
+    props: {
+        onExit: {
+            required: true,
+            type: Function
+        },
+        onChange: {
+            required: true,
+            type: Function
+        },
+        value: {
+            required: true,
+            type: String
+        }
+    },
     template: `
         <span
             class="input-field input-date"
@@ -53,5 +66,3 @@ const InputDate = {
             </button>
         </span>`
 };
-
-export { InputDate };

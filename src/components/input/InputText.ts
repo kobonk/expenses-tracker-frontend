@@ -1,4 +1,4 @@
-const InputText = {
+export default {
     methods: {
         focus() {
             const field = this.$refs.input;
@@ -14,7 +14,23 @@ const InputText = {
         }
     },
     inheritAttrs: true,
-    props: ["onExit", "onChange", "value"],
+    mounted() {
+        setTimeout(this.focus, 50);
+    },
+    props: {
+        onExit: {
+            required: true,
+            type: Function
+        },
+        onChange: {
+            required: true,
+            type: Function
+        },
+        value: {
+            required: true,
+            type: String
+        }
+    },
     template: `
         <input
             class="input-field input-text"
@@ -26,5 +42,3 @@ const InputText = {
             @blur="(event) => onBlur(event)"
         />`
 };
-
-export { InputText };

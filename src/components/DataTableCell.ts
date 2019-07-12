@@ -18,7 +18,7 @@ export default Vue.component("table-cell", {
     },
     computed: {
         editing() {
-            return _.isFunction(this.isEdited) && this.isEdited();
+            return this.currentlyEditedCell === this.data;
         }
     },
     methods: {
@@ -38,13 +38,15 @@ export default Vue.component("table-cell", {
         }
     },
     props: {
+        currentlyEditedCell: {
+            required: false,
+            type: Object,
+            validator: (cell: any) => isDataTableCellInstance(cell)
+        },
         data: {
             required: true,
             type: Object,
-            validator: (data: any) => isDataTableCellInstance(data)
-        },
-        isEdited: {
-            type: Function
+            validator: (cell: any) => isDataTableCellInstance(cell)
         },
         onChange: {
             type: Function
@@ -58,8 +60,10 @@ export default Vue.component("table-cell", {
     },
     template: `
         <table-cell-editable v-if="data.isEditable()"
+            :currently-edited="editing"
             :value="data.getValue()"
             :format="data.getType()"
+            :on-enter="onClicked"
             :on-change="onFieldUpdated"
         >
         </table-cell-editable>

@@ -59,7 +59,7 @@ export default {
                     <td v-for="(cell) in row.getRecords()" v-bind:key="cell.getName()">
                         <table-cell
                             :data="cell"
-                            :is-edited="() => editedCell === cell"
+                            :currently-edited-cell="editedCell"
                             :on-change="(value) => onFieldUpdated(row, value)"
                             :on-edit="() => onCellClicked(cell)"
                             :on-exit="onFieldExited"

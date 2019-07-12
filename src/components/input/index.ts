@@ -1,3 +1,5 @@
-export * from "./InputDate";
-export * from "./InputNumber";
-export * from "./InputText";
+import InputDate from "./InputDate";
+import InputNumber from "./InputNumber";
+import InputText from "./InputText";
+
+export { InputDate, InputNumber, InputText };
