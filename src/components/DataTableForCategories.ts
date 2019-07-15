@@ -3,7 +3,7 @@ import { extractMonthName, stringToFloat } from "utils/stringUtils";
 import Cell from "./DataTableCell";
 import DataTable from "./DataTable";
 import PlainTable from "./PlainTable";
-import ExpenseCategoryTableGrid from 'types/ExpenseCategoryTableGrid';
+import ExpenseCategoryTableGrid, { ExpenseCategoryTableGridRow } from 'types/ExpenseCategoryTableGrid';
 import {
     CategoryBodyGridCellCheckbox,
     CategoryHeaderGridCell,
@@ -50,12 +50,12 @@ const getMonthColumnTotals = (grid : ExpenseCategoryTableGrid, months : Array<st
 const calculateColumnTotal = (grid : ExpenseCategoryTableGrid, columnIndex : number) : number => {
     return grid.getRows()
         .reduce(
-            (sum : number, row : Array<DataTableRecord>) => {
-                if (!row[columnIndex]) {
+            (sum : number, row : ExpenseCategoryTableGridRow) => {
+                if (!row.getCell(columnIndex)) {
                     return sum;
                 }
 
-                return sum + stringToFloat(row[columnIndex].getValue())
+                return sum + stringToFloat(row.getCell(columnIndex).getValue())
             },
             0
         );
@@ -140,7 +140,7 @@ export default {
                         new CategoryHeaderGridCell(i18n.categorySummaries.averageLabel, () => this.sort(this.sortedGrid.getColumnCount() - 2)),
                         new CategoryHeaderGridCell(i18n.categorySummaries.totalLabel, () => this.sort(this.sortedGrid.getColumnCount() - 1))
                     ],
-                    body: !this.sortedGrid ? [] : this.sortedGrid.getRows().map((row : Array<DataTableRecord>) => row.slice(-2)),
+                    body: !this.sortedGrid ? [] : this.sortedGrid.getRows().map((row : ExpenseCategoryTableGridRow) => row.getCells(-2, undefined)),
                     footer: [
                         new CategoryFooterGridCellNumeric(finalAverage),
                         new CategoryFooterGridCellNumeric(finalTotal)
