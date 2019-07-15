@@ -5,6 +5,7 @@ import DataTable from "./DataTable";
 import PlainTable from "./PlainTable";
 import ExpenseCategoryTableGrid from 'types/ExpenseCategoryTableGrid';
 import {
+    CategoryBodyGridCellCheckbox,
     CategoryHeaderGridCell,
     CategoryFooterGridCellNumeric,
     CategoryFooterGridCellText
@@ -42,7 +43,7 @@ const getMonthColumnTotals = (grid : ExpenseCategoryTableGrid, months : Array<st
                 return 0;
             }
 
-            return calculateColumnTotal(grid, index + 1);
+            return calculateColumnTotal(grid, index + 2);
         });
 };
 
@@ -58,6 +59,20 @@ const calculateColumnTotal = (grid : ExpenseCategoryTableGrid, columnIndex : num
             },
             0
         );
+};
+
+const createCategoryTableBody = (grid : ExpenseCategoryTableGrid, onClickCallback : Function) : Array<Array<DataTableRecord>> => {
+    if (!grid) {
+        return [];
+    }
+
+    return grid.getColumn(0)
+        .map((categoryCell : DataTableRecord) => {
+            const checkboxCell = new CategoryBodyGridCellCheckbox(categoryCell.getName(), onClickCallback);
+
+            return [checkboxCell, categoryCell];
+        });
+
 };
 
 export default {
@@ -88,19 +103,22 @@ export default {
         tables() : Array<any> {
             const finalTotal = !this.sortedGrid ? 0 : calculateColumnTotal(this.sortedGrid, this.sortedGrid.getColumnCount() - 1);
             const finalAverage = !this.sortedGrid ? 0 : calculateColumnTotal(this.sortedGrid, this.sortedGrid.getColumnCount() - 2);
+            const categoryTableBody = createCategoryTableBody(this.sortedGrid, this.selectRow);
 
             return [
                 {
                     id: "categories",
                     class: "data-table scroll-disabled align-left categories",
                     style: {
-                        width: "220px"
+                        width: "270px"
                     },
                     header: [
+                        new CategoryHeaderGridCell("", null),
                         new CategoryHeaderGridCell(i18n.categorySummaries.categoryLabel, () => this.sort(0))
                     ],
-                    body: !this.sortedGrid ? [] : this.sortedGrid.getColumn(0).map((cell : DataTableRecord) => [cell]),
+                    body: categoryTableBody,
                     footer: [
+                        new CategoryFooterGridCellText(""),
                         new CategoryFooterGridCellText(i18n.categorySummaries.totalLabel)
                     ]
                 },
@@ -109,7 +127,7 @@ export default {
                     class: "data-table scroll-disabled align-right",
                     style: {},
                     header: this.months.map((month : string, i : number) => new CategoryHeaderGridCell(extractMonthName(month), () => this.sort(i + 1))),
-                    body: !this.sortedGrid ? [] : this.sortedGrid.getRows().map((row : Array<DataTableRecord>) => row.slice(1, this.months.length + 1)),
+                    body: !this.sortedGrid ? [] : this.sortedGrid.getColumns(1, this.months.length),
                     footer: getMonthColumnTotals(this.sortedGrid, this.months).map((total : number) => new CategoryFooterGridCellNumeric(total))
                 },
                 {
@@ -139,6 +157,7 @@ export default {
     },
     data() {
         return {
+            checkedRows: [] as Array<string>,
             editedCell: null as DataTableCell,
             sortedGrid: null as ExpenseCategoryTableGrid,
             sortedColumn: 0,
@@ -171,6 +190,19 @@ export default {
         onWindowResized() {
             this.synchronizeTableSizes();
             this.synchronizeHorizontallScrollerSize();
+        },
+        selectRow(categoryId : string) {
+            if (!categoryId) {
+                return;
+            }
+
+            const index = this.checkedRows.indexOf(categoryId);
+
+            if (index !== -1) {
+                this.checkedRows.splice(index, 1);
+            } else {
+                this.checkedRows.push(categoryId);
+            }
         },
         scrollMonthsTableHorizontally(distance : number) {
             const nodes = this.$el.querySelectorAll(".compound-table-row-layout .scroll-horizontal, .compound-table-row-layout .scroll-horizontal table");
@@ -251,6 +283,7 @@ export default {
         >
             <div class="compound-table-row-layout">
                 <plain-table
+                    :checked-rows="checkedRows"
                     :class="tables[0].class"
                     :style="tables[0].style"
                     :header="tables[0].header"
@@ -261,6 +294,7 @@ export default {
                 />
                 <div class="scroll-horizontal">
                     <plain-table
+                        :checked-rows="checkedRows"
                         :class="tables[1].class"
                         :style="tables[1].style"
                         :header="tables[1].header"
@@ -272,6 +306,7 @@ export default {
                 </div>
                 <plain-table
                     ref="verticalScrollController"
+                    :checked-rows="checkedRows"
                     :class="tables[2].class"
                     :style="tables[2].style"
                     :header="tables[2].header"
@@ -300,11 +335,11 @@ export default {
         </div>
     `,
     watch: {
+        checkedRows(rows : Array<string>) {
+            console.log(rows);
+        },
         grid(grid : ExpenseCategoryTableGrid) {
             this.sort(this.sortedColumn, this.sortingDirection);
-
-            // this.synchronizeTableSizes();
-            // this.synchronizeHorizontallScrollerSize();
         }
     }
 };

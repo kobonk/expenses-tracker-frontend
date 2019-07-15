@@ -2,6 +2,7 @@ import ExpenseCategory from "types/ExpenseCategory";
 import MonthTotal from "types/MonthTotal";
 import { DataTableRecord } from "./../types/DataTableTypes";
 import { formatNumber } from "utils/stringUtils";
+import { timeThursday } from "d3";
 
 export class BaseCategoryGridCell implements DataTableRecord {
     public getName() : string {
@@ -124,5 +125,32 @@ export class CategoryBodyGridCell extends BaseCategoryGridCell {
 
     public toString(): string {
         return this.getName();
+    }
+}
+
+export class CategoryBodyGridCellCheckbox extends BaseCategoryGridCell {
+    private value : string
+    private cellClickCallback : Function | null
+
+    constructor(value : string, cellClickCallback : Function) {
+        super();
+        this.value = value;
+        this.cellClickCallback = cellClickCallback;
+    }
+
+    public getName() : string {
+        return this.value;
+    }
+
+    public getType() : string {
+        return "checkbox";
+    }
+
+    public isClickable(): boolean {
+        return true;
+    }
+
+    public onClick(): void {
+        this.cellClickCallback(this.value);
     }
 }

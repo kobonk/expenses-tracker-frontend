@@ -1,6 +1,7 @@
 import ExpenseCategorySummary from "types/ExpenseCategorySummary";
+import { DataTableRecord } from "types/DataTableTypes";
 import MonthTotal from "types/MonthTotal";
-import { CategoryBodyGridCell } from "./ExpenseCategoryTableGridTypes";
+import { CategoryBodyGridCell, CategoryBodyGridCellCheckbox } from "./ExpenseCategoryTableGridTypes";
 
 const sortSummariesByCategory = (summaries : Array<ExpenseCategorySummary>) : Array<ExpenseCategorySummary> => {
     return [...summaries].sort((a : ExpenseCategorySummary, b : ExpenseCategorySummary) : number => {
@@ -71,7 +72,7 @@ const sortSummaries = (summaries : Array<ExpenseCategorySummary>, columnIndex : 
 
 export default class ExpenseCategoryTableGrid {
     private cellClickCallback : Function
-    private grid : Array<Array<CategoryBodyGridCell>>
+    private grid : Array<Array<DataTableRecord>>
     private summaries : Array<ExpenseCategorySummary>
 
     constructor(summaries : Array<ExpenseCategorySummary>, cellClickCallback : Function) {
@@ -80,7 +81,7 @@ export default class ExpenseCategoryTableGrid {
 
         this.grid = this.summaries
             .reduce(
-                (grid : Array<Array<CategoryBodyGridCell>>, summary : ExpenseCategorySummary) : Array<Array<CategoryBodyGridCell>> => {
+                (grid : Array<Array<CategoryBodyGridCell>>, summary : ExpenseCategorySummary) : Array<Array<DataTableRecord>> => {
                     const totalCell = getRowTotalCell(summary);
                     const averageCell = getRowAverageCell(summary);
 
@@ -99,16 +100,26 @@ export default class ExpenseCategoryTableGrid {
             );
     }
 
-    getCell(rowIndex : number, columnIndex : number) : CategoryBodyGridCell {
+    getCell(rowIndex : number, columnIndex : number) : DataTableRecord {
         return this.getColumn(columnIndex)[rowIndex];
     }
 
-    getColumn(index : number) : Array<CategoryBodyGridCell> {
+    getColumn(index : number) : Array<DataTableRecord> {
         return this.grid
             .reduce(
                 (result : Array<CategoryBodyGridCell>, row : Array<CategoryBodyGridCell>) : Array<CategoryBodyGridCell> => [...result, row[index]],
                 []
             );
+    }
+
+    getColumns(startingIndex : number, count : number) : Array<Array<DataTableRecord>> {
+        return this.grid
+            .reduce(
+                (result : Array<Array<DataTableRecord>>, row : Array<DataTableRecord>) : Array<Array<DataTableRecord>> => {
+                    return [...result, row.slice(startingIndex, startingIndex + count)];
+                },
+                []
+            )
     }
 
     getColumnCount() : number {
@@ -119,11 +130,11 @@ export default class ExpenseCategoryTableGrid {
         return this.summaries[0].getMonths().length + 3; // 1 column for category name, 1 for Average, 1 for Total = 3
     }
 
-    getRow(index : number) : Array<CategoryBodyGridCell> {
+    getRow(index : number) : Array<DataTableRecord> {
         return this.grid[index];
     }
 
-    getRows() : Array<Array<CategoryBodyGridCell>> {
+    getRows() : Array<Array<DataTableRecord>> {
         return this.grid;
     }
 

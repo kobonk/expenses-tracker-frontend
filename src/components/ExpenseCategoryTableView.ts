@@ -31,7 +31,7 @@ const convertExpensesToSummaries = (
 
             const monthTotal = categorySummary.getMonths().find((total : MonthTotal) => total.getMonth() === expense.getMonth()) as MonthTotal;
             const monthTotalIndex = categorySummary.getMonths().findIndex((total : MonthTotal) => total.getMonth() === expense.getMonth());
-            
+
             const newTotal = addExpenseToTotal(expense, monthTotal);
             const totals = categorySummary.getMonths();
             const newTotals = [...totals.slice(0, monthTotalIndex), newTotal, ...totals.slice(monthTotalIndex + 1)];

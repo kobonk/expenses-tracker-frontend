@@ -38,6 +38,9 @@ export default Vue.component("table-cell", {
         }
     },
     props: {
+        checked: {
+            type: Array
+        },
         currentlyEditedCell: {
             required: false,
             type: Object,
@@ -68,6 +71,8 @@ export default Vue.component("table-cell", {
         >
         </table-cell-editable>
         <table-cell-clickable v-else-if="data.isClickable()"
+            :checkedOptions="checked"
+            :format="data.getType()"
             :value="data.getValue()"
             :on-click="onClicked"
         >

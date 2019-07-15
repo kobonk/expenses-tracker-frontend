@@ -1,5 +1,6 @@
+import InputCheckbox from "./InputCheckbox";
 import InputDate from "./InputDate";
 import InputNumber from "./InputNumber";
 import InputText from "./InputText";
 
-export { InputDate, InputNumber, InputText };
+export { InputCheckbox, InputDate, InputNumber, InputText };

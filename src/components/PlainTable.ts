@@ -13,6 +13,9 @@ export default {
             type: Array,
             required: true
         },
+        checkedRows: {
+            type: Array
+        },
         footer: {
             type: Array,
             required: true
@@ -42,7 +45,10 @@ export default {
                         v-for="bodyCell, j in bodyRow"
                         v-bind:key="j"
                     >
-                        <table-cell :data="bodyCell" />
+                        <table-cell
+                            :checked="checkedRows"
+                            :data="bodyCell"
+                        />
                     </td>
                 </tr>
             </tbody>
