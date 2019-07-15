@@ -28,7 +28,7 @@ export default {
         }
     },
     template: `
-        <form name="find-expenses" class="filter-expenses-form" ref="form" @submit.prevent="onSubmit">
+        <form name="find-expenses" class="find-expenses-form" ref="form" @submit.prevent="onSubmit">
             <auto-complete-expense-name
                 v-on:change="updateFilter"
                 :on-error="showError"

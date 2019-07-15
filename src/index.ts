@@ -27,7 +27,7 @@ const vm = new Vue({
         "add-expense-form": () => import("./components/add-expense-form/add-expense-form"),
         "expense-category-month-view": () => import('./components/ExpenseCategoryMonthView'),
         "expense-category-table-view": () => import('./components/ExpenseCategoryTableView'),
-        "filter-expenses-form": () => import("./components/FindExpensesForm"),
+        "find-expenses-form": () => import("./components/FindExpensesForm"),
         "filtered-expenses": FilteredExpenses,
         "month-filter-form": MonthFilterForm,
         "view-title": ViewTitle
@@ -86,7 +86,7 @@ const vm = new Vue({
     },
     el: "#expenses-tracker",
     methods: {
-        displayFilteredExpenses(name: string) {
+        displayFoundExpenses(name: string) {
             this.filterText = name;
             this.activeView = "filtered-expenses";
         },
