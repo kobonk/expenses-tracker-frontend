@@ -61,16 +61,17 @@ const calculateColumnTotal = (grid : ExpenseCategoryTableGrid, columnIndex : num
         );
 };
 
-const createCategoryTableBody = (grid : ExpenseCategoryTableGrid, onClickCallback : Function) : Array<Array<DataTableRecord>> => {
+const createCategoryTableBody = (grid : ExpenseCategoryTableGrid, onClickCallback : Function) : Array<ExpenseCategoryTableGridRow> => {
     if (!grid) {
         return [];
     }
 
-    return grid.getColumn(0)
-        .map((categoryCell : DataTableRecord) => {
-            const checkboxCell = new CategoryBodyGridCellCheckbox(categoryCell.getName(), onClickCallback);
+    return grid.getColumns(0, 1)
+        .map((row : ExpenseCategoryTableGridRow) => {
+            const checkboxCell = new CategoryBodyGridCellCheckbox(row.getId(), onClickCallback);
+            const categoryCell = row.getCell(0);
 
-            return [checkboxCell, categoryCell];
+            return new ExpenseCategoryTableGridRow(row.getId(), [checkboxCell, categoryCell]);
         });
 
 };
@@ -140,7 +141,7 @@ export default {
                         new CategoryHeaderGridCell(i18n.categorySummaries.averageLabel, () => this.sort(this.sortedGrid.getColumnCount() - 2)),
                         new CategoryHeaderGridCell(i18n.categorySummaries.totalLabel, () => this.sort(this.sortedGrid.getColumnCount() - 1))
                     ],
-                    body: !this.sortedGrid ? [] : this.sortedGrid.getRows().map((row : ExpenseCategoryTableGridRow) => row.getCells(-2, undefined)),
+                    body: !this.sortedGrid ? [] : this.sortedGrid.getRows().map((row : ExpenseCategoryTableGridRow) => new ExpenseCategoryTableGridRow(row.getId(), row.getCells(-2, undefined))),
                     footer: [
                         new CategoryFooterGridCellNumeric(finalAverage),
                         new CategoryFooterGridCellNumeric(finalTotal)
@@ -190,6 +191,9 @@ export default {
         onWindowResized() {
             this.synchronizeTableSizes();
             this.synchronizeHorizontallScrollerSize();
+        },
+        selectAllRows() {
+            this.checkedRows = this.sortedGrid.getRows().map((row : ExpenseCategoryTableGridRow) => row.getId());
         },
         selectRow(categoryId : string) {
             if (!categoryId) {
@@ -250,7 +254,6 @@ export default {
         window.addEventListener("resize", this.onWindowResized);
 
         this.sort(this.sortedColumn, this.sortingDirection);
-
     },
     beforeDestroy() {
         this.verticalScrollController.removeEventListener("scroll", this.handleVerticalScroll);
@@ -335,11 +338,12 @@ export default {
         </div>
     `,
     watch: {
-        checkedRows(rows : Array<string>) {
-            console.log(rows);
-        },
         grid(grid : ExpenseCategoryTableGrid) {
             this.sort(this.sortedColumn, this.sortingDirection);
+
+            if (this.checkedRows.length === 0) {
+                this.selectAllRows();
+            }
         }
     }
 };

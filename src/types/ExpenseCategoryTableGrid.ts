@@ -79,12 +79,24 @@ export class ExpenseCategoryTableGridRow {
         this.cells = cells;
     }
 
+    getId() : string {
+        return this.id;
+    }
+
     getCell(index : number) : DataTableRecord {
         return this.cells[index];
     }
 
     getCells(startingIndex : number, count : number | undefined) : Array<DataTableRecord> {
-        return this.cells.slice(startingIndex, count ? startingIndex + count : null);
+        if (typeof startingIndex !== "number" && typeof count !== "number") {
+            return this.cells;
+        }
+
+        if (typeof count !== "number") {
+            return this.cells.slice(startingIndex);
+        }
+
+        return this.cells.slice(startingIndex, startingIndex + count);
     }
 }
 
@@ -121,23 +133,11 @@ export default class ExpenseCategoryTableGrid {
             );
     }
 
-    getCell(rowIndex : number, columnIndex : number) : DataTableRecord {
-        return this.getColumn(columnIndex)[rowIndex];
-    }
-
-    getColumn(index : number) : Array<DataTableRecord> {
+    getColumns(startingIndex : number, count : number) : Array<ExpenseCategoryTableGridRow> {
         return this.grid
             .reduce(
-                (result : Array<DataTableRecord>, row : ExpenseCategoryTableGridRow) : Array<DataTableRecord> => [...result, row.getCell(index)],
-                []
-            );
-    }
-
-    getColumns(startingIndex : number, count : number) : Array<Array<DataTableRecord>> {
-        return this.grid
-            .reduce(
-                (result : Array<Array<DataTableRecord>>, row : ExpenseCategoryTableGridRow) : Array<Array<DataTableRecord>> => {
-                    return [...result, row.getCells(startingIndex, count)];
+                (result : Array<ExpenseCategoryTableGridRow>, row : ExpenseCategoryTableGridRow) : Array<ExpenseCategoryTableGridRow> => {
+                    return [...result, new ExpenseCategoryTableGridRow(row.getId(), row.getCells(startingIndex, count))];
                 },
                 []
             )

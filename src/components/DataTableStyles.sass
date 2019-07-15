@@ -38,6 +38,17 @@ $horizontalScrollHeight: 20px
                 min-width: 30px
                 max-width: 30px
 
+        tr
+            &.selected
+                td
+                    span
+                        color: $colorPrimaryText
+
+            &:not(.selected)
+                td
+                    span
+                        color: $colorPrimaryLight
+
     .summary-table
         display: flex
         flex-direction: column

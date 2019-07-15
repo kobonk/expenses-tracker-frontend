@@ -38,11 +38,12 @@ export default {
             </thead>
             <tbody>
                 <tr
-                    v-for="bodyRow, i in body"
-                    v-bind:key="i"
+                    v-for="bodyRow in body"
+                    v-bind:key="bodyRow.getId()"
+                    :class="checkedRows.includes(bodyRow.getId()) ? 'selected' : null"
                 >
                     <td
-                        v-for="bodyCell, j in bodyRow"
+                        v-for="bodyCell, j in bodyRow.getCells()"
                         v-bind:key="j"
                     >
                         <table-cell
