@@ -36,31 +36,6 @@ const getFirstParentOfType = (element : HTMLElement, type : string) : HTMLElemen
     return parent;
 };
 
-const getMonthColumnTotals = (grid : ExpenseCategoryTableGrid, months : Array<string>) : Array<number> => {
-    return months
-        .map((month : string, index : number) => {
-            if (!grid) {
-                return 0;
-            }
-
-            return calculateColumnTotal(grid, index + 2);
-        });
-};
-
-const calculateColumnTotal = (grid : ExpenseCategoryTableGrid, columnIndex : number) : number => {
-    return grid.getRows()
-        .reduce(
-            (sum : number, row : ExpenseCategoryTableGridRow) => {
-                if (!row.getCell(columnIndex)) {
-                    return sum;
-                }
-
-                return sum + stringToFloat(row.getCell(columnIndex).getValue())
-            },
-            0
-        );
-};
-
 const createCategoryTableBody = (grid : ExpenseCategoryTableGrid, onClickCallback : Function) : Array<ExpenseCategoryTableGridRow> => {
     if (!grid) {
         return [];
@@ -102,8 +77,8 @@ export default {
             return this.$el.querySelectorAll("tbody");
         },
         tables() : Array<any> {
-            const finalTotal = !this.sortedGrid ? 0 : calculateColumnTotal(this.sortedGrid, this.sortedGrid.getColumnCount() - 1);
-            const finalAverage = !this.sortedGrid ? 0 : calculateColumnTotal(this.sortedGrid, this.sortedGrid.getColumnCount() - 2);
+            const finalTotal = !this.sortedGrid ? 0 : this.calculateColumnTotal(this.sortedGrid.getColumnCount() - 1);
+            const finalAverage = !this.sortedGrid ? 0 : this.calculateColumnTotal(this.sortedGrid.getColumnCount() - 2);
             const categoryTableBody = createCategoryTableBody(this.sortedGrid, this.selectRow);
 
             return [
@@ -129,7 +104,7 @@ export default {
                     style: {},
                     header: this.months.map((month : string, i : number) => new CategoryHeaderGridCell(extractMonthName(month), () => this.sort(i + 1))),
                     body: !this.sortedGrid ? [] : this.sortedGrid.getColumns(1, this.months.length),
-                    footer: getMonthColumnTotals(this.sortedGrid, this.months).map((total : number) => new CategoryFooterGridCellNumeric(total))
+                    footer: this.calculateMonthColumnTotals().map((total : number) => new CategoryFooterGridCellNumeric(total))
                 },
                 {
                     id: "summary",
@@ -166,6 +141,30 @@ export default {
         }
     },
     methods: {
+        calculateColumnTotal(columnIndex : number) : number {
+            if (!this.sortedGrid) {
+                return 0;
+            }
+
+            return this.sortedGrid.getRows()
+                .filter(this.isRowSelected)
+                .reduce(
+                    (sum : number, row : ExpenseCategoryTableGridRow) => {
+                        if (!row.getCell(columnIndex)) {
+                            return sum;
+                        }
+
+                        return sum + stringToFloat(row.getCell(columnIndex).getValue())
+                    },
+                    0
+                );
+        },
+        calculateMonthColumnTotals() : Array<number> {
+            return this.months
+                .map((month : string, index : number) => {
+                    return this.calculateColumnTotal(index + 2);
+                });
+        },
         handleHorizontalScroll(event : Event) {
             this.scrollMonthsTableHorizontally((event.target as HTMLElement).scrollLeft);
         },
@@ -187,6 +186,9 @@ export default {
                         tableBody.scrollTop += wheelFactor * (event as WheelEvent).deltaY;
                     }
                 });
+        },
+        isRowSelected(row : ExpenseCategoryTableGridRow) : boolean {
+            return this.checkedRows.includes(row.getId());
         },
         onWindowResized() {
             this.synchronizeTableSizes();
