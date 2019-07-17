@@ -1,5 +1,6 @@
 import i18n from 'utils/i18n';
 import { extractMonthName, stringToFloat } from "utils/stringUtils";
+import { getFirstParentOfType } from "utils/domUtils";
 import Cell from "./DataTableCell";
 import DataTable from "./DataTable";
 import PlainTable from "./PlainTable";
@@ -11,30 +12,6 @@ import {
     CategoryFooterGridCellText
 } from 'types/ExpenseCategoryTableGridTypes';
 import { DataTableRecord, DataTableRecordCollection, DataTableCell } from "./../types/DataTableTypes";
-
-const getFirstParentOfType = (element : HTMLElement, type : string) : HTMLElement => {
-    if (!element) {
-        return null;
-    }
-
-    const pattern = new RegExp(type, "i");
-
-    if (pattern.test(element.tagName)) {
-        return element;
-    }
-
-    if (!element.parentElement) {
-        return null;
-    }
-
-    let parent = element.parentElement;
-
-    while (parent && !pattern.test(parent.tagName)) {
-        parent = parent.parentElement;
-    }
-
-    return parent;
-};
 
 const createCategoryTableBody = (grid : ExpenseCategoryTableGrid, onClickCallback : Function) : Array<ExpenseCategoryTableGridRow> => {
     if (!grid) {
