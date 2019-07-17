@@ -256,6 +256,7 @@ export default {
         window.addEventListener("resize", this.onWindowResized);
 
         this.sort(this.sortedColumn, this.sortingDirection);
+        this.selectAllRows();
     },
     beforeDestroy() {
         this.verticalScrollController.removeEventListener("scroll", this.handleVerticalScroll);
