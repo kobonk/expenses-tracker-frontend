@@ -149,7 +149,7 @@ export default {
             return this.sortedGrid.getRows()
                 .filter(this.isRowSelected)
                 .reduce(
-                    (sum : number, row : ExpenseCategoryTableGridRow) => {
+                    (sum : number, row : ExpenseCategoryTableGridRow, i : number) => {
                         if (!row.getCell(columnIndex)) {
                             return sum;
                         }
@@ -162,7 +162,7 @@ export default {
         calculateMonthColumnTotals() : Array<number> {
             return this.months
                 .map((month : string, index : number) => {
-                    return this.calculateColumnTotal(index + 2);
+                    return this.calculateColumnTotal(index + 1);
                 });
         },
         handleHorizontalScroll(event : Event) {
