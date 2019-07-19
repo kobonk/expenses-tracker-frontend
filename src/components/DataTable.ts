@@ -37,7 +37,16 @@ export default {
             cell.onClick();
         }
     },
-    props: ["data", "onCellEdited"],
+    props: {
+        data: {
+            type: Object,
+            required: true
+        },
+        onCellEdited: {
+            type: Function,
+            required: true
+        }
+    },
     template: `
         <table v-if="tableVisible" class="data-table">
             <thead v-if="data.getHeader().length > 0">
