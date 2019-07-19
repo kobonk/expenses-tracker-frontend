@@ -54,9 +54,12 @@ export default {
                 </tr>
             </tbody>
             <tfoot>
-                <tr>
+                <tr
+                    v-for="footerRow in footer"
+                    v-bind:key="footerRow.getId()"
+                >
                     <th
-                        v-for="footerCell, b in footer"
+                        v-for="footerCell, b in footerRow.getCells()"
                         v-bind:key="b"
                     >
                         <table-cell :data="footerCell" />

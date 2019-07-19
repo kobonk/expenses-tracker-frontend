@@ -31,7 +31,10 @@
     "categorySummaries": {
         "averageLabel": "Średnia",
         "categoryLabel": "Nazwa Kategorii",
-        "totalLabel": "Suma"
+        "totalLabel": "Suma",
+        "totalSelectedLabel": "Suma zaznaczonych",
+        "totalNotSelectedLabel": "Pozostałych",
+        "totalAllLabel": "Całkowita"
     },
     "monthNames": [
         "Styczeń",

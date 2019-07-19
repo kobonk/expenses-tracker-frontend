@@ -31,7 +31,10 @@
     "categorySummaries": {
         "averageLabel": "Average",
         "categoryLabel": "Category Name",
-        "totalLabel": "Total"
+        "totalLabel": "Total",
+        "totalSelectedLabel": "Selected rows",
+        "totalNotSelectedLabel": "Other rows",
+        "totalAllLabel": "Total"
     },
     "monthNames": [
         "January",

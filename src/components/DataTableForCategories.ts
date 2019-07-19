@@ -2,7 +2,6 @@ import i18n from 'utils/i18n';
 import { extractMonthName, stringToFloat } from "utils/stringUtils";
 import { getFirstParentOfType } from "utils/domUtils";
 import Cell from "./DataTableCell";
-import DataTable from "./DataTable";
 import PlainTable from "./PlainTable";
 import ExpenseCategoryTableGrid, { ExpenseCategoryTableGridRow } from 'types/ExpenseCategoryTableGrid';
 import {
@@ -11,7 +10,7 @@ import {
     CategoryFooterGridCellNumeric,
     CategoryFooterGridCellText
 } from 'types/ExpenseCategoryTableGridTypes';
-import { DataTableRecord, DataTableRecordCollection, DataTableCell } from "./../types/DataTableTypes";
+import { DataTableCell } from "./../types/DataTableTypes";
 
 const createCategoryTableBody = (grid : ExpenseCategoryTableGrid, onClickCallback : Function) : Array<ExpenseCategoryTableGridRow> => {
     if (!grid) {
@@ -25,12 +24,26 @@ const createCategoryTableBody = (grid : ExpenseCategoryTableGrid, onClickCallbac
 
             return new ExpenseCategoryTableGridRow(row.getId(), [checkboxCell, categoryCell]);
         });
+};
 
+const convertArraysToFooterRows = (rows : Array<Array<number | string>>, idPattern : string) : Array<ExpenseCategoryTableGridRow> => {
+    return rows
+        .map((row : Array<number>, i : number) => {
+            return new ExpenseCategoryTableGridRow(
+                `${ idPattern }-${ i + 1 }`,
+                row.map((value : number | string) => {
+                    if (typeof value === "number") {
+                        return new CategoryFooterGridCellNumeric(value as number);
+                    }
+
+                    return new CategoryFooterGridCellText(value as string);
+                })
+            );
+        });
 };
 
 export default {
     components: {
-        "data-table": DataTable,
         "plain-table": PlainTable,
         "table-cell": Cell
     },
@@ -54,9 +67,11 @@ export default {
             return this.$el.querySelectorAll("tbody");
         },
         tables() : Array<any> {
-            const finalTotal = !this.sortedGrid ? 0 : this.calculateColumnTotal(this.sortedGrid.getColumnCount() - 1);
-            const finalAverage = !this.sortedGrid ? 0 : this.calculateColumnTotal(this.sortedGrid.getColumnCount() - 2);
             const categoryTableBody = createCategoryTableBody(this.sortedGrid, this.selectRow);
+
+            const categoryTableFooter = convertArraysToFooterRows(this.getCategoryTableFooterValues(), "footer-category");
+            const monthTableFooter = convertArraysToFooterRows(this.calculateMonthTableFooterValues(), "footer-month");
+            const summaryTableFooter = convertArraysToFooterRows(this.calculateSummaryTableFooterValues(), "footer-total");
 
             return [
                 {
@@ -70,10 +85,7 @@ export default {
                         new CategoryHeaderGridCell(i18n.categorySummaries.categoryLabel, () => this.sort(0))
                     ],
                     body: categoryTableBody,
-                    footer: [
-                        new CategoryFooterGridCellText(""),
-                        new CategoryFooterGridCellText(i18n.categorySummaries.totalLabel)
-                    ]
+                    footer: categoryTableFooter
                 },
                 {
                     id: "months",
@@ -81,7 +93,7 @@ export default {
                     style: {},
                     header: this.months.map((month : string, i : number) => new CategoryHeaderGridCell(extractMonthName(month), () => this.sort(i + 1))),
                     body: !this.sortedGrid ? [] : this.sortedGrid.getColumns(1, this.months.length),
-                    footer: this.calculateMonthColumnTotals().map((total : number) => new CategoryFooterGridCellNumeric(total))
+                    footer: monthTableFooter
                 },
                 {
                     id: "summary",
@@ -94,10 +106,7 @@ export default {
                         new CategoryHeaderGridCell(i18n.categorySummaries.totalLabel, () => this.sort(this.sortedGrid.getColumnCount() - 1))
                     ],
                     body: !this.sortedGrid ? [] : this.sortedGrid.getRows().map((row : ExpenseCategoryTableGridRow) => new ExpenseCategoryTableGridRow(row.getId(), row.getCells(-2, undefined))),
-                    footer: [
-                        new CategoryFooterGridCellNumeric(finalAverage),
-                        new CategoryFooterGridCellNumeric(finalTotal)
-                    ]
+                    footer: summaryTableFooter
                 }
             ]
         },
@@ -118,13 +127,13 @@ export default {
         }
     },
     methods: {
-        calculateColumnTotal(columnIndex : number) : number {
+        calculateColumnTotal(columnIndex : number, filterCallback : Function = this.isRowSelected) : number {
             if (!this.sortedGrid) {
                 return 0;
             }
 
             return this.sortedGrid.getRows()
-                .filter(this.isRowSelected)
+                .filter(filterCallback)
                 .reduce(
                     (sum : number, row : ExpenseCategoryTableGridRow, i : number) => {
                         if (!row.getCell(columnIndex)) {
@@ -136,11 +145,46 @@ export default {
                     0
                 );
         },
-        calculateMonthColumnTotals() : Array<number> {
-            return this.months
-                .map((month : string, index : number) => {
-                    return this.calculateColumnTotal(index + 1);
-                });
+        calculateMonthTableFooterValues() : Array<Array<number>> {
+            return [
+                this.months
+                    .map((month : string, index : number) => {
+                        return this.calculateColumnTotal(index + 1);
+                    }),
+                this.months
+                    .map((month : string, index : number) => {
+                        return this.calculateColumnTotal(index + 1, this.isRowNotSelected);
+                    }),
+                this.months
+                    .map((month : string, index : number) => {
+                        return this.calculateColumnTotal(index + 1, () => true);
+                    })
+            ];
+        },
+        calculateSummaryTableFooterValues() : Array<Array<number>> {
+            if (!this.sortedGrid) {
+                return [
+                    [0, 0, 0],
+                    [0, 0, 0],
+                    [0, 0, 0]
+                ];
+            }
+
+            const columnCount = this.sortedGrid.getColumnCount();
+            const indices = [columnCount - 2, columnCount - 1];
+
+            return [
+                indices.map((index : number) => this.calculateColumnTotal(index)),
+                indices.map((index : number) => this.calculateColumnTotal(index, this.isRowNotSelected)),
+                indices.map((index : number) => this.calculateColumnTotal(index, () => true))
+            ];
+        },
+        getCategoryTableFooterValues() : Array<Array<string>> {
+            return [
+                ["", i18n.categorySummaries.totalSelectedLabel],
+                ["", i18n.categorySummaries.totalNotSelectedLabel],
+                ["", i18n.categorySummaries.totalAllLabel]
+            ];
         },
         handleHorizontalScroll(event : Event) {
             this.scrollMonthsTableHorizontally((event.target as HTMLElement).scrollLeft);
@@ -163,6 +207,9 @@ export default {
                         tableBody.scrollTop += wheelFactor * (event as WheelEvent).deltaY;
                     }
                 });
+        },
+        isRowNotSelected(row : ExpenseCategoryTableGridRow) : boolean {
+            return !this.isRowSelected(row);
         },
         isRowSelected(row : ExpenseCategoryTableGridRow) : boolean {
             return this.checkedRows.includes(row.getId());
@@ -318,10 +365,14 @@ export default {
         </div>
     `,
     watch: {
-        grid(grid : ExpenseCategoryTableGrid) {
+        grid(newGrid : ExpenseCategoryTableGrid, oldGrid : ExpenseCategoryTableGrid) {
             this.sort(this.sortedColumn, this.sortingDirection);
 
             if (this.checkedRows.length === 0) {
+                this.selectAllRows();
+            }
+
+            if (newGrid.getRows().length !== oldGrid.getRows().length) {
                 this.selectAllRows();
             }
         }
