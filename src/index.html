@@ -10,21 +10,22 @@
                 <add-expense-form @submit="refreshMainView"></add-expense-form>
             </aside>
             <main class="content" v-if="expenses">
-                <header class="content-header">
-                    <month-filter-form
-                        :months="availableMonths"
-                        :most-recent-month="startingMonth"
-                        :number-of-months="numberOfVisibleMonths"
-                        @change="onMonthRangeChanged"
-                    >
-                    </month-filter-form>
-                    <find-expenses-form @submit="displayFoundExpenses"></find-expenses-form>
-                </header>
                 <transition name="slide-fade" mode="out-in">
+                    <header class="content-header" v-if="activeView === 'months'">
+                        <month-filter-form
+                            :months="availableMonths"
+                            :most-recent-month="startingMonth"
+                            :number-of-months="numberOfVisibleMonths"
+                            @change="onMonthRangeChanged"
+                        >
+                        </month-filter-form>
+                        <find-expenses-form @submit="displayFoundExpenses"></find-expenses-form>
+                    </header>
                     <view-title
+                        class="content-header"
                         v-if="activeView !== 'months'"
                         :on-close="showMonthsView"
-                        >
+                    >
                         {{ currentTitle }}
                     </view-title>
                 </transition>

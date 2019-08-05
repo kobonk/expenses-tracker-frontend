@@ -1,9 +1,16 @@
 export default {
-    props: ["onClose"],
+    props: {
+        onClose: {
+            required: true,
+            type: Function
+        }
+    },
     template: `
-        <h3>
+        <header>
             <button @click="onClose">«</button>
-            <slot></slot>
-        </h3>
+            <h3>
+                <slot></slot>
+            </h3>
+        </header>
     `
 };
