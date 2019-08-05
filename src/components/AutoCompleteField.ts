@@ -113,7 +113,10 @@ export default {
             this.currentItem = item;
         }
     },
-    props: ["value", "items"],
+    props: {
+        items: Array,
+        value: String
+    },
     template: `
         <div class="auto-complete-field">
             <input

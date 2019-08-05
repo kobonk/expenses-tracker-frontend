@@ -59,8 +59,14 @@ export const persistExpense:Function = async (expense:Expense):Promise<Expense> 
     return Expense.prototype.fromAsset(response.data);
 };
 
-export const updateExpense: Function = async (expenseId: string, changes: Object) => {
+export const updateExpense: Function = async (expenseId: string, changes: Object) : Promise<Expense> => {
     let response = await axios.patch(`${ backendUrl }/expense/${ expenseId }`, changes);
 
     return Expense.prototype.fromAsset(response.data);
+};
+
+export const retrieveCommonExpenseCost : Function = async (expenseName : string) : Promise<number> => {
+    let response = await axios.get(`${ backendUrl }/cost/${ expenseName }`);
+
+    return response.data;
 };
