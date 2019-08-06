@@ -310,7 +310,7 @@ export default {
                     :header="tables[0].header"
                     :body="tables[0].body"
                     :footer="tables[0].footer"
-                    :sortedColumn="sortedColumn === 0 ? 0 : null"
+                    :sortedColumn="sortedColumn === 0 ? 1 : null"
                     :sortingDirection="sortingDirection"
                 />
                 <div class="scroll-horizontal">
