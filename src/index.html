@@ -36,12 +36,16 @@
                         :expenses="expenses"
                         :months="visibleMonths"
                         :on-month-clicked="onCategoryMonthSelected"
-                        >
+                        :on-sorting-changed="changeCategoryGridSorting"
+                        :sorted-column="categoryGridSortedColumn"
+                        :sorting-direction="categoryGridSortingDirection"
+                    >
                     </expense-category-table-view>
                     <filtered-expenses v-else-if="activeView === 'filtered-expenses'"
                         :expenses="expenses"
                         :filter-text="filterText"
-                        :on-edit="updateExpense">
+                        :on-edit="updateExpense"
+                    >
                     </filtered-expenses>
                     <expense-category-month-view v-else
                         :category="currentCategory"

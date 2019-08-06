@@ -67,8 +67,7 @@ export default {
             return this.$el.querySelectorAll("tbody");
         },
         tables() : Array<any> {
-            const categoryTableBody = createCategoryTableBody(this.sortedGrid, this.selectRow);
-
+            const categoryTableBody = createCategoryTableBody(this.grid, this.selectRow);
             const categoryTableFooter = convertArraysToFooterRows(this.getCategoryTableFooterValues(), "footer-category");
             const monthTableFooter = convertArraysToFooterRows(this.calculateMonthTableFooterValues(), "footer-month");
             const summaryTableFooter = convertArraysToFooterRows(this.calculateSummaryTableFooterValues(), "footer-total");
@@ -82,7 +81,7 @@ export default {
                     },
                     header: [
                         new CategoryHeaderGridCell("", null),
-                        new CategoryHeaderGridCell(i18n.categorySummaries.categoryLabel, () => this.sort(0))
+                        new CategoryHeaderGridCell(i18n.categorySummaries.categoryLabel, () => this.onSortingChanged(0))
                     ],
                     body: categoryTableBody,
                     footer: categoryTableFooter
@@ -91,8 +90,8 @@ export default {
                     id: "months",
                     class: "data-table scroll-disabled align-right",
                     style: {},
-                    header: this.months.map((month : string, i : number) => new CategoryHeaderGridCell(extractMonthName(month), () => this.sort(i + 1))),
-                    body: !this.sortedGrid ? [] : this.sortedGrid.getColumns(1, this.months.length),
+                    header: this.months.map((month : string, i : number) => new CategoryHeaderGridCell(extractMonthName(month), () => this.onSortingChanged(i + 1))),
+                    body: !this.grid ? [] : this.grid.getColumns(1, this.months.length),
                     footer: monthTableFooter
                 },
                 {
@@ -102,10 +101,10 @@ export default {
                         width: "260px"
                     },
                     header: [
-                        new CategoryHeaderGridCell(i18n.categorySummaries.averageLabel, () => this.sort(this.sortedGrid.getColumnCount() - 2)),
-                        new CategoryHeaderGridCell(i18n.categorySummaries.totalLabel, () => this.sort(this.sortedGrid.getColumnCount() - 1))
+                        new CategoryHeaderGridCell(i18n.categorySummaries.averageLabel, () => this.onSortingChanged(this.grid.getColumnCount() - 2)),
+                        new CategoryHeaderGridCell(i18n.categorySummaries.totalLabel, () => this.onSortingChanged(this.grid.getColumnCount() - 1))
                     ],
-                    body: !this.sortedGrid ? [] : this.sortedGrid.getRows().map((row : ExpenseCategoryTableGridRow) => new ExpenseCategoryTableGridRow(row.getId(), row.getCells(-2, undefined))),
+                    body: !this.grid ? [] : this.grid.getRows().map((row : ExpenseCategoryTableGridRow) => new ExpenseCategoryTableGridRow(row.getId(), row.getCells(-2, undefined))),
                     footer: summaryTableFooter
                 }
             ]
@@ -120,19 +119,16 @@ export default {
     data() {
         return {
             checkedRows: [] as Array<string>,
-            editedCell: null as DataTableCell,
-            sortedGrid: null as ExpenseCategoryTableGrid,
-            sortedColumn: 0,
-            sortingDirection: "asc"
+            editedCell: null as DataTableCell
         }
     },
     methods: {
         calculateColumnTotal(columnIndex : number, filterCallback : Function = this.isRowSelected) : number {
-            if (!this.sortedGrid) {
+            if (!this.grid) {
                 return 0;
             }
 
-            return this.sortedGrid.getRows()
+            return this.grid.getRows()
                 .filter(filterCallback)
                 .reduce(
                     (sum : number, row : ExpenseCategoryTableGridRow, i : number) => {
@@ -162,7 +158,7 @@ export default {
             ];
         },
         calculateSummaryTableFooterValues() : Array<Array<number>> {
-            if (!this.sortedGrid) {
+            if (!this.grid) {
                 return [
                     [0, 0, 0],
                     [0, 0, 0],
@@ -170,7 +166,7 @@ export default {
                 ];
             }
 
-            const columnCount = this.sortedGrid.getColumnCount();
+            const columnCount = this.grid.getColumnCount();
             const indices = [columnCount - 2, columnCount - 1];
 
             return [
@@ -219,7 +215,7 @@ export default {
             this.synchronizeHorizontallScrollerSize();
         },
         selectAllRows() {
-            this.checkedRows = this.sortedGrid.getRows().map((row : ExpenseCategoryTableGridRow) => row.getId());
+            this.checkedRows = this.grid.getRows().map((row : ExpenseCategoryTableGridRow) => row.getId());
         },
         selectRow(categoryId : string) {
             if (!categoryId) {
@@ -258,19 +254,6 @@ export default {
             const wrongHeightTableBody = this.tableNodes[1];
 
             wrongHeightTableBody.style.height = `${properHeightTableBody.clientHeight}px`
-        },
-        sort(columnIndex : number, direction : string) {
-            if (columnIndex === this.sortedColumn && !direction) {
-                this.sortingDirection = this.sortingDirection === "asc" ? "desc" : "asc";
-            }
-
-            if (direction) {
-                this.sortingDirection = direction;
-            }
-
-            this.sortedColumn = columnIndex;
-
-            this.sortedGrid = this.grid.sort(this.sortedColumn, this.sortingDirection);
         }
     },
     mounted() {
@@ -279,7 +262,7 @@ export default {
         this.horizontalScrollController.addEventListener("scroll", this.handleHorizontalScroll);
         window.addEventListener("resize", this.onWindowResized);
 
-        this.sort(this.sortedColumn, this.sortingDirection);
+        this.onSortingChanged(this.sortedColumn, this.sortingDirection);
         this.selectAllRows();
     },
     beforeDestroy() {
@@ -300,10 +283,18 @@ export default {
             type: Array,
             required: true
         },
+        onSortingChanged: {
+            default: () => {},
+            type: Function
+        },
         onCellEdited: Function,
-        rows: {
-            type: Array,
-            required: true
+        sortedColumn: {
+            default: 0,
+            type: Number
+        },
+        sortingDirection: {
+            default: "asc",
+            type: String
         }
     },
     template: `
@@ -366,7 +357,7 @@ export default {
     `,
     watch: {
         grid(newGrid : ExpenseCategoryTableGrid, oldGrid : ExpenseCategoryTableGrid) {
-            this.sort(this.sortedColumn, this.sortingDirection);
+            this.onSortingChanged(this.sortedColumn, this.sortingDirection);
 
             if (this.checkedRows.length === 0) {
                 this.selectAllRows();

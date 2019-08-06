@@ -77,6 +77,8 @@ const vm = new Vue({
         activeView: "months",
         availableMonths: [],
         categories: [],
+        categoryGridSortedColumn: 0,
+        categoryGridSortingDirection: "asc",
         currentCategory: null,
         currentMonth: null,
         expenses: [],
@@ -86,6 +88,17 @@ const vm = new Vue({
     },
     el: "#expenses-tracker",
     methods: {
+        changeCategoryGridSorting(columnIndex : number, direction : string) {
+            if (columnIndex === this.categoryGridSortedColumn && !direction) {
+                this.categoryGridSortingDirection = this.categoryGridSortingDirection === "asc" ? "desc" : "asc";
+            }
+
+            if (direction) {
+                this.categoryGridSortingDirection = direction;
+            }
+
+            this.categoryGridSortedColumn = columnIndex;
+        },
         displayFoundExpenses(name: string) {
             this.filterText = name;
             this.activeView = "filtered-expenses";

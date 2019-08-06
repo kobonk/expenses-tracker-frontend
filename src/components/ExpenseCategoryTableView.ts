@@ -56,25 +56,41 @@ export default {
         "data-grid": DataTableForCategories
     },
     computed: {
-        gridRows() {
-            return convertExpensesToSummaries(this.expenses, this.months, this.categories);
-        },
         grid() {
-            return new ExpenseCategoryTableGrid(convertExpensesToSummaries(this.expenses, this.months, this.categories), this.onMonthClicked);
+            const rawGrid = new ExpenseCategoryTableGrid(
+                convertExpensesToSummaries(this.expenses, this.months, this.categories),
+                this.onMonthClicked
+            );
+
+            return rawGrid.sort(this.sortedColumn, this.sortingDirection);
         }
     },
     props: {
         categories: Array,
         expenses: Array,
         months: Array,
-        onMonthClicked: Function
+        onMonthClicked: Function,
+        onSortingChanged: {
+            default: () => {},
+            type: Function
+        },
+        sortedColumn: {
+            default: 0,
+            type: Number
+        },
+        sortingDirection: {
+            default: "asc",
+            type: String
+        }
     },
     template: `
         <data-grid
             :grid="grid"
             :months="months"
-            :onCellEdited="onMonthClicked"
-            :rows="gridRows"
+            :on-cell-edited="onMonthClicked"
+            :on-sorting-changed="onSortingChanged"
+            :sorted-column="sortedColumn"
+            :sorting-direction="sortingDirection"
         >
         </data-grid>
     `
