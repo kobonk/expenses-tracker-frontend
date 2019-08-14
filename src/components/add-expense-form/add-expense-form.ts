@@ -5,7 +5,7 @@ import Expense from "types/Expense";
 import i18n from "utils/i18n";
 import { persistCategory, persistExpense, retrieveCategories, retrieveSimilarExpenseNames, retrieveCommonExpenseCost } from "utils/restClient";
 import "./styles.sass";
-import { timeHours } from "d3";
+import ExpenseTagsField from "./../ExpenseTagsField";
 
 const _ = require("lodash");
 
@@ -15,7 +15,8 @@ const trimAndLower = (text: string): string => {
 
 const component = {
     components: {
-        "auto-complete-field": AutoCompleteField
+        "auto-complete-field": AutoCompleteField,
+        "tags-field": ExpenseTagsField
     },
     computed: {
         categoryNames(): Array<ExpenseCategory> {
@@ -35,6 +36,7 @@ const component = {
             i18n: i18n.addExpenseForm,
             name: "",
             similarExpenseSchemas: [] as Array<any>,
+            tags: [] as Array<String>,
             toastMessage: null as unknown
         };
     },
@@ -44,6 +46,7 @@ const component = {
             this.cost = null;
             this.date = this.date || convertDateToString(new Date());
             this.name = "";
+            this.tags = [];
             this.$refs.form.reset();
             this.$refs.form["name"].focus();
         },
@@ -59,6 +62,10 @@ const component = {
                 // Explicitly passing the event up the DOM tree. I don't know why it doesn't work out-of-box.
                 this.$emit("submit", event);
             });
+        },
+        onTagsChanged(tags : Array<String>) {
+            console.log(tags);
+            this.tags = tags;
         },
         ensureCategoryRegistration(categoryName: string): Promise<ExpenseCategory> {
             let existingCategory: ExpenseCategory = this.findCategoryByName(categoryName);
@@ -126,6 +133,7 @@ const component = {
                 :items="similarNames"
                 :placeholder="i18n.expenseName"
                 autofocus
+                class="input-field"
                 name="name"
                 required
                 tabindex="1">
@@ -134,12 +142,17 @@ const component = {
                 v-model.lazy="categoryName"
                 :items="categoryNames"
                 :placeholder="i18n.expenseCategory"
+                class="input-field"
                 name="category"
                 required
                 tabindex="2">
             </auto-complete-field>
-            <input tabindex="3" autocomplete="off" type="number" :placeholder="i18n.expenseCost" name="cost" step="0.01" min="0.01" required v-model="cost">
-            <input tabindex="4" type="date" :placeholder="i18n.expenseDate" name="purchase_date" required v-model="date">
+            <input class="input-field" tabindex="3" autocomplete="off" type="number" :placeholder="i18n.expenseCost" name="cost" step="0.01" min="0.01" required v-model="cost">
+            <input class="input-field" tabindex="4" type="date" :placeholder="i18n.expenseDate" name="purchase_date" required v-model="date">
+            <tags-field
+                :value="tags"
+                @change="onTagsChanged"
+            />
             <button tabindex="5" type="submit" name="submit">{{ i18n.submitButton }}</button>
             <transition name="notification">
                 <div class="notification" v-if="toastMessage">{{ toastMessage }}</div>
