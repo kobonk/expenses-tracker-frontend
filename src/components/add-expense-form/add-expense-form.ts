@@ -53,7 +53,7 @@ const component = {
         onSubmit(event: any): Promise<any> {
             return this.ensureCategoryRegistration(this.categoryName)
             .then((category: ExpenseCategory) => {
-                let expense: Expense = new Expense(undefined, this.name, category, this.date, parseFloat(this.cost));
+                let expense: Expense = new Expense(undefined, this.name, category, this.date, parseFloat(this.cost), this.tags);
 
                 return this.registerExpense(expense);
             })
