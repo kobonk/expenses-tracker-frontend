@@ -8,6 +8,7 @@
         "expenseCategory": "Kategoria",
         "expenseDate": "Data",
         "expenseCost": "Kwota wydatku",
+        "expenseTags": "Tagi",
         "submitButton": "Zapisz",
         "submitSuccessMessage": "Wydatek \"{EXPENSE_NAME}\" zapisano w bazie danych.",
         "title": "Dodaj nowy wydatek"

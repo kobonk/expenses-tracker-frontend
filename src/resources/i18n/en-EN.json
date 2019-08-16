@@ -8,6 +8,7 @@
         "expenseCategory": "Category",
         "expenseDate": "Purchase Date",
         "expenseCost": "Cost",
+        "expenseTags": "Tags",
         "submitButton": "Submit",
         "submitSuccessMessage": "Expense \"{EXPENSE_NAME}\" was successfully saved.",
         "title": "Add New Expense"
