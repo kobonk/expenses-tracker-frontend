@@ -42,6 +42,7 @@ export default {
     },
     inheritAttrs: true,
     props: {
+        placeholder: String,
         value: {
             default: [],
             type: Array
@@ -57,12 +58,13 @@ export default {
                 <button
                     class="input-tag-remove-button"
                     @click="() => removeTag(i)"
-                >X</button>
+                >&times;</button>
             </span>
             <input
                 ref="input"
                 type="text"
                 v-model="tag"
+                :placeholder="placeholder"
                 @keyup.comma="(event) => onCommaPressed(event)"
                 @keyup.esc="(event) => onBlur(event)"
                 @blur="(event) => onBlur(event)"

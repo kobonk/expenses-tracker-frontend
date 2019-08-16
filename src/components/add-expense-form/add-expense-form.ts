@@ -64,7 +64,6 @@ const component = {
             });
         },
         onTagsChanged(tags : Array<String>) {
-            console.log(tags);
             this.tags = tags;
         },
         ensureCategoryRegistration(categoryName: string): Promise<ExpenseCategory> {
@@ -150,6 +149,7 @@ const component = {
             <input class="input-field" tabindex="3" autocomplete="off" type="number" :placeholder="i18n.expenseCost" name="cost" step="0.01" min="0.01" required v-model="cost">
             <input class="input-field" tabindex="4" type="date" :placeholder="i18n.expenseDate" name="purchase_date" required v-model="date">
             <tags-field
+                :placeholder="i18n.expenseTags"
                 :value="tags"
                 @change="onTagsChanged"
             />
