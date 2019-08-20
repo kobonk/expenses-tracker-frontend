@@ -60,7 +60,7 @@ class Expense implements Deserializable, Serializable {
             purchase_date: this.date,
             id: this.id,
             name: this.name,
-            tags: this.tags
+            tags: this.tags.map((tag : string) => ({ name: tag }))
         }
     }
 };

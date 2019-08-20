@@ -53,7 +53,7 @@ export const persistCategory: Function = async (categoryName: string):Promise<Ex
     return _.map(response.data, ExpenseCategory.prototype.fromAsset);
 };
 
-export const persistExpense:Function = async (expense:Expense):Promise<Expense> => {
+export const persistExpense : Function = async (expense : Expense) : Promise<Expense> => {
     let response = await axios.post(`${ backendUrl }/expense`, expense.toAsset());
 
     return Expense.prototype.fromAsset(response.data);
