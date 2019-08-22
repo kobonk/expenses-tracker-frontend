@@ -1,40 +1,55 @@
 import Vue from "vue";
+import AutoCompleteField from "./AutoCompleteField";
 import "./ExpenseTagsFieldStyles.sass";
 
 // enable `v-on:keyup.comma`
 Vue.config.keyCodes.comma = 188;
 
 export default {
+    components: {
+        "auto-complete-field": AutoCompleteField
+    },
+    computed: {
+        tag: {
+            get() {
+                return this.temporaryTag;
+            },
+            set(newTag: string) {
+                if (newTag.endsWith(",")) {
+                    const tag = newTag.substring(0, newTag.length - 1);
+
+                    this.appendTag(tag);
+
+                    return;
+                }
+
+                this.temporaryTag = newTag;
+            }
+        }
+    },
     data() {
         return {
             tags: [] as Array<String>,
-            tag: "" as String
+            temporaryTag: "" as String
         }
     },
     methods: {
-        onClick() {
-            this.$refs.input.focus();
-        },
-        onBlur() {
-            if (!this.tags.includes(this.tag)) {
-                this.tags = [...this.tags, this.tag].filter((tag : string) => tag);
+        appendTag(tag: string) {
+            if (!this.tags.includes(tag)) {
+                this.tags = [...this.tags, tag].filter((tag : string) => tag);
             }
 
-            this.tag = "";
-
             this.$emit("change", this.tags);
-        },
-        onCommaPressed() {
-            const newTags = this.tag
-                .split(",")
-                .filter((tag : string, i : number, tags : Array<string>) => tags.indexOf(tag) === i);
 
-            this.tag = newTags[newTags.length - 1];
-            this.tags = [...this.value, ...newTags.slice(0, -1)];
-
-            this.$emit("change", this.tags);
+            this.temporaryTag = "";
         },
-        removeTag(tagIndex : number) {
+        onChange(tag: string) {
+            this.appendTag(tag);
+        },
+        onClick(event: Event) {
+            (event.target as HTMLInputElement).focus();
+        },
+        removeTag(tagIndex: number, event: Event) {
             this.tags = [...this.tags.slice(0, tagIndex), ...this.tags.slice(tagIndex + 1)];
 
             this.$emit("change", this.tags);
@@ -44,6 +59,10 @@ export default {
     props: {
         placeholder: String,
         value: {
+            default: [],
+            type: Array
+        },
+        values: {
             default: [],
             type: Array
         }
@@ -56,19 +75,20 @@ export default {
             >
                 {{tag}}
                 <button
+                    autofocus="false"
                     class="input-tag-remove-button"
-                    @click="() => removeTag(i)"
+                    @click="(event) => removeTag(i, event)"
                 >&times;</button>
             </span>
-            <input
-                ref="input"
-                type="text"
-                v-model="tag"
+            <auto-complete-field
+                v-model.lazy="tag"
+                :items="values"
+                :keepFocus="true"
                 :placeholder="placeholder"
-                @keyup.comma="(event) => onCommaPressed(event)"
-                @keyup.esc="(event) => onBlur(event)"
-                @blur="(event) => onBlur(event)"
-            />
+                @change="onChange"
+                autofocus
+                name="tags">
+            </auto-complete-field>
         </div>
     `
 };

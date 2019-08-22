@@ -70,3 +70,9 @@ export const retrieveCommonExpenseCost : Function = async (expenseName : string)
 
     return response.data;
 };
+
+export const retrieveTags : Function = async () : Promise<Array<string>> => {
+    let response = await axios.get(`${ backendUrl }/tags`);
+
+    return response.data.map((tag : any) => tag.name);
+}
