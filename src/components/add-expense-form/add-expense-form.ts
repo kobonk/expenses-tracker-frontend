@@ -3,7 +3,16 @@ import { convertDateToString } from "utils/stringUtils";
 import ExpenseCategory from "types/ExpenseCategory";
 import Expense from "types/Expense";
 import i18n from "utils/i18n";
-import { persistCategory, persistExpense, retrieveCategories, retrieveSimilarExpenseNames, retrieveCommonExpenseCost } from "utils/restClient";
+
+import {
+    persistCategory,
+    persistExpense,
+    retrieveCategories,
+    retrieveSimilarExpenseNames,
+    retrieveCommonExpenseCost,
+    retrieveTags
+} from "utils/restClient";
+
 import "./styles.sass";
 import ExpenseTagsField from "./../ExpenseTagsField";
 
@@ -28,6 +37,7 @@ const component = {
     },
     data() {
         return {
+            allTags: [] as Array<string>,
             categories: [] as Array<ExpenseCategory>,
             categoryName: "",
             cost: null as unknown,
@@ -56,6 +66,9 @@ const component = {
                 let expense: Expense = new Expense(undefined, this.name, category, this.date, parseFloat(this.cost), this.tags);
 
                 return this.registerExpense(expense);
+            })
+            .then(() => {
+                this.updateTags();
             })
             .then(() => {
                 this.onExpenseRegistered();
@@ -119,10 +132,22 @@ const component = {
             .catch((error: Error) => {
                 this.showError(error);
             });
+        },
+        updateTags() : Promise<Array<string>> {
+            return retrieveTags()
+            .then((tags : Array<string>) => {
+                this.allTags = tags;
+            })
+            .catch((error : Error) => {
+                this.showError(error);
+            })
         }
     },
     mounted() {
-        this.updateCategories();
+        this.updateCategories()
+        .then(() => {
+            this.updateTags();
+        });
     },
     template: `
         <form name="add-expense" class="add-expense-form" ref="form" @submit.prevent="onSubmit">
@@ -151,9 +176,11 @@ const component = {
             <tags-field
                 :placeholder="i18n.expenseTags"
                 :value="tags"
+                :values="allTags"
                 @change="onTagsChanged"
+                tabindex="5"
             />
-            <button tabindex="5" type="submit" name="submit">{{ i18n.submitButton }}</button>
+            <button tabindex="6" type="submit" name="submit">{{ i18n.submitButton }}</button>
             <transition name="notification">
                 <div class="notification" v-if="toastMessage">{{ toastMessage }}</div>
                 <div class="notification notification-error" v-if="errorMessage">{{ errorMessage }}</div>

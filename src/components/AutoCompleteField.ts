@@ -1,13 +1,28 @@
 import "./AutoCompleteFieldStyles.sass"
+import { debounce } from "utils/commonUtils";
 
-const _ = require("lodash");
 
-const getNextItem = function(items:Array<any>, item:any):any {
-    return item === _.last(items) ? _.first(items) : items[_.indexOf(items, item) + 1];
+const getNextItem: Function = (items: string[], item: string): string => {
+    return item === items[items.length - 1] ? items[0] : items[items.indexOf(item) + 1];
 };
 
-const getPreviousItem = function(items:Array<any>, item:any):any {
-    return item === _.first(items) ? _.last(items) : items[_.indexOf(items, item) - 1];
+const getPreviousItem: Function = (items: string[], item: string): string => {
+    return item === items[0] ? items[items.length - 1] : items[items.indexOf(item) - 1];
+};
+
+const getMatchingItems: Function = (items: string[], item: string): string[] => {
+    const trimmedItem = item.trim();
+
+    return items
+        .filter((listItem: string): boolean => {
+            return (new RegExp(trimmedItem, "i")).test(listItem.trim());
+        })
+        .sort((itemA: string, itemB: string): number => {
+            const indexA: number = itemA.trim().toLowerCase().indexOf(trimmedItem.toLowerCase());
+            const indexB: number = itemB.trim().toLowerCase().indexOf(trimmedItem.toLowerCase());
+
+            return indexA - indexB;
+        });
 };
 
 export default {
@@ -18,74 +33,76 @@ export default {
             },
             set(item: string) {
                 this.temporaryItem = item;
+                this.matchingItems = getMatchingItems(this.items, this.temporaryItem);
+                this.listVisible = this.shouldDisplayList();
+
                 this.$emit("input", item);
             }
-        },
-        listVisible(): boolean {
-            if (!this.fieldActive || _.isEmpty(this.currentItem)) {
-                return false;
-            }
-
-            if (this.matchingItems.length === 1 && _.first(this.matchingItems) === this.currentItem) {
-                return false;
-            }
-
-            return true;
-        },
-        matchingItems(): Array<string> {
-            return _.chain(this.items)
-            .filter((item: string) => {
-                return (new RegExp(_.trim(this.currentItem), "i")).test(_.trim(item))
-            })
-            .sortBy((item: string) => _.toLower(_.trim(item)).indexOf(_.toLower(_.trim(this.currentItem))))
-            .value();
         }
     },
     created() {
-        this.debouncedOnBlur = _.debounce(this.onBlur, 500)
+        this.debouncedOnBlur = debounce(this.onBlur, 500)
     },
     data() {
         return {
             fieldActive: false,
+            listVisible: false,
+            matchingItems: [] as string[],
             temporaryItem: ""
         };
     },
     inheritAttrs: false,
     methods: {
         getHtmlLabelForItem(item: string): string {
-            return _.replace(item, new RegExp(`(${ this.currentItem })`, "i"), "<mark>$1</mark>");
+            return item.replace(new RegExp(`(${ this.currentItem })`, "i"), "<mark>$1</mark>");
         },
         isCurrentItem(item: string): boolean {
-            return _.isEqual(item, this.temporaryItem);
+            return item.trim() === this.temporaryItem.trim();
         },
         onBlur() {
             this.fieldActive = false;
+            this.listVisible = this.shouldDisplayList();
+
+            if (this.temporaryItem) {
+                this.$emit("change", this.temporaryItem);
+            }
         },
         onClick(item: string) {
             this.updateCurrentValue(item);
         },
         onFocus() {
             this.fieldActive = true;
+            this.listVisible = this.shouldDisplayList();
         },
-        onListItemSelected() {
-            if (!_.isEmpty(this.temporaryItem)) {
-                this.updateCurrentValue(this.temporaryItem);
+        onListItemSelected(event: KeyboardEvent) {
+            event.preventDefault();
+
+            if (this.listVisible && this.matchingItems.includes(this.temporaryItem)) {
+                event.stopPropagation();
             }
 
-            this.debouncedOnBlur();
+            if (this.temporaryItem) {
+                this.updateCurrentValue(this.temporaryItem);
+                this.$emit("change", this.temporaryItem);
+                this.temporaryItem = "";
+            }
+
+            if (!this.keepFocus) {
+                this.debouncedOnBlur();
+            }
         },
         onListMoveDown() {
             let nextItem: string = getNextItem(this.matchingItems, this.temporaryItem);
-            this.temporaryItem = _.isNil(nextItem) ? _.first(this.matchingItems) : nextItem;
+            this.temporaryItem = !nextItem ? this.matchingItems[0] : nextItem;
             this.scrollToItem(this.temporaryItem);
         },
         onListMoveUp() {
             let prevItem = getPreviousItem(this.matchingItems, this.temporaryItem);
-            this.temporaryItem = _.isNil(prevItem) ? _.last(this.matchingItems) : prevItem;
+            this.temporaryItem = !prevItem ? this.matchingItems[this.matchingItems.length - 1] : prevItem;
             this.scrollToItem(this.temporaryItem);
         },
         scrollToItem(item: string) {
-            let itemIndex = _.indexOf(this.matchingItems, item);
+            let itemIndex = this.matchingItems.indexOf(item);
             let listElement = this.$refs["value-list"];
             let listElementRect = listElement.getBoundingClientRect();
             let itemElement = listElement.querySelectorAll("li")[itemIndex];
@@ -109,13 +126,32 @@ export default {
                 listElement.scrollTop = outsideUpwards ? itemBounds.top : itemBounds.bottom - listElementRect.height;
             }
         },
+        shouldDisplayList(): boolean {
+            if (!this.temporaryItem) {
+                return false;
+            }
+
+            if (this.matchingItems.length === 0 || !this.fieldActive) {
+                return false;
+            }
+
+            if (this.matchingItems.length === 1 && this.matchingItems[0] === this.temporaryItem) {
+                return false;
+            }
+
+            return true;
+        },
         updateCurrentValue(item: string) {
             this.currentItem = item;
         }
     },
     props: {
         items: Array,
-        value: String
+        value: String,
+        keepFocus: {
+            default: false,
+            type: Boolean
+        }
     },
     template: `
         <div class="auto-complete-field">
