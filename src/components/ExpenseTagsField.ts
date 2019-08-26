@@ -78,6 +78,7 @@ export default {
                     autofocus="false"
                     class="input-tag-remove-button"
                     @click="(event) => removeTag(i, event)"
+                    type="button"
                 >&times;</button>
             </span>
             <auto-complete-field
