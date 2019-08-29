@@ -1,7 +1,7 @@
 export interface DataTableRecord {
     getName(): string,
     getType(): string,
-    getValue(): string | number,
+    getValue(): string | number | string[],
     isClickable(): boolean,
     isEditable(): boolean,
     onClick(): void,
@@ -18,8 +18,7 @@ export interface DataTableData {
     getBody(): Array<DataTableRecordCollection>,
     getFooter(): Array<DataTableRecordCollection>,
     getSortingDirection(): string,
-    getSortingKey(): string,
-    sort(key : string) : Array<DataTableRecordCollection>
+    getSortingKey(): string
 }
 
 export interface DataTableCell {

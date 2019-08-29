@@ -3,7 +3,7 @@ import { DataTableRecord, DataTableRecordCollection } from "./../types/DataTable
 export class ExpensesTableRecordBase implements DataTableRecord {
     protected name: string;
     protected type: string;
-    protected value: string | number;
+    protected value: string | number | string[];
 
     getName(): string {
         return this.name;
@@ -13,7 +13,7 @@ export class ExpensesTableRecordBase implements DataTableRecord {
         return this.type;
     }
 
-    getValue(): string | number {
+    getValue(): string | number | string[] {
         return this.value;
     }
 
@@ -117,6 +117,30 @@ export class ExpensesTableDateRecord extends ExpensesTableRecordBase {
 
     onClick(): void {
         this.onClickCallback();
+    }
+}
+
+export class ExpensesTableTagsRecord extends ExpensesTableRecordBase {
+    constructor(value: any[]) {
+        super();
+
+        this.name = "tags";
+        this.type = "list";
+        this.value = value;
+    }
+
+    getValue(): string {
+        return (this.value as any[])
+            .map(tag => tag.name)
+            .join(", ");
+    }
+
+    isClickable(): boolean {
+        return false;
+    }
+
+    isEditable(): boolean {
+        return false;
     }
 }
 

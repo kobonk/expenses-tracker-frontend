@@ -10,7 +10,8 @@ import {
     ExpensesTableNameRecord,
     ExpensesTableCostRecord,
     ExpensesTableDateRecord,
-    ExpensesTableRecordCollection
+    ExpensesTableRecordCollection,
+    ExpensesTableTagsRecord
 } from "./types";
 
 const _ = require("lodash");
@@ -69,6 +70,7 @@ class ExpensesTableData implements DataTableData {
     private createHeader(): Array<DataTableRecordCollection> {
         const records: Array<DataTableRecord> = [
             new ExpensesTableHeaderRecord("name", i18n.expensesTable.expenseLabel, () => this.sort("name")),
+            new ExpensesTableHeaderRecord("tags", i18n.expensesTable.tagsLabel, () => this.sort("tags")),
             new ExpensesTableHeaderRecord("cost", i18n.expensesTable.costLabel, () => this.sort("cost")),
             new ExpensesTableHeaderRecord("purchase_date", i18n.expensesTable.dateLabel, () => this.sort("purchase_date"))
         ];
@@ -84,6 +86,7 @@ class ExpensesTableData implements DataTableData {
                 expense.getId(),
                 [
                     new ExpensesTableNameRecord(expense.getName(), onClick),
+                    new ExpensesTableTagsRecord(expense.getTags()),
                     new ExpensesTableCostRecord(formatNumber(expense.getCost()), onClick),
                     new ExpensesTableDateRecord(expense.getDate(), onClick)
                 ]
@@ -94,6 +97,7 @@ class ExpensesTableData implements DataTableData {
     private createFooter(expenses: Array<Expense>): Array<DataTableRecordCollection> {
         const records: Array<DataTableRecord> = [
             new ExpensesTableFooterRecord("name", i18n.expensesTable.totalLabel),
+            new ExpensesTableFooterRecord("tags", ""),
             new ExpensesTableFooterRecord(
                 "cost",
                 formatNumber(
