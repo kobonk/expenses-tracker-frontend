@@ -17,6 +17,7 @@
         "expenseLabel": "Wydatek",
         "dateLabel": "Data",
         "costLabel": "Kwota",
+        "tagsLabel": "Tagi",
         "totalLabel": "Suma"
     },
     "filterExpensesForm": {

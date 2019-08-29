@@ -17,6 +17,7 @@
         "expenseLabel": "Expense",
         "dateLabel": "Date",
         "costLabel": "Cost",
+        "tagsLabel": "Tags",
         "totalLabel": "Total"
     },
     "filterExpensesForm": {
