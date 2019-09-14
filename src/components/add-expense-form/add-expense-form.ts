@@ -2,6 +2,7 @@ import AutoCompleteField from "../AutoCompleteField";
 import { convertDateToString } from "utils/stringUtils";
 import ExpenseCategory from "types/ExpenseCategory";
 import Expense from "types/Expense";
+import ExpenseTag from "types/ExpenseTag";
 import i18n from "utils/i18n";
 
 import {
@@ -37,7 +38,7 @@ const component = {
     },
     data() {
         return {
-            allTags: [] as Array<string>,
+            allTags: [] as Array<ExpenseTag>,
             categories: [] as Array<ExpenseCategory>,
             categoryName: "",
             cost: null as unknown,
@@ -46,7 +47,7 @@ const component = {
             i18n: i18n.addExpenseForm,
             name: "",
             similarExpenseSchemas: [] as Array<any>,
-            tags: [] as Array<String>,
+            tags: [] as ExpenseTag[],
             toastMessage: null as unknown
         };
     },
@@ -76,7 +77,7 @@ const component = {
                 this.$emit("submit", event);
             });
         },
-        onTagsChanged(tags : Array<String>) {
+        onTagsChanged(tags: ExpenseTag[]) {
             this.tags = tags;
         },
         ensureCategoryRegistration(categoryName: string): Promise<ExpenseCategory> {
@@ -133,9 +134,9 @@ const component = {
                 this.showError(error);
             });
         },
-        updateTags() : Promise<Array<string>> {
+        updateTags() : Promise<Array<ExpenseTag>> {
             return retrieveTags()
-            .then((tags : Array<string>) => {
+            .then((tags : Array<ExpenseTag>) => {
                 this.allTags = tags;
             })
             .catch((error : Error) => {
@@ -175,8 +176,8 @@ const component = {
             <input class="input-field" tabindex="4" type="date" :placeholder="i18n.expenseDate" name="purchase_date" required v-model="date">
             <tags-field
                 :placeholder="i18n.expenseTags"
-                :value="tags"
-                :values="allTags"
+                :tags="tags"
+                :registeredTags="allTags"
                 @change="onTagsChanged"
                 tabindex="5"
             />

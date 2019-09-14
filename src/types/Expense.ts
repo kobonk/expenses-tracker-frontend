@@ -1,16 +1,17 @@
 import Deserializable from "./Deserializable";
 import ExpenseCategory from "./ExpenseCategory";
+import ExpenseTag from "./ExpenseTag";
 import Serializable from "./Serializable";
 
 class Expense implements Deserializable, Serializable {
-    private category : ExpenseCategory
-    private cost : number
-    private date : string
-    private id : string
-    private name : string
-    private tags : Array<string>
+    private category: ExpenseCategory
+    private cost: number
+    private date: string
+    private id: string
+    private name: string
+    private tags: ExpenseTag[]
 
-    constructor(id : string, name : string, category : ExpenseCategory, date : string, cost : number, tags : Array<string>) {
+    constructor(id: string, name: string, category: ExpenseCategory, date: string, cost: number, tags: ExpenseTag[]) {
         this.category = category;
         this.cost = cost;
         this.date = date;
@@ -43,14 +44,15 @@ class Expense implements Deserializable, Serializable {
         return this.id;
     }
 
-    public getTags() : Array<string> {
+    public getTags(): ExpenseTag[] {
         return this.tags;
     }
 
-    public fromAsset(asset : any) : Expense {
+    public fromAsset(asset: any) : Expense {
         let category = ExpenseCategory.prototype.fromAsset(asset.category);
+        let tags = asset.tags.map(ExpenseTag.prototype.fromAsset);
 
-        return new Expense(asset.id, asset.name, category, (asset.purchase_date || asset.date), asset.cost, asset.tags);
+        return new Expense(asset.id, asset.name, category, (asset.purchase_date || asset.date), asset.cost, tags);
     }
 
     public toAsset() : any {
@@ -60,7 +62,7 @@ class Expense implements Deserializable, Serializable {
             purchase_date: this.date,
             id: this.id,
             name: this.name,
-            tags: this.tags.map((tag : string) => ({ name: tag }))
+            tags: this.tags.map((tag: ExpenseTag) => tag.toAsset())
         }
     }
 };

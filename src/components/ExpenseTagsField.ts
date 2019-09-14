@@ -1,6 +1,7 @@
 import Vue from "vue";
 import AutoCompleteField from "./AutoCompleteField";
 import "./ExpenseTagsFieldStyles.sass";
+import ExpenseTag from "./../types/ExpenseTag";
 
 // enable `v-on:keyup.comma`
 Vue.config.keyCodes.comma = 188;
@@ -10,41 +11,49 @@ export default {
         "auto-complete-field": AutoCompleteField
     },
     computed: {
+        existingTagNames(): String[] {
+            return this.registeredTags.map((tag: ExpenseTag): String => tag.getName());
+        },
         tag: {
             get() {
-                return this.temporaryTag;
+                return this.temporaryTagName;
             },
-            set(newTag: string) {
-                if (newTag.endsWith(",")) {
-                    const tag = newTag.substring(0, newTag.length - 1);
+            set(newTagName: string) {
+                if (newTagName.endsWith(",")) {
+                    const tagName = newTagName.substring(0, newTagName.length - 1);
 
-                    this.appendTag(tag);
+                    this.appendTag(this.createTagFromName(tagName));
 
                     return;
                 }
 
-                this.temporaryTag = newTag;
+                this.temporaryTagName = newTagName;
             }
         }
     },
     data() {
         return {
-            tags: [] as Array<String>,
-            temporaryTag: "" as String
+            temporaryTagName: "" as String
         }
     },
     methods: {
-        appendTag(tag: string) {
+        appendTag(tag: ExpenseTag) {
             if (!this.tags.includes(tag)) {
-                this.tags = [...this.tags, tag].filter((tag : string) => tag);
+                this.tags = [...this.tags, tag].filter((tag : ExpenseTag) => tag);
             }
 
             this.$emit("change", this.tags);
 
-            this.temporaryTag = "";
+            this.temporaryTagName = "";
         },
-        onChange(tag: string) {
-            this.appendTag(tag);
+        createTagFromName(tagName: string): ExpenseTag {
+            const matchingTags = this.registeredTags
+                .filter((existingTag: ExpenseTag) => existingTag.getName() === tagName);
+
+            return matchingTags.length > 0 ? matchingTags[0] : new ExpenseTag(undefined, tagName);
+        },
+        onChange(tagName: string) {
+            this.appendTag(this.createTagFromName(tagName));
         },
         onClick(event: Event) {
             (event.target as HTMLInputElement).focus();
@@ -58,11 +67,11 @@ export default {
     inheritAttrs: true,
     props: {
         placeholder: String,
-        value: {
+        tags: {
             default: [],
             type: Array
         },
-        values: {
+        registeredTags: {
             default: [],
             type: Array
         }
@@ -71,9 +80,9 @@ export default {
         <div class="input-field input-tags" @click="onClick">
             <span
                 class="input-tag"
-                v-for="tag, i in value"
+                v-for="tag, i in tags"
             >
-                {{tag}}
+                {{tag.getName()}}
                 <button
                     autofocus="false"
                     class="input-tag-remove-button"
@@ -83,7 +92,7 @@ export default {
             </span>
             <auto-complete-field
                 v-model.lazy="tag"
-                :items="values"
+                :items="existingTagNames"
                 :keepFocus="true"
                 :placeholder="placeholder"
                 @change="onChange"

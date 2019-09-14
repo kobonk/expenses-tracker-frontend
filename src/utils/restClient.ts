@@ -1,6 +1,7 @@
 import * as data from "config.json";
 import ExpenseCategory from "types/ExpenseCategory";
 import Expense from "types/Expense";
+import ExpenseTag from "types/ExpenseTag";
 
 const _ = require("lodash");
 const axios = require("axios");
@@ -53,7 +54,7 @@ export const persistCategory: Function = async (categoryName: string):Promise<Ex
     return _.map(response.data, ExpenseCategory.prototype.fromAsset);
 };
 
-export const persistExpense : Function = async (expense : Expense) : Promise<Expense> => {
+export const persistExpense: Function = async (expense: Expense): Promise<Expense> => {
     let response = await axios.post(`${ backendUrl }/expense`, expense.toAsset());
 
     return Expense.prototype.fromAsset(response.data);
@@ -71,8 +72,8 @@ export const retrieveCommonExpenseCost : Function = async (expenseName : string)
     return response.data;
 };
 
-export const retrieveTags : Function = async () : Promise<Array<string>> => {
+export const retrieveTags : Function = async () : Promise<Array<ExpenseTag>> => {
     let response = await axios.get(`${ backendUrl }/tags`);
 
-    return response.data.map((tag : any) => tag.name);
+    return response.data.map((tag : any) => new ExpenseTag(tag.id, tag.name));
 }
