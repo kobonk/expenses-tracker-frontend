@@ -1,6 +1,7 @@
 import config from "config.json";
 import ExpenseCategory from "types/ExpenseCategory";
 import Expense from "types/Expense";
+import ExpenseTag from "types/ExpenseTag";
 
 const _ = require("lodash");
 const axios = require("axios");
@@ -96,8 +97,8 @@ export const retrieveCommonExpenseCost: Function = async (
   return response.data;
 };
 
-export const retrieveTags : Function = async () : Promise<Array<string>> => {
-    let response = await axios.get(`${ backendUrl }/tags`);
+export const retrieveTags: Function = async (): Promise<Array<ExpenseTag>> => {
+  let response = await axios.get(`${backendUrl}/tags`);
 
-    return response.data.map((tag : any) => tag.name);
-}
+  return response.data.map((tag: any) => new ExpenseTag(tag.id, tag.name));
+};
