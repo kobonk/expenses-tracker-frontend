@@ -7,89 +7,87 @@ import ExpenseTag from "./../types/ExpenseTag";
 Vue.config.keyCodes.comma = 188;
 
 export default {
-    components: {
-        "auto-complete-field": AutoCompleteField,
+  components: {
+    "auto-complete-field": AutoCompleteField,
+  },
+  computed: {
+    existingTagNames(): String[] {
+      return this.registeredTags.map(
+        (tag: ExpenseTag): String => tag.getName()
+      );
     },
-    computed: {
-        existingTagNames(): String[] {
-            return this.registeredTags.map(
-                (tag: ExpenseTag): String => tag.getName()
-            );
-        },
-        tag: {
-            get() {
-                return this.temporaryTagName;
-            },
-            set(newTagName: string) {
-                if (newTagName.endsWith(",")) {
-                    const tagName = newTagName.substring(
-                        0,
-                        newTagName.length - 1
-                    );
+    tag: {
+      get() {
+        return this.temporaryTagName;
+      },
+      set(newTagName: string) {
+        if (newTagName.endsWith(",")) {
+          const tagName = newTagName.substring(0, newTagName.length - 1);
 
-                    this.appendTag(this.createTagFromName(tagName));
+          this.appendTag(this.createTagFromName(tagName));
 
-                    return;
-                }
+          return;
+        }
 
-                this.temporaryTagName = newTagName;
-            },
-        },
+        this.temporaryTagName = newTagName;
+      },
     },
-    data() {
-        return {
-            temporaryTagName: "" as String,
-        };
+  },
+  data() {
+    return {
+      temporaryTagName: "" as String,
+    };
+  },
+  methods: {
+    appendTag(tag: ExpenseTag) {
+      if (!this.tags.includes(tag)) {
+        this.tags = [...this.tags, tag].filter((tag: ExpenseTag) => tag);
+      }
+
+      this.$emit("change", this.tags);
+
+      this.temporaryTagName = "";
     },
-    methods: {
-        appendTag(tag: ExpenseTag) {
-            if (!this.tags.includes(tag)) {
-                this.tags = [...this.tags, tag].filter(
-                    (tag: ExpenseTag) => tag
-                );
-            }
+    createTagFromName(tagName: string): ExpenseTag {
+      const matchingTags = this.registeredTags.filter(
+        (existingTag: ExpenseTag) => existingTag.getName() === tagName
+      );
 
-            this.$emit("change", this.tags);
-
-            this.temporaryTagName = "";
-        },
-        createTagFromName(tagName: string): ExpenseTag {
-            const matchingTags = this.registeredTags.filter(
-                (existingTag: ExpenseTag) => existingTag.getName() === tagName
-            );
-
-            return matchingTags.length > 0
-                ? matchingTags[0]
-                : new ExpenseTag(undefined, tagName);
-        },
-        onChange(tagName: string) {
-            this.appendTag(this.createTagFromName(tagName));
-        },
-        onClick(event: Event) {
-            (event.target as HTMLInputElement).focus();
-        },
-        removeTag(tagIndex: number, event: Event) {
-            this.tags = [
-                ...this.tags.slice(0, tagIndex),
-                ...this.tags.slice(tagIndex + 1),
-            ];
-
-            this.$emit("change", this.tags);
-        },
+      return matchingTags.length > 0
+        ? matchingTags[0]
+        : new ExpenseTag(undefined, tagName);
     },
-    inheritAttrs: false,
-    props: {
-        placeholder: String,
-        tags: {
-            default: [],
-            type: Array,
-        },
-        registeredTags: {
-            default: [],
-            type: Array,
-        },
+    onChange(tagName: string) {
+      this.appendTag(this.createTagFromName(tagName));
     },
-    template: `
+    onClick(event: Event) {
+      (event.target as HTMLInputElement).focus();
+    },
+    removeTag(tagIndex: number, event: Event) {
+      this.tags = [
+        ...this.tags.slice(0, tagIndex),
+        ...this.tags.slice(tagIndex + 1),
+      ];
+
+      this.$emit("change", this.tags);
+    },
+  },
+  inheritAttrs: false,
+  props: {
+    placeholder: String,
+    tags: {
+      default: [],
+      type: Array,
+    },
+    registeredTags: {
+      default: [],
+      type: Array,
+    },
+    tabindex: {
+      type: Number,
+    },
+  },
+  template: `
         <div class="input-field input-tags" @click="onClick">
             <span
                 class="input-tag"
@@ -111,7 +109,8 @@ export default {
                 :placeholder="placeholder"
                 @change="onChange"
                 autofocus
-                name="tags">
+                name="tags"
+                :tabindex="tabindex">
             </auto-complete-field>
         </div>
     `,
