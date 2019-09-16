@@ -74,6 +74,9 @@ export default {
         registeredTags: {
             default: [],
             type: Array
+        },
+        tabindex: {
+            type: Number
         }
     },
     template: `
@@ -97,7 +100,8 @@ export default {
                 :placeholder="placeholder"
                 @change="onChange"
                 autofocus
-                name="tags">
+                name="tags"
+                :tabindex="tabindex">
             </auto-complete-field>
         </div>
     `
