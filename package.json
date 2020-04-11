@@ -1,60 +1,60 @@
 {
-    "name": "expenses-tracker-frontend",
-    "version": "1.0.3",
-    "description": "The frontend for the Expenses Tracker",
-    "private": true,
-    "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1",
-        "build": "webpack --config webpack.prod.js",
-        "watch": "webpack --watch",
-        "start": "webpack-dev-server --open --config webpack.dev.js",
-        "server": "node server.js"
-    },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/kobonk/expenses-tracker-frontend.git"
-    },
-    "keywords": [],
-    "author": "",
-    "license": "ISC",
-    "bugs": {
-        "url": "https://github.com/kobonk/expenses-tracker-frontend/issues"
-    },
-    "homepage": "https://github.com/kobonk/expenses-tracker-frontend#readme",
-    "devDependencies": {
-        "@types/axios": "^0.14.0",
-        "@types/c3": "^0.6.2",
-        "@types/lodash": "^4.14.119",
-        "@types/vue": "^2.0.0",
-        "babel-core": "^6.26.3",
-        "babel-loader": "^8.0.5",
-        "c3": "^0.6.12",
-        "css-loader": "^1.0.0",
-        "express": "^4.16.3",
-        "http-server": "^0.11.1",
-        "mini-css-extract-plugin": "^0.4.2",
-        "moment": "^2.23.0",
-        "node-sass": "^4.9.3",
-        "sass-loader": "^7.1.0",
-        "style-loader": "^0.23.0",
-        "ts-loader": "^5.3.2",
-        "tslint": "^5.12.1",
-        "typescript": "^3.2.2",
-        "vue": "^2.6.10",
-        "vue-style-loader": "^4.1.2",
-        "vue-template-compiler": "^2.6.10",
-        "webpack": "^4.17.1",
-        "webpack-cli": "^3.1.0",
-        "webpack-dev-middleware": "^3.2.0",
-        "webpack-dev-server": "^3.1.7",
-        "webpack-merge": "^4.1.5",
-        "workbox-webpack-plugin": "^3.6.3"
-    },
-    "dependencies": {
-        "axios": "^0.18.0",
-        "clean-webpack-plugin": "^0.1.19",
-        "html-webpack-plugin": "^3.2.0",
-        "lodash": "^4.17.10",
-        "vue-loader": "^15.5.1"
-    }
+  "name": "expenses-tracker-frontend",
+  "version": "1.0.3",
+  "description": "The frontend for the Expenses Tracker",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack --config webpack.prod.js",
+    "watch": "webpack --watch",
+    "start": "webpack-dev-server --open --config webpack.dev.js",
+    "server": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kobonk/expenses-tracker-frontend.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kobonk/expenses-tracker-frontend/issues"
+  },
+  "homepage": "https://github.com/kobonk/expenses-tracker-frontend#readme",
+  "devDependencies": {
+    "@types/axios": "^0.14.0",
+    "@types/c3": "^0.6.2",
+    "@types/lodash": "^4.14.119",
+    "@types/vue": "^2.0.0",
+    "babel-core": "^6.26.3",
+    "babel-loader": "^8.0.5",
+    "c3": "^0.6.12",
+    "css-loader": "^1.0.0",
+    "express": "^4.16.3",
+    "http-server": "^0.11.1",
+    "mini-css-extract-plugin": "^0.4.2",
+    "moment": "^2.23.0",
+    "node-sass": "^4.13.1",
+    "sass-loader": "^7.1.0",
+    "style-loader": "^0.23.0",
+    "ts-loader": "^5.3.2",
+    "tslint": "^5.12.1",
+    "typescript": "^3.2.2",
+    "vue": "^2.6.10",
+    "vue-style-loader": "^4.1.2",
+    "vue-template-compiler": "^2.6.10",
+    "webpack": "^4.17.1",
+    "webpack-cli": "^3.1.0",
+    "webpack-dev-middleware": "^3.2.0",
+    "webpack-dev-server": "^3.1.7",
+    "webpack-merge": "^4.1.5",
+    "workbox-webpack-plugin": "^3.6.3"
+  },
+  "dependencies": {
+    "axios": "^0.18.0",
+    "clean-webpack-plugin": "^0.1.19",
+    "html-webpack-plugin": "^3.2.0",
+    "lodash": "^4.17.10",
+    "vue-loader": "^15.5.1"
+  }
 }
