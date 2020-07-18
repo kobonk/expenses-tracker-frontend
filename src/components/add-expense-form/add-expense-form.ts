@@ -11,7 +11,7 @@ import {
     retrieveCategories,
     retrieveSimilarExpenseNames,
     retrieveCommonExpenseCost,
-    retrieveTags
+    retrieveTags,
 } from "utils/restClient";
 
 import "./styles.sass";
@@ -26,15 +26,19 @@ const trimAndLower = (text: string): string => {
 const component = {
     components: {
         "auto-complete-field": AutoCompleteField,
-        "tags-field": ExpenseTagsField
+        "tags-field": ExpenseTagsField,
     },
     computed: {
         categoryNames(): Array<ExpenseCategory> {
-            return _.map(this.categories, _.method("getName")) as Array<ExpenseCategory>;
+            return _.map(this.categories, _.method("getName")) as Array<
+                ExpenseCategory
+            >;
         },
         similarNames(): Array<string> {
-            return _.uniq(_.map(this.similarExpenseSchemas, _.property("name"))) as Array<string>;
-        }
+            return _.uniq(
+                _.map(this.similarExpenseSchemas, _.property("name"))
+            ) as Array<string>;
+        },
     },
     data() {
         return {
@@ -48,10 +52,22 @@ const component = {
             name: "",
             similarExpenseSchemas: [] as Array<any>,
             tags: [] as ExpenseTag[],
-            toastMessage: null as unknown
+            toastMessage: null as unknown,
         };
     },
     methods: {
+        onCostKeyUp(event: { target: HTMLInputElement }) {
+            const numericCost = event.target.value
+                .replace(",", ".")
+                .replace(/[^0-9.]/g, "");
+
+            this.cost = numericCost;
+        },
+        onCostBlur(event: { target: HTMLInputElement }) {
+            const numericCost = parseFloat(event.target.value);
+
+            this.cost = isNaN(numericCost) ? "" : numericCost.toFixed(2);
+        },
         onExpenseRegistered() {
             this.categoryName = "";
             this.cost = null;
@@ -63,33 +79,47 @@ const component = {
         },
         onSubmit(event: any): Promise<any> {
             return this.ensureCategoryRegistration(this.categoryName)
-            .then((category: ExpenseCategory) => {
-                let expense: Expense = new Expense(undefined, this.name, category, this.date, parseFloat(this.cost), this.tags);
+                .then((category: ExpenseCategory) => {
+                    let expense: Expense = new Expense(
+                        undefined,
+                        this.name,
+                        category,
+                        this.date,
+                        parseFloat(this.cost),
+                        this.tags
+                    );
 
-                return this.registerExpense(expense);
-            })
-            .then(() => {
-                this.updateTags();
-            })
-            .then(() => {
-                this.onExpenseRegistered();
-                // Explicitly passing the event up the DOM tree. I don't know why it doesn't work out-of-box.
-                this.$emit("submit", event);
-            });
+                    return this.registerExpense(expense);
+                })
+                .then(() => {
+                    this.updateTags();
+                })
+                .then(() => {
+                    this.onExpenseRegistered();
+                    // Explicitly passing the event up the DOM tree. I don't know why it doesn't work out-of-box.
+                    this.$emit("submit", event);
+                });
         },
         onTagsChanged(tags: ExpenseTag[]) {
             this.tags = tags;
         },
-        ensureCategoryRegistration(categoryName: string): Promise<ExpenseCategory> {
-            let existingCategory: ExpenseCategory = this.findCategoryByName(categoryName);
+        ensureCategoryRegistration(
+            categoryName: string
+        ): Promise<ExpenseCategory> {
+            let existingCategory: ExpenseCategory = this.findCategoryByName(
+                categoryName
+            );
 
             if (!_.isNil(existingCategory)) {
-                return new Promise((reject: Function) => reject(existingCategory)) as Promise<ExpenseCategory>;
+                return new Promise((reject: Function) =>
+                    reject(existingCategory)
+                ) as Promise<ExpenseCategory>;
             }
 
-            return this.updateCategories()
-            .then(() => {
-                let matchingCategory: ExpenseCategory = this.findCategoryByName(categoryName);
+            return this.updateCategories().then(() => {
+                let matchingCategory: ExpenseCategory = this.findCategoryByName(
+                    categoryName
+                );
 
                 if (!_.isNil(matchingCategory)) {
                     return matchingCategory;
@@ -100,21 +130,32 @@ const component = {
         },
         findCategoryByName(categoryName: string): ExpenseCategory {
             return _.find(this.categories, (category: ExpenseCategory) => {
-                return trimAndLower(category.getName()) === trimAndLower(categoryName);
+                return (
+                    trimAndLower(category.getName()) ===
+                    trimAndLower(categoryName)
+                );
             });
         },
         registerCategory(categoryName: string): Promise<ExpenseCategory> {
-            return persistCategory(categoryName)
-            .then((persistedCategories: Array<ExpenseCategory>): ExpenseCategory => {
-                this.categories = persistedCategories;
+            return persistCategory(categoryName).then(
+                (
+                    persistedCategories: Array<ExpenseCategory>
+                ): ExpenseCategory => {
+                    this.categories = persistedCategories;
 
-                return this.findCategoryByName(categoryName);
-            });
+                    return this.findCategoryByName(categoryName);
+                }
+            );
         },
         registerExpense(expense: Expense) {
-            return persistExpense(expense)
-            .then((expense: Expense) => {
-                this.showMessage(_.replace(i18n.addExpenseForm.submitSuccessMessage, "{EXPENSE_NAME}", expense.getName()));
+            return persistExpense(expense).then((expense: Expense) => {
+                this.showMessage(
+                    _.replace(
+                        i18n.addExpenseForm.submitSuccessMessage,
+                        "{EXPENSE_NAME}",
+                        expense.getName()
+                    )
+                );
             });
         },
         showError(error: Error) {
@@ -127,26 +168,25 @@ const component = {
         },
         updateCategories(): Promise<any> {
             return retrieveCategories()
-            .then((categories: Array<ExpenseCategory>) => {
-                this.categories = categories;
-            })
-            .catch((error: Error) => {
-                this.showError(error);
-            });
+                .then((categories: Array<ExpenseCategory>) => {
+                    this.categories = categories;
+                })
+                .catch((error: Error) => {
+                    this.showError(error);
+                });
         },
-        updateTags() : Promise<Array<ExpenseTag>> {
+        updateTags(): Promise<Array<ExpenseTag>> {
             return retrieveTags()
-            .then((tags : Array<ExpenseTag>) => {
-                this.allTags = tags;
-            })
-            .catch((error : Error) => {
-                this.showError(error);
-            })
-        }
+                .then((tags: Array<ExpenseTag>) => {
+                    this.allTags = tags;
+                })
+                .catch((error: Error) => {
+                    this.showError(error);
+                });
+        },
     },
     mounted() {
-        this.updateCategories()
-        .then(() => {
+        this.updateCategories().then(() => {
             this.updateTags();
         });
     },
@@ -172,7 +212,18 @@ const component = {
                 required
                 tabindex="2">
             </auto-complete-field>
-            <input class="input-field" tabindex="3" autocomplete="off" type="number" :placeholder="i18n.expenseCost" name="cost" step="0.01" min="0.01" required v-model="cost">
+            <input
+                autocomplete="off"
+                class="input-field"
+                name="cost"
+                required
+                tabindex="3"
+                type="text"
+                v-model="cost"
+                @keyup="onCostKeyUp"
+                @blur="onCostBlur"
+                :placeholder="i18n.expenseCost"
+            />
             <input class="input-field" tabindex="4" type="date" :placeholder="i18n.expenseDate" name="purchase_date" required v-model="date">
             <tags-field
                 :placeholder="i18n.expenseTags"
@@ -195,25 +246,30 @@ const component = {
             }
 
             retrieveSimilarExpenseNames(expenseName)
-            .then((expenseSchemas: Array<any>) => this.similarExpenseSchemas = expenseSchemas)
-            .then(() => {
-                let schema = _.find(this.similarExpenseSchemas, { name: this.name });
+                .then(
+                    (expenseSchemas: Array<any>) =>
+                        (this.similarExpenseSchemas = expenseSchemas)
+                )
+                .then(() => {
+                    let schema = _.find(this.similarExpenseSchemas, {
+                        name: this.name,
+                    });
 
-                if (schema) {
-                    this.categoryName = schema.category;
-                }
-            })
-            .then(() => {
-                return retrieveCommonExpenseCost(expenseName)
-            })
-            .then((cost : number) => {
-                this.cost = cost;
-            })
-            .catch((error: Error) => {
-                this.showError(error);
-            });
-        }
-    }
+                    if (schema) {
+                        this.categoryName = schema.category;
+                    }
+                })
+                .then(() => {
+                    return retrieveCommonExpenseCost(expenseName);
+                })
+                .then((cost: number) => {
+                    this.cost = cost;
+                })
+                .catch((error: Error) => {
+                    this.showError(error);
+                });
+        },
+    },
 };
 
 export default component;
