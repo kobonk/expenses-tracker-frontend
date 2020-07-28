@@ -8,11 +8,13 @@ Vue.config.keyCodes.comma = 188;
 
 export default {
     components: {
-        "auto-complete-field": AutoCompleteField
+        "auto-complete-field": AutoCompleteField,
     },
     computed: {
         existingTagNames(): String[] {
-            return this.registeredTags.map((tag: ExpenseTag): String => tag.getName());
+            return this.registeredTags.map(
+                (tag: ExpenseTag): String => tag.getName()
+            );
         },
         tag: {
             get() {
@@ -20,7 +22,10 @@ export default {
             },
             set(newTagName: string) {
                 if (newTagName.endsWith(",")) {
-                    const tagName = newTagName.substring(0, newTagName.length - 1);
+                    const tagName = newTagName.substring(
+                        0,
+                        newTagName.length - 1
+                    );
 
                     this.appendTag(this.createTagFromName(tagName));
 
@@ -28,18 +33,20 @@ export default {
                 }
 
                 this.temporaryTagName = newTagName;
-            }
-        }
+            },
+        },
     },
     data() {
         return {
-            temporaryTagName: "" as String
-        }
+            temporaryTagName: "" as String,
+        };
     },
     methods: {
         appendTag(tag: ExpenseTag) {
             if (!this.tags.includes(tag)) {
-                this.tags = [...this.tags, tag].filter((tag : ExpenseTag) => tag);
+                this.tags = [...this.tags, tag].filter(
+                    (tag: ExpenseTag) => tag
+                );
             }
 
             this.$emit("change", this.tags);
@@ -47,10 +54,13 @@ export default {
             this.temporaryTagName = "";
         },
         createTagFromName(tagName: string): ExpenseTag {
-            const matchingTags = this.registeredTags
-                .filter((existingTag: ExpenseTag) => existingTag.getName() === tagName);
+            const matchingTags = this.registeredTags.filter(
+                (existingTag: ExpenseTag) => existingTag.getName() === tagName
+            );
 
-            return matchingTags.length > 0 ? matchingTags[0] : new ExpenseTag(undefined, tagName);
+            return matchingTags.length > 0
+                ? matchingTags[0]
+                : new ExpenseTag(undefined, tagName);
         },
         onChange(tagName: string) {
             this.appendTag(this.createTagFromName(tagName));
@@ -59,22 +69,25 @@ export default {
             (event.target as HTMLInputElement).focus();
         },
         removeTag(tagIndex: number, event: Event) {
-            this.tags = [...this.tags.slice(0, tagIndex), ...this.tags.slice(tagIndex + 1)];
+            this.tags = [
+                ...this.tags.slice(0, tagIndex),
+                ...this.tags.slice(tagIndex + 1),
+            ];
 
             this.$emit("change", this.tags);
-        }
+        },
     },
-    inheritAttrs: true,
+    inheritAttrs: false,
     props: {
         placeholder: String,
         tags: {
             default: [],
-            type: Array
+            type: Array,
         },
         registeredTags: {
             default: [],
-            type: Array
-        }
+            type: Array,
+        },
     },
     template: `
         <div class="input-field input-tags" @click="onClick">
@@ -91,6 +104,7 @@ export default {
                 >&times;</button>
             </span>
             <auto-complete-field
+                v-bind="$attrs"
                 v-model.lazy="tag"
                 :items="existingTagNames"
                 :keepFocus="true"
@@ -100,5 +114,5 @@ export default {
                 name="tags">
             </auto-complete-field>
         </div>
-    `
+    `,
 };
