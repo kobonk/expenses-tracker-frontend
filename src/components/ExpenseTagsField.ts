@@ -111,8 +111,7 @@ export default {
                 :placeholder="placeholder"
                 @change="onChange"
                 autofocus
-                name="tags"
-                :tabindex="tabindex">
+                name="tags">
             </auto-complete-field>
         </div>
     `,
