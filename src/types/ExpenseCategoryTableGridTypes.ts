@@ -1,156 +1,171 @@
-import ExpenseCategory from "types/ExpenseCategory";
-import MonthTotal from "types/MonthTotal";
-import { DataTableRecord } from "./../types/DataTableTypes";
-import { formatNumber } from "utils/stringUtils";
-import { timeThursday } from "d3";
+import ExpenseCategory from 'types/ExpenseCategory';
+import MonthTotal from 'types/MonthTotal';
+import { DataTableRecord } from './../types/DataTableTypes';
+import { formatNumber } from 'utils/stringUtils';
+import { timeThursday } from 'd3';
 
 export class BaseCategoryGridCell implements DataTableRecord {
-    public getName() : string {
-        throw new Error("Not Implemented");
-    }
+  public getName(): string | number {
+    throw new Error('Not Implemented');
+  }
 
-    public getType() : string {
-        return "text";
-    }
+  public getType(): string {
+    return 'text';
+  }
 
-    public getValue() : string {
-        return this.getName();
-    }
+  public getValue(): string | number {
+    return this.getName();
+  }
 
-    public isClickable() : boolean {
-        return false;
-    }
+  public isClickable(): boolean {
+    return false;
+  }
 
-    public isEditable() : boolean {
-        return false;
-    }
+  public isEditable(): boolean {
+    return false;
+  }
 
-    public onClick() : void {
-        throw new Error("Not Implemented");
-    }
+  public onClick(): void {
+    throw new Error('Not Implemented');
+  }
 
-    public toString() : string {
-        return this.getName();
-    }
+  public toString(): string {
+    return `${this.getName()}`;
+  }
 }
 
 export class CategoryHeaderGridCell extends BaseCategoryGridCell {
-    private label : string
-    private cellClickCallback : Function | null
+  private label: string;
+  private cellClickCallback: Function | null;
 
-    constructor(label : string, cellClickCallback : Function) {
-        super();
-        this.label = label;
-        this.cellClickCallback = cellClickCallback;
-    }
+  constructor(label: string, cellClickCallback: Function) {
+    super();
+    this.label = label;
+    this.cellClickCallback = cellClickCallback;
+  }
 
-    public getName() : string {
-        return this.label;
-    }
+  public getName(): string {
+    return this.label;
+  }
 
-    public isClickable(): boolean {
-        return true;
-    }
+  public isClickable(): boolean {
+    return true;
+  }
 
-    public onClick(): void {
-        this.cellClickCallback();
-    }
+  public onClick(): void {
+    this.cellClickCallback();
+  }
 }
 
 export class CategoryFooterGridCellNumeric extends BaseCategoryGridCell {
-    private total : number
+  private total: number;
 
-    constructor(total : number) {
-        super();
-        this.total = total;
-    }
+  constructor(total: number) {
+    super();
+    this.total = total;
+  }
 
-    public getName() : string {
-        return formatNumber(this.total, 2);
-    }
+  public getName(): string {
+    return formatNumber(this.total, 2);
+  }
 }
 
 export class CategoryFooterGridCellText extends BaseCategoryGridCell {
-    private label : string
+  private label: string;
 
-    constructor(label : string) {
-        super();
-        this.label = label;
-    }
+  constructor(label: string) {
+    super();
+    this.label = label;
+  }
 
-    public getName() : string {
-        return this.label;
-    }
+  public getName(): string {
+    return this.label;
+  }
 }
 
 export class CategoryBodyGridCell extends BaseCategoryGridCell {
-    private category : ExpenseCategory
-    private cellClickCallback : Function | null
-    private monthTotal : MonthTotal | null
+  private category: ExpenseCategory;
+  private cellClickCallback: Function | null;
+  private monthTotal: MonthTotal | null;
 
-    constructor(category : ExpenseCategory, monthTotal : MonthTotal, cellClickCallback : Function) {
-        super();
-        this.category = category;
-        this.monthTotal = monthTotal;
-        this.cellClickCallback = cellClickCallback;
+  constructor(
+    category: ExpenseCategory,
+    monthTotal: MonthTotal,
+    cellClickCallback: Function
+  ) {
+    super();
+    this.category = category;
+    this.monthTotal = monthTotal;
+    this.cellClickCallback = cellClickCallback;
+  }
+
+  public getName(): string {
+    return `${this.category.getId()}${this.monthTotal ? '|' : ''}${
+      this.monthTotal ? this.monthTotal.getMonth() : ''
+    }`;
+  }
+
+  public getType(): string {
+    return 'text';
+  }
+
+  public getValue(): string {
+    return this.monthTotal
+      ? this.monthTotal.getFormattedTotal()
+      : this.category.getName();
+  }
+
+  public isClickable(): boolean {
+    return (
+      this.monthTotal &&
+      this.monthTotal.getTotal() > 0 &&
+      this.monthTotal.getMonth() !== MonthTotal.FAKE_MONTH
+    );
+  }
+
+  public isEditable(): boolean {
+    return false;
+  }
+
+  public onClick(): void {
+    if (!this.isClickable()) {
+      return;
     }
 
-    public getName(): string {
-        return `${ this.category.getId() }${ this.monthTotal ? "|" : "" }${ this.monthTotal ? this.monthTotal.getMonth() : "" }`;
-    }
+    this.cellClickCallback({
+      category: this.category,
+      month: this.monthTotal.getMonth(),
+    });
+  }
 
-    public getType() : string {
-        return "text";
-    }
-
-    public getValue() : string {
-        return this.monthTotal ? this.monthTotal.getFormattedTotal() : this.category.getName();
-    }
-
-    public isClickable(): boolean {
-        return this.monthTotal && this.monthTotal.getTotal() > 0 && this.monthTotal.getMonth() !== MonthTotal.FAKE_MONTH;
-    }
-
-    public isEditable(): boolean {
-        return false;
-    }
-
-    public onClick(): void {
-        if (!this.isClickable()) {
-            return;
-        }
-
-        this.cellClickCallback({ category: this.category, month: this.monthTotal.getMonth() });
-    }
-
-    public toString(): string {
-        return this.getName();
-    }
+  public toString(): string {
+    return this.getName();
+  }
 }
 
 export class CategoryBodyGridCellCheckbox extends BaseCategoryGridCell {
-    private value : string
-    private cellClickCallback : Function | null
+  private value: string | number;
+  private cellClickCallback: Function | null;
 
-    constructor(value : string, cellClickCallback : Function) {
-        super();
-        this.value = value;
-        this.cellClickCallback = cellClickCallback;
-    }
+  constructor(value: string | number, cellClickCallback: Function) {
+    super();
+    this.value = value;
+    this.cellClickCallback = cellClickCallback;
+  }
 
-    public getName() : string {
-        return this.value;
-    }
+  public getName(): string | number {
+    return this.value;
+  }
 
-    public getType() : string {
-        return "checkbox";
-    }
+  public getType(): string {
+    return 'checkbox';
+  }
 
-    public isClickable(): boolean {
-        return true;
-    }
+  public isClickable(): boolean {
+    return true;
+  }
 
-    public onClick(): void {
-        this.cellClickCallback(this.value);
-    }
+  public onClick(): void {
+    this.cellClickCallback(this.value);
+  }
 }

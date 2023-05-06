@@ -1,0 +1,12 @@
+# Docker files
+.dockerignore
+Dockerfile
+
+# Git repository details
+.git
+.gitignore
+
+# IDE
+.vscode
+
+node_modules

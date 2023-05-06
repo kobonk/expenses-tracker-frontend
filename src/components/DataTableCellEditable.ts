@@ -1,55 +1,59 @@
-import { InputDate, InputNumber, InputText } from "./input";
+import { InputDate, InputNumber, InputText } from './input';
 
 export default {
-    components: {
-        "input-date": InputDate,
-        "input-number": InputNumber,
-        "input-text": InputText
-    },
-    data() {
-        return {
-            editing: false
-        }
-    },
-    methods: {
-        onClick() {
-            this.editing = true;
+  components: {
+    'input-date': InputDate,
+    'input-number': InputNumber,
+    'input-text': InputText,
+  },
+  data() {
+    return {
+      editing: false,
+    };
+  },
+  methods: {
+    onClick() {
+      this.editing = true;
 
-            if (typeof this.onEnter === "function") {
-                this.onEnter();
-            }
-        },
-        onExit() {
-            this.editing = false;
-        },
-        onFieldUpdated(value: any) {
-            if ((typeof this.onChange === "function") && this.value !== value) {
-                this.onChange(value);
-            }
+      if (typeof this.onEnter === 'function') {
+        this.onEnter();
+      }
+    },
+    onExit() {
+      this.editing = false;
+    },
+    onFieldUpdated(value: any) {
+      if (typeof this.onChange === 'function' && this.value !== value) {
+        if (typeof value === 'number') {
+          this.onChange(parseInt(`${value}`.replace(/\D+/g, '')));
+        } else {
+          this.onChange(value);
+        }
+      }
 
-            this.onExit();
-        }
+      this.onExit();
     },
-    props: {
-        currentlyEdited: {
-            required: true,
-            type: Boolean
-        },
-        value: {
-            required: true
-        },
-        format: {
-            required: true,
-            type: String
-        },
-        onChange: {
-            type: Function
-        },
-        onEnter: {
-            type: Function
-        }
+  },
+  props: {
+    currentlyEdited: {
+      required: true,
+      type: Boolean,
     },
-    template: `
+    value: {
+      required: true,
+    },
+    format: {
+      required: true,
+      type: String,
+    },
+    onChange: {
+      type: Function,
+    },
+    onEnter: {
+      type: Function,
+    },
+  },
+  template: `
         <span
             class="clickable"
             @click="onClick()"
@@ -79,11 +83,11 @@ export default {
             :on-exit="onExit"
         />
     `,
-    watch: {
-        currentlyEdited(isEdited : boolean) {
-            if (!isEdited) {
-                this.editing = false;
-            }
-        }
-    }
+  watch: {
+    currentlyEdited(isEdited: boolean) {
+      if (!isEdited) {
+        this.editing = false;
+      }
+    },
+  },
 };

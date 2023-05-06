@@ -1,10 +1,10 @@
-import config from "config.json";
-import ExpenseCategory from "types/ExpenseCategory";
-import Expense from "types/Expense";
-import ExpenseTag from "types/ExpenseTag";
+import config from 'config.json';
+import ExpenseCategory from 'types/ExpenseCategory';
+import Expense, { ExpenseDto } from 'types/Expense';
+import ExpenseTag from 'types/ExpenseTag';
 
-const _ = require("lodash");
-const axios = require("axios");
+const _ = require('lodash');
+const axios = require('axios');
 
 const backendUrl = (config as any).backendUrl;
 const categoriesUrl: string = `${backendUrl}/categories`;
@@ -78,8 +78,8 @@ export const persistExpense: Function = async (
 };
 
 export const updateExpense: Function = async (
-  expenseId: string,
-  changes: Object
+  expenseId: number,
+  changes: Partial<ExpenseDto>
 ): Promise<Expense> => {
   let response = await axios.patch(
     `${backendUrl}/expense/${expenseId}`,

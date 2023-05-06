@@ -1,20 +1,20 @@
 export default {
-    inheritAttrs: true,
-    props: {
-        checked: {
-            required: true,
-            type: Boolean
-        },
-        onChange: {
-            required: true,
-            type: Function
-        },
-        value: {
-            required: true,
-            type: String
-        }
+  inheritAttrs: true,
+  props: {
+    checked: {
+      required: true,
+      type: Boolean,
     },
-    template: `
+    onChange: {
+      required: true,
+      type: Function,
+    },
+    value: {
+      required: true,
+      type: Number,
+    },
+  },
+  template: `
         <input
             class="input-field input-checkbox"
             ref="input"
@@ -22,5 +22,5 @@ export default {
             :checked="checked"
             :value="value"
             @change="onChange"
-        />`
+        />`,
 };

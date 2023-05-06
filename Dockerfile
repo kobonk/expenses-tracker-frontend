@@ -3,10 +3,10 @@ FROM node:14 AS build
 LABEL maintainer="kobonk@kobonk.pl"
 
 WORKDIR /usr/src/app
-COPY package.json package-lock.json ./
-
-RUN npm ci
 COPY . .
+
+# Build stage
+RUN npm ci
 RUN npm run-script build
 
 # Deployment stage

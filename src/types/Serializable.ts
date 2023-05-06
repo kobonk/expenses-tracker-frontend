@@ -1,3 +1,3 @@
-export default interface Serializable {
-    toAsset():any;
+export default interface Serializable<T> {
+  toAsset(): T;
 }
