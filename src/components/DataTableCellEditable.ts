@@ -24,10 +24,14 @@ export default {
     },
     onFieldUpdated(value: any) {
       if (typeof this.onChange === 'function' && this.value !== value) {
-        if (typeof value === 'number') {
+        if (typeof value !== 'number') {
+          this.onChange(value);
+        }
+
+        if (/\.|\,/g.test(`${value}`)) {
           this.onChange(parseInt(`${value}`.replace(/\D+/g, '')));
         } else {
-          this.onChange(value);
+          this.onChange(parseInt(`${value * 100}`.replace(/\D+/g, '')));
         }
       }
 
