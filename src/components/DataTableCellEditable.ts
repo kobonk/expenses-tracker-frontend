@@ -29,9 +29,9 @@ export default {
         }
 
         if (/\.|\,/g.test(`${value}`)) {
-          this.onChange(parseInt(`${value}`.replace(/\D+/g, '')));
+          this.onChange(parseFloat(value.toFixed(2).replace(/\D+/g, '')));
         } else {
-          this.onChange(parseInt(`${value * 100}`.replace(/\D+/g, '')));
+          this.onChange(Math.round(value * 100));
         }
       }
 
